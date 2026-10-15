@@ -6,7 +6,14 @@
         <title>PAWGRAMMED</title>
         <link rel="stylesheet" href="style.css">
     </head>
-    <body>
+    <body class="intro-active">
+        <div class="intro-overlay" id="introOverlay">
+            <div class="intro-paw-container">
+                <img src="images/paw-print-inverted.png" alt="Paw print" class="intro-paw" id="introPaw">
+            </div>
+            <div class="intro-hint" id="introHint">scroll to enter</div>
+            <div class="intro-flash" id="introFlash"></div>
+        </div>
         <header class="topbar">
             <a href="#" class="pawgrammed">PAWGRAMMED</a>
         </header>
@@ -121,5 +128,6 @@
             </div>
         </section>
         <script src="faq.js"></script>
+        <script src="intro.js"></script>
     </body>
 </html>

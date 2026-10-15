@@ -21,9 +21,83 @@ html {
 }
 
 body {
+    margin: 0;
     font-family: 'main';
     font-size: 20px;
-    line-height: 1.6
+    line-height: 1.6;
+}
+
+body.intro-active {
+    overflow: hidden;
+    height: 100vh;
+}
+
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.intro-paw-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.intro-paw {
+    width: clamp(260px, 40vmin, 440px);
+    height: clamp(260px, 40vmin, 440px);
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.9);
+    transform-origin: 50.5% 66.4%;
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+
+.intro-paw.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.intro-hint {
+    position: absolute;
+    bottom: 40px;
+    font-family: 'main';
+    font-size: 18px;
+    color: #fff;
+    opacity: 0;
+    letter-spacing: 1.5px;
+    transition: opacity 0.5s ease-out;
+    pointer-events: none;
+}
+
+.intro-hint.visible {
+    opacity: 0.6;
+}
+
+.intro-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-out;
 }
 
 .hero-bottom p,
@@ -42,29 +116,29 @@ button {
 
 .topbar {
     width: 100%;
-    padding: 25px 35px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 20px;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    position: relative;
+    justify-content: center;
+    align-items: center;
 }
 
 .pawgrammed {
     font-family: "Paw", sans-serif;
-    font-size: clamp(40px, 7vw, 100px);
+    font-size: clamp(48px, 10.5vw, 140px);
     line-height: 1;
     letter-spacing: 3px;
     color: #211d1b;
     text-align: center;
-    white-space: nowrap;
-    width: 100%;
+    display: inline-block;
     margin: 0;
 }
 
 .submit-box {
     max-width: 600px;
     width: 85%;
-    margin: 40px auto;
+    margin: 75px auto 50px;
     padding: 35px;
 
     background-color: #fff8f0;

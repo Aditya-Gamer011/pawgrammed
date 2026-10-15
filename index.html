@@ -37,44 +37,95 @@
                 </svg>
             </a>
         </header>
-        <section class="hero">
-            <div class="submit-box">
-                <p>Code a project related to furries using any tools you like, and get cool prizes!</p>
-            <button class="submit-button">SUBMIT PROJECT</button>
+        <section class="how-it-works" id="howItWorks">
+            <div class="pathway-header">
+                <h2>How does this work?</h2>
             </div>
-        </section>
-        <section class="how-it-works">
-            <h2>how it works</h2>
-            <div class="steps">
-                <div class="step">
-                    <span class="step-number">01</span>
-                    <h3>join the pack</h3>
-                    <p>Join us on <a href="https://hackclub.enterprise.slack.com/archives/C0C5HMQE9RD">Slack</a> and meet the others</p>
-                    <p class="aside">come yap, lurk or sit in the corner!</p>
+            <div class="pathway-wrap">
+                <svg class="pathway-svg" id="pathwaySvg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <g id="pawPrintDef">
+                            <image href="images/paw-print-icon.png" width="26" height="26" x="-13" y="-13"></image>
+                        </g>
+                    </defs>
+                    <path class="pathway-trail" id="pathwayTrail" d="" fill="none" />
+                    <g class="pathway-paws" id="pathwayPaws"></g>
+                </svg>
+
+                <div class="pathway-steps">
+                    <div class="pathway-stop stop-text-left" data-step="1">
+                        <div class="stop-side stop-text-side">
+                            <div class="stop-text">
+                                <h3>join the pack</h3>
+                                <p>Join us on <a href="https://hackclub.enterprise.slack.com/archives/C0C5HMQE9RD" target="_blank" rel="noopener noreferrer">Slack</a> and meet the others</p>
+                                <p class="stop-aside">come yap, lurk or sit in the corner!</p>
+                            </div>
+                        </div>
+                        <div class="stop-node">
+                            <span class="node-circle">01</span>
+                        </div>
+                        <div class="stop-side stop-empty"></div>
+                    </div>
+
+                    <div class="pathway-stop stop-text-right" data-step="2">
+                        <div class="stop-side stop-empty"></div>
+                        <div class="stop-node">
+                            <span class="node-circle">02</span>
+                        </div>
+                        <div class="stop-side stop-text-side">
+                            <div class="stop-text">
+                                <h3>Make stuff</h3>
+                                <p>Build a game, website, tool, or whatever your brain comes up with.</p>
+                                <p class="stop-aside">gotta be furry-related.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pathway-stop stop-text-left" data-step="3">
+                        <div class="stop-side stop-text-side">
+                            <div class="stop-text">
+                                <h3>Track your hours</h3>
+                                <p>Turn on Hackatime before you start coding.</p>
+                                <p class="stop-aside">staring at your code for 3 hours wondering why it's broken is unfortunately just part of the experience.</p>
+                            </div>
+                        </div>
+                        <div class="stop-node">
+                            <span class="node-circle">03</span>
+                        </div>
+                        <div class="stop-side stop-empty"></div>
+                    </div>
+
+                    <div class="pathway-stop stop-text-right" data-step="4">
+                        <div class="stop-side stop-empty"></div>
+                        <div class="stop-node">
+                            <span class="node-circle">04</span>
+                        </div>
+                        <div class="stop-side stop-text-side">
+                            <div class="stop-text">
+                                <h3>Drop the build</h3>
+                                <p>Show us what you've been cooking!</p>
+                                <p class="stop-aside">we don't like gatekeepers!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pathway-stop stop-text-left" data-step="5">
+                        <div class="stop-side stop-text-side">
+                            <div class="stop-text">
+                                <h3>Claim the goods</h3>
+                                <p>Trade your hard-earned hours for prizes.</p>
+                                <p class="stop-aside">the fursuit is NOT gonna fund itself.</p>
+                            </div>
+                        </div>
+                        <div class="stop-node">
+                            <span class="node-circle">05</span>
+                        </div>
+                        <div class="stop-side stop-empty"></div>
+                    </div>
                 </div>
-                <div class="step">
-                    <span class="step-number">02</span>
-                    <h3>Make stuff</h3>
-                    <p>Build a game, website, tool, or whatever your brain comes up with.</p>
-                    <p class="aside">gotta be furry-related.</p>
-                </div>
-                <div class="step">
-                    <span class="step-number">03</span>
-                    <h3>Track your hours</h3>
-                    <p>Turn on Hackatime before you start coding.</p>
-                    <p class="aside">staring at your code for 3 hours wondering why it's broken is unfortunately just part of the experience.</p>
-                </div>
-                <div class="step">
-                    <span class="step-number">04</span>
-                    <h3>Drop the build</h3>
-                    <p>Show us what you've been cooking!</p>
-                    <p class="aside">we don't like gatekeepers!</p>
-                </div>
-                <div class="step">
-                    <span class="step-number">05</span>
-                    <h3>Claim the goods</h3>
-                    <p>Trade your hard-earned hours for prizes.</p>
-                    <p class="aside">the fursuit is NOT gonna fund itself.</p>
+
+                <div class="pathway-footer">
+                    <a href="https://auth.hackclub.com" class="pathway-submit-btn" target="_blank" rel="noopener noreferrer">Submit Project &rarr;</a>
                 </div>
             </div>
         </section>
@@ -144,11 +195,12 @@
                     <span>Do I need Hackatime?</span>
                     <span class="faq-arrow">↓</span>
                 </button>
-                <div class="faq-answer">Non-negotiable! It tracks the amount of time you spent on your project, without it we can't give yu any prizes.</div>
+                <div class="faq-answer">Non-negotiable! It tracks the amount of time you spent on your project, without it we can't give you any prizes.</div>
             </div>
         </section>
         <script src="faq.js"></script>
         <script src="intro.js"></script>
         <script src="tail.js"></script>
+        <script src="pathway.js"></script>
     </body>
 </html>

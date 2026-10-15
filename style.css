@@ -8,6 +8,24 @@
     src: url("main.ttf") format("truetype");
 }
 
+@font-face {
+    font-family: "Fredoka";
+    font-weight: 400;
+    src: url("fredoka-regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Fredoka";
+    font-weight: 600;
+    src: url("fredoka-semibold.ttf") format("truetype");
+}
+
+:root {
+    --font-display: "Paw", sans-serif;
+    --font-heading: "main", cursive, sans-serif;
+    --font-body: "Fredoka", sans-serif;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -22,9 +40,16 @@ html {
 
 body {
     margin: 0;
-    font-family: 'main';
-    font-size: 20px;
+    font-family: var(--font-body);
+    font-size: 19px;
     line-height: 1.6;
+    color: #211d1b;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-heading);
+    font-weight: normal;
+    letter-spacing: 0.5px;
 }
 
 body.intro-active {
@@ -75,8 +100,8 @@ body.intro-active {
 .intro-hint {
     position: absolute;
     bottom: 40px;
-    font-family: 'main';
-    font-size: 18px;
+    font-family: var(--font-body);
+    font-size: 17px;
     color: #fff;
     opacity: 0;
     letter-spacing: 1.5px;
@@ -98,11 +123,6 @@ body.intro-active {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease-out;
-}
-
-.hero-bottom p,
-.button {
-    font-family: 'main';
 }
 
 a {
@@ -134,7 +154,7 @@ button {
 }
 
 .pawgrammed {
-    font-family: "Paw", sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(48px, 10.5vw, 140px);
     line-height: 1;
     letter-spacing: 3px;
@@ -145,9 +165,11 @@ button {
 }
 
 .hero-subtext {
-    font-family: 'main';
-    font-size: clamp(24px, 3.4vw, 38px);
-    line-height: 1.4;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: clamp(22px, 3.2vw, 34px);
+    line-height: 1.35;
+    letter-spacing: 0.2px;
     color: #211d1b;
     margin: 22px 0 0;
     text-align: center;
@@ -169,7 +191,8 @@ button {
     background-color: #fff8f0;
     border: 2px solid #211d1b;
     border-radius: 14px;
-    font-family: 'main';
+    font-family: var(--font-body);
+    font-weight: 400;
     font-size: 18px;
     color: #211d1b;
     text-align: center;
@@ -193,9 +216,10 @@ button {
     color: #fff8f0;
     border: 2px solid #211d1b;
     border-radius: 14px;
-    font-family: 'main';
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     display: flex;
@@ -212,6 +236,40 @@ button {
 
 .hero-start-btn:active {
     transform: translateY(1px);
+}
+
+.hero-credits {
+    margin: 18px 0 0;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: #211d1b;
+    opacity: 0.8;
+    text-align: center;
+    letter-spacing: 0.2px;
+}
+
+.hero-credits strong {
+    font-weight: 600;
+    opacity: 1;
+}
+
+.hero-credits .heart-icon {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    vertical-align: -2px;
+    display: inline-block;
+    margin: 0 2px;
+}
+
+.hero-credits a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.hero-credits a:hover {
+    opacity: 0.7;
 }
 
 .nav-login {
@@ -238,9 +296,10 @@ button {
     display: inline-block;
     background-color: #211d1b;
     color: #fff8f0;
-    font-family: 'main';
+    font-family: var(--font-body);
     font-size: 17px;
-    font-weight: bold;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     padding: 12px 26px;
     border-radius: 18px;
     border: 2px solid #211d1b;
@@ -294,6 +353,11 @@ button {
         font-size: 16px;
         padding: 9px 14px;
         border-radius: 12px;
+    }
+
+    .hero-credits {
+        margin-top: 14px;
+        font-size: 14px;
     }
 }
 
@@ -490,6 +554,7 @@ button {
     color: #211d1b;
     font: inherit;
     font-size: 20px;
+    font-weight: 600;
     text-align: left;
     cursor: pointer;
 }

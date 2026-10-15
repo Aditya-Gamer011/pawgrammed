@@ -122,6 +122,15 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+}
+
+.hero-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transform: translateY(clamp(32px, 5vh, 60px));
 }
 
 .pawgrammed {
@@ -133,6 +142,159 @@ button {
     text-align: center;
     display: inline-block;
     margin: 0;
+}
+
+.hero-subtext {
+    font-family: 'main';
+    font-size: clamp(24px, 3.4vw, 38px);
+    line-height: 1.4;
+    color: #211d1b;
+    margin: 22px 0 0;
+    text-align: center;
+}
+
+.hero-auth-form {
+    width: 90%;
+    max-width: 340px;
+    margin-top: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.hero-email-input {
+    width: 100%;
+    padding: 10px 18px;
+    background-color: #fff8f0;
+    border: 2px solid #211d1b;
+    border-radius: 14px;
+    font-family: 'main';
+    font-size: 18px;
+    color: #211d1b;
+    text-align: center;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+}
+
+.hero-email-input::placeholder {
+    color: #211d1b;
+    opacity: 0.45;
+}
+
+.hero-email-input:focus {
+    box-shadow: 0 0 0 3px rgba(33, 29, 27, 0.2);
+}
+
+.hero-start-btn {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #211d1b;
+    color: #fff8f0;
+    border: 2px solid #211d1b;
+    border-radius: 14px;
+    font-family: 'main';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.hero-start-btn:hover {
+    background-color: #fff8f0;
+    color: #211d1b;
+    transform: translateY(-2px);
+}
+
+.hero-start-btn:active {
+    transform: translateY(1px);
+}
+
+.nav-login {
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    z-index: 100;
+    display: inline-block;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.2s ease;
+}
+
+.nav-login:hover {
+    transform: translateY(-2px);
+}
+
+.nav-login:active {
+    transform: translateY(1px);
+}
+
+.nav-login-btn {
+    display: inline-block;
+    background-color: #211d1b;
+    color: #fff8f0;
+    font-family: 'main';
+    font-size: 17px;
+    font-weight: bold;
+    padding: 12px 26px;
+    border-radius: 18px;
+    border: 2px solid #211d1b;
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.nav-login:hover .nav-login-btn {
+    background-color: #2e2825;
+}
+
+.nav-login-tail {
+    position: absolute;
+    top: calc(100% - 6px);
+    left: 14px;
+    width: calc(100% - 24px);
+    max-width: 215px;
+    height: auto;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+}
+
+@media (max-width: 600px) {
+    .nav-login {
+        top: 15px;
+        right: 15px;
+    }
+
+    .nav-login-btn {
+        font-size: 14px;
+        padding: 9px 18px;
+        border-radius: 14px;
+    }
+
+    .nav-login-tail {
+        left: 10px;
+        width: calc(100% - 16px);
+    }
+
+    .hero-auth-form {
+        max-width: 300px;
+        margin-top: 20px;
+        gap: 8px;
+    }
+
+    .hero-email-input,
+    .hero-start-btn {
+        font-size: 16px;
+        padding: 9px 14px;
+        border-radius: 12px;
+    }
 }
 
 .submit-box {

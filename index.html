@@ -15,7 +15,23 @@
             <div class="intro-flash" id="introFlash"></div>
         </div>
         <header class="topbar">
-            <a href="#" class="pawgrammed">PAWGRAMMED</a>
+            <div class="hero-brand">
+                <a href="#" class="pawgrammed">PAWGRAMMED</a>
+                <p class="hero-subtext">
+                    Ship furry related projects.<br>
+                    Get furry related prizes.
+                </p>
+                <form class="hero-auth-form" action="https://auth.hackclub.com" method="GET">
+                    <input type="email" name="email" class="hero-email-input" placeholder="you@example.com" autocomplete="email">
+                    <button type="submit" class="hero-start-btn">Start &rarr;</button>
+                </form>
+            </div>
+            <a href="https://auth.hackclub.com" class="nav-login" target="_blank" rel="noopener noreferrer">
+                <span class="nav-login-btn">Login with Hack Club</span>
+                <svg class="nav-login-tail" viewBox="0 -8 215 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path id="navTailPath" d="M 14.0,0.0 C 14.7,3.0 14.5,12.2 18.0,18.0 C 21.5,23.8 27.7,30.5 35.0,35.0 C 42.3,39.5 52.0,44.7 62.0,45.0 C 72.0,45.3 84.0,39.7 95.0,37.0 C 106.0,34.3 117.2,29.7 128.0,29.0 C 138.8,28.3 150.3,31.2 160.0,33.0 C 169.7,34.8 181.7,38.8 186.0,40.0" stroke="#211d1b" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </a>
         </header>
         <section class="hero">
             <div class="submit-box">
@@ -129,5 +145,6 @@
         </section>
         <script src="faq.js"></script>
         <script src="intro.js"></script>
+        <script src="tail.js"></script>
     </body>
 </html>

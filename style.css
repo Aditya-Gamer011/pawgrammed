@@ -362,23 +362,23 @@ button {
 }
 
 .how-it-works {
-    max-width: 1060px;
+    max-width: 920px;
     width: 90%;
-    margin: 80px auto 110px;
+    margin: 60px auto 80px;
     color: #211d1b;
     position: relative;
 }
 
 .pathway-header {
     text-align: center;
-    margin-bottom: 70px;
+    margin-bottom: 45px;
     position: relative;
     z-index: 2;
 }
 
 .pathway-header h2 {
     font-family: var(--font-heading);
-    font-size: clamp(38px, 5.5vw, 62px);
+    font-size: clamp(30px, 4vw, 46px);
     font-weight: normal;
     letter-spacing: 0.5px;
     margin: 0;
@@ -413,36 +413,36 @@ button {
 .pathway-steps {
     display: flex;
     flex-direction: column;
-    gap: 70px;
+    gap: 45px;
     position: relative;
     z-index: 2;
 }
 
 .pathway-stop {
     display: grid;
-    grid-template-columns: 1fr 90px 1fr;
+    grid-template-columns: 1fr 75px 1fr;
     align-items: center;
     position: relative;
 }
 
 .pathway-stop[data-step="1"] .stop-node {
-    transform: translateX(28px);
+    transform: translateX(20px);
 }
 
 .pathway-stop[data-step="2"] .stop-node {
-    transform: translateX(-32px);
+    transform: translateX(-24px);
 }
 
 .pathway-stop[data-step="3"] .stop-node {
-    transform: translateX(32px);
+    transform: translateX(24px);
 }
 
 .pathway-stop[data-step="4"] .stop-node {
-    transform: translateX(-28px);
+    transform: translateX(-20px);
 }
 
 .pathway-stop[data-step="5"] .stop-node {
-    transform: translateX(24px);
+    transform: translateX(18px);
 }
 
 .stop-node {
@@ -454,22 +454,17 @@ button {
 }
 
 .node-circle {
-    width: 58px;
-    height: 58px;
+    width: 48px;
+    height: 48px;
     background: url("images/Ellipse 1.png") no-repeat center / contain;
     color: #fff8f0;
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     filter: drop-shadow(0 4px 10px rgba(33, 29, 27, 0.2));
-    transition: transform 0.25s ease;
     user-select: none;
-}
-
-.pathway-stop:hover .node-circle {
-    transform: scale(1.12);
 }
 
 .stop-side {
@@ -481,55 +476,109 @@ button {
 
 .stop-text-left .stop-text-side {
     justify-content: flex-end;
-}
-
-.stop-text-left .stop-text {
-    text-align: right;
-    max-width: 400px;
     padding-right: 25px;
 }
 
 .stop-text-right .stop-text-side {
     justify-content: flex-start;
-}
-
-.stop-text-right .stop-text {
-    text-align: left;
-    max-width: 400px;
     padding-left: 25px;
 }
 
-.stop-text h3 {
-    font-family: var(--font-heading);
-    font-size: clamp(24px, 3.2vw, 32px);
-    font-weight: normal;
-    margin: 0 0 10px;
-    color: #211d1b;
+.stop-card {
+    background-color: #fff8f0;
+    border: 2px solid #211d1b;
+    border-radius: 15px;
+    padding: 18px 22px;
+    box-shadow: 0 4px 0 rgba(33, 29, 27, 0.12);
+    max-width: 360px;
+    width: 100%;
+    text-align: left;
 }
 
-.stop-text p {
-    font-family: var(--font-body);
-    font-size: 19px;
-    line-height: 1.5;
+.stop-card h3 {
+    font-family: var(--font-heading);
+    font-size: clamp(19px, 2.2vw, 24px);
+    font-weight: normal;
     margin: 0 0 8px;
     color: #211d1b;
 }
 
-.stop-text a {
+.stop-card p {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.45;
+    margin: 0 0 6px;
+    color: #211d1b;
+}
+
+.stop-card a {
     color: inherit;
     text-decoration: underline;
     font-weight: 600;
 }
 
-.stop-text a:hover {
+.stop-card a:hover {
     opacity: 0.75;
 }
 
-.stop-text .stop-aside {
-    font-size: 16px;
+.stop-card .stop-aside {
+    font-size: 14px;
     opacity: 0.75;
     font-style: italic;
     margin-top: 4px;
+}
+
+.stop-media-side {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 4;
+}
+
+.stop-text-left .stop-media-side {
+    justify-content: flex-start;
+    padding-left: 25px;
+}
+
+.stop-text-right .stop-media-side {
+    justify-content: flex-end;
+    padding-right: 25px;
+}
+
+.rex-mascot {
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(33, 29, 27, 0.16));
+    user-select: none;
+}
+
+.rex-front {
+    max-height: 275px;
+}
+
+.rex-studious {
+    max-height: 190px;
+}
+
+.rex-tired {
+    max-height: 185px;
+}
+
+.step-clock-img {
+    max-height: 145px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(33, 29, 27, 0.16));
+    user-select: none;
+}
+
+.prizes-img {
+    max-height: 235px;
+    max-width: 360px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(33, 29, 27, 0.16));
+    user-select: none;
 }
 
 .stop-empty {
@@ -538,7 +587,7 @@ button {
 
 .pathway-footer {
     text-align: center;
-    margin-top: 70px;
+    margin-top: 50px;
     position: relative;
     z-index: 4;
 }
@@ -548,10 +597,10 @@ button {
     background-color: #211d1b;
     color: #fff8f0;
     font-family: var(--font-body);
-    font-size: 19px;
+    font-size: 17px;
     font-weight: 600;
-    padding: 14px 34px;
-    border-radius: 18px;
+    padding: 11px 28px;
+    border-radius: 15px;
     border: 2px solid #211d1b;
     text-decoration: none;
     box-shadow: 0 4px 14px rgba(33, 29, 27, 0.2);
@@ -566,20 +615,20 @@ button {
 
 @media (max-width: 768px) {
     .pathway-header {
-        margin-bottom: 45px;
+        margin-bottom: 35px;
     }
 
     .pathway-header h2 {
-        font-size: 34px;
+        font-size: 28px;
     }
 
     .pathway-steps {
-        gap: 45px;
+        gap: 35px;
     }
 
     .pathway-stop {
-        grid-template-columns: 52px 1fr;
-        gap: 14px;
+        grid-template-columns: 44px 1fr;
+        gap: 12px;
     }
 
     .stop-node {
@@ -589,9 +638,9 @@ button {
     }
 
     .node-circle {
-        width: 46px;
-        height: 46px;
-        font-size: 20px;
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
     }
 
     .stop-side.stop-text-side {
@@ -601,10 +650,39 @@ button {
         padding: 0 !important;
     }
 
-    .stop-text {
-        text-align: left !important;
-        max-width: 100% !important;
+    .stop-card {
+        padding: 15px 18px;
+        border-radius: 14px;
+        max-width: 100%;
+    }
+
+    .stop-side.stop-media-side {
+        grid-column: 2;
+        grid-row: 2;
+        justify-content: flex-start !important;
         padding: 0 !important;
+        margin-top: 10px;
+    }
+
+    .rex-front {
+        max-height: 200px;
+    }
+
+    .rex-studious {
+        max-height: 145px;
+    }
+
+    .rex-tired {
+        max-height: 145px;
+    }
+
+    .step-clock-img {
+        max-height: 115px;
+    }
+
+    .prizes-img {
+        max-height: 170px;
+        max-width: 270px;
     }
 
     .stop-side.stop-empty {

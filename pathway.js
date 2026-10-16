@@ -32,7 +32,7 @@ function initPathway() {
 
         const pStart = { x: svgW / 2, y: 15 };
         const lastNode = nodeCoords[nodeCoords.length - 1];
-        const pEnd = { x: svgW / 2, y: lastNode.y + 70 };
+        const pEnd = { x: svgW / 2, y: lastNode.y + 55 };
         const allPoints = [pStart, ...nodeCoords, pEnd];
 
         let d = `M ${allPoints[0].x.toFixed(1)} ${allPoints[0].y.toFixed(1)}`;
@@ -56,15 +56,15 @@ function initPathway() {
         if (!totalLen || isNaN(totalLen)) return;
 
         pawsGroup.innerHTML = '';
-        const pawStride = 46;
+        const pawStride = 38;
         let stepCount = 0;
 
-        for (let dist = 24; dist < totalLen - 20; dist += pawStride) {
+        for (let dist = 20; dist < totalLen - 16; dist += pawStride) {
             const pt = trail.getPointAtLength(dist);
 
             let overlap = false;
             for (const n of nodeCoords) {
-                if (Math.hypot(pt.x - n.x, pt.y - n.y) < 36) {
+                if (Math.hypot(pt.x - n.x, pt.y - n.y) < 30) {
                     overlap = true;
                     break;
                 }
@@ -77,7 +77,7 @@ function initPathway() {
             const angleDeg = (angleRad * 180 / Math.PI) + 90;
 
             const isLeft = (stepCount % 2 === 0);
-            const lateralOffset = isLeft ? -9 : 9;
+            const lateralOffset = isLeft ? -7 : 7;
             const normal = angleRad + Math.PI / 2;
             const px = pt.x + Math.cos(normal) * lateralOffset;
             const py = pt.y + Math.sin(normal) * lateralOffset;

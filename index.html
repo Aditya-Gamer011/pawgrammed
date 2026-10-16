@@ -24,13 +24,13 @@
                     Ship furry related projects.<br>
                     Get furry related prizes.
                 </p>
-                <form class="hero-auth-form" action="https://auth.hackclub.com" method="GET">
-                    <input type="email" name="email" class="hero-email-input" placeholder="you@example.com" autocomplete="email">
+                <form class="hero-auth-form" action="/login" method="GET">
+                    <input type="email" name="email" class="hero-email-input" placeholder="you@example.com" autocomplete="email" required>
                     <button type="submit" class="hero-start-btn">Start &rarr;</button>
                 </form>
                 <p class="hero-credits">Made with <img src="images/black-heart-icon.png" alt="heart" class="heart-icon"> by <strong>agm</strong> and <strong>ilovepasta</strong> for <a href="https://hackclub.com" target="_blank" rel="noopener noreferrer">Hack Club</a></p>
             </div>
-            <a href="https://auth.hackclub.com" class="nav-login" target="_blank" rel="noopener noreferrer">
+            <a href="/login" class="nav-login">
                 <span class="nav-login-btn">Login with Hack Club</span>
                 <svg class="nav-login-tail" viewBox="0 -8 215 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path id="navTailPath" d="M 14.0,0.0 C 14.7,3.0 14.5,12.2 18.0,18.0 C 21.5,23.8 27.7,30.5 35.0,35.0 C 42.3,39.5 52.0,44.7 62.0,45.0 C 72.0,45.3 84.0,39.7 95.0,37.0 C 106.0,34.3 117.2,29.7 128.0,29.0 C 138.8,28.3 150.3,31.2 160.0,33.0 C 169.7,34.8 181.7,38.8 186.0,40.0" stroke="#211d1b" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
@@ -135,7 +135,7 @@
                 </div>
 
                 <div class="pathway-footer">
-                    <a href="https://auth.hackclub.com" class="pathway-submit-btn" target="_blank" rel="noopener noreferrer">Submit Project &rarr;</a>
+                    <a href="/login" class="pathway-submit-btn">Submit Project &rarr;</a>
                 </div>
             </div>
         </section>

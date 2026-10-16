@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - PAWGRAMMED</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            @font-face {
+                font-family: "main";
+                src: url("main.ttf") format("truetype");
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: #FFF8EE;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                color: #211d1b;
+                text-align: center;
+                font-family: "Fredoka", sans-serif;
+            }
+
+            .dashboard-card {
+                background-color: #fff8f0;
+                border: 2px solid #211d1b;
+                border-radius: 20px;
+                padding: 40px 32px;
+                max-width: 480px;
+                width: 100%;
+                box-shadow: 0 6px 0 rgba(33, 29, 27, 0.12);
+            }
+
+            h1 {
+                font-family: "main", cursive, sans-serif;
+                font-size: clamp(32px, 5vw, 44px);
+                font-weight: normal;
+                letter-spacing: 0.5px;
+                color: #211d1b;
+                margin-bottom: 16px;
+            }
+
+            .user-info {
+                margin: 20px 0;
+                padding: 16px;
+                background-color: #fae3cb;
+                border: 2px solid #211d1b;
+                border-radius: 14px;
+                font-size: 16px;
+                line-height: 1.5;
+            }
+
+            .user-info strong {
+                font-weight: 600;
+            }
+
+            .dashboard-actions {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                margin-top: 24px;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 10px 22px;
+                border-radius: 14px;
+                border: 2px solid #211d1b;
+                font-family: "Fredoka", sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+                transition: transform 0.2s ease, background-color 0.2s ease;
+                display: inline-block;
+            }
+
+            .btn-primary {
+                background-color: #211d1b;
+                color: #fff8f0;
+            }
+
+            .btn-primary:hover {
+                background-color: #fff8f0;
+                color: #211d1b;
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background-color: #fff8f0;
+                color: #211d1b;
+            }
+
+            .btn-secondary:hover {
+                background-color: #211d1b;
+                color: #fff8f0;
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <main class="dashboard-card">
+            <h1>This works yayayayay</h1>
+            <div class="user-info" id="userBox">
+                Loading your profile...
+            </div>
+            <div class="dashboard-actions">
+                <a href="/" class="btn btn-secondary">&larr; Back to Home</a>
+                <a href="/logout" class="btn btn-primary">Log out</a>
+            </div>
+        </main>
+        <script>
+            fetch('/api/me')
+                .then(res => {
+                    if (!res.ok) throw new Error('Not logged in');
+                    return res.json();
+                })
+                .then(data => {
+                    const u = data.user || {};
+                    const name = u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || u.nickname || 'Hacker';
+                    const email = u.email || u.primary_email || 'No email provided';
+                    const verified = u.verification_status || (u.email_verified ? 'verified' : 'unverified');
+                    document.getElementById('userBox').innerHTML = `
+                        Logged in as <strong>${name}</strong><br>
+                        <span style="opacity: 0.8; font-size: 14px;">${email} (${verified})</span>
+                    `;
+                })
+                .catch(() => {
+                    window.location.href = '/login';
+                });
+        </script>
+    </body>
+</html>

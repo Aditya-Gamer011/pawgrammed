@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>404 - PAWGRAMMED</title>
+        <style>
+            @font-face {
+                font-family: "main";
+                src: url("main.ttf") format("truetype");
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: #FFF8EE;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                color: #211d1b;
+                text-align: center;
+            }
+
+            .error-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                color: inherit;
+            }
+
+            .rex-img {
+                width: 100%;
+                max-width: 280px;
+                height: auto;
+                object-fit: contain;
+                user-select: none;
+            }
+
+            .error-text {
+                font-family: "main", cursive, sans-serif;
+                font-size: clamp(28px, 4.5vw, 42px);
+                font-weight: normal;
+                letter-spacing: 0.5px;
+                margin-top: 24px;
+                color: #211d1b;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/" class="error-content">
+            <img src="images/rex-studious.png" alt="Rex studious" class="rex-img">
+            <h1 class="error-text">This doesn't look right</h1>
+        </a>
+    </body>
+</html>

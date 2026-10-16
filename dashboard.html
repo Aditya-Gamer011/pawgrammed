@@ -1202,6 +1202,72 @@
                 border: 1px solid #c3e6cb;
             }
 
+            .project-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 14px;
+                width: 100%;
+            }
+
+            .project-card {
+                background-color: #fffaf2;
+                border: 2px dashed #cca98b;
+                border-radius: 16px;
+                padding: 14px 16px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 10px;
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .project-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 14px rgba(33, 29, 27, 0.08);
+            }
+
+            .status-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 3px 9px;
+                border-radius: 999px;
+                font-family: "Fredoka", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: capitalize;
+            }
+
+            .status-pill.draft {
+                background-color: #f0ede8;
+                color: #665b53;
+                border: 1px solid #d9d2c9;
+            }
+
+            .status-pill.submitted, .status-pill.queued {
+                background-color: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeeba;
+            }
+
+            .status-pill.approved, .status-pill.sent {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .status-pill.changes_requested, .status-pill.held {
+                background-color: #e8e4f5;
+                color: #4c3575;
+                border: 1px solid #d3cbed;
+            }
+
+            .status-pill.rejected, .status-pill.error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
             @media (max-width: 820px) {
                 .shop-grid {
                     grid-template-columns: repeat(2, 1fr);
@@ -1455,19 +1521,54 @@
                     </section>
 
                     <section class="tab-pane" id="pane-projects">
-                        <div class="placeholder-card">
-                            <img src="images/dash-icons/projects-icon.png" class="placeholder-icon" alt="">
-                            <h2 class="pane-heading">Your Projects</h2>
-                            <p style="color: #6a5e56; max-width: 480px;">No projects created yet. Start a new project to connect with Hackatime and begin logging hours!</p>
-                            <button class="btn btn-primary" onclick="alert('Project creation is coming right up in the next step!')">+ Create New Project</button>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Your Projects</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Build and ship furry-themed creations. Log your hours via Hackatime and submit to claim rewards.</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
+                            </div>
+
+                            <div id="eventAnnouncementBanner" style="display: none; background: #fffaf2; border: 2px dashed #ff8c37; border-radius: 14px; padding: 10px 14px; font-size: 13px; color: #8c4500; font-weight: 600;"></div>
+
+                            <div id="projectsGrid" class="project-grid">
+                                <div style="text-align: center; color: #888; padding: 24px; grid-column: 1 / -1;">Loading your projects...</div>
+                            </div>
                         </div>
                     </section>
 
                     <section class="tab-pane" id="pane-explore">
-                        <div class="placeholder-card">
-                            <img src="images/dash-icons/explore-icon.png" class="placeholder-icon" alt="">
-                            <h2 class="pane-heading">Explore Community Projects</h2>
-                            <p style="color: #6a5e56; max-width: 480px;">Discover what other makers and furries across Hack Club are building and shipping.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Explore Community Projects</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Discover furry software, games, hardware, and bots built by makers across Hack Club.</p>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="exploreSearchInput" placeholder="Search projects or makers..." class="form-control" style="font-size: 12px; padding: 6px 12px; width: 220px;" oninput="filterExploreProjects()">
+                                    <button class="btn btn-secondary" onclick="loadExploreTab()">↻</button>
+                                </div>
+                            </div>
+
+                            <div class="fulfil-stats-row" style="margin-bottom: 2px;">
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="exploreStatTotal">0</span>
+                                    <span class="fulfil-stat-label">Shipped Projects</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="exploreStatHours" style="color: #1e7e34;">0h</span>
+                                    <span class="fulfil-stat-label">Total Hours Coded</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="exploreStatPaws" style="color: #ff8c37;">🐾 0</span>
+                                    <span class="fulfil-stat-label">Paws Earned</span>
+                                </div>
+                            </div>
+
+                            <div id="exploreGrid" class="project-grid">
+                                <div style="text-align: center; color: #888; padding: 24px; grid-column: 1 / -1;">Loading community showcase...</div>
+                            </div>
                         </div>
                     </section>
 
@@ -1487,31 +1588,182 @@
                     </section>
 
                     <section class="tab-pane" id="pane-submissions">
-                        <div class="placeholder-card">
-                            <h2 class="pane-heading">Submissions Review</h2>
-                            <p style="color: #6a5e56;">Admin queue for reviewing shipped maker projects.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Submissions Review</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Review submitted maker projects, verify Hackatime hours, and award Paws.</p>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="submissionStatusFilter" class="form-control" style="font-size: 12px; padding: 5px 10px;" onchange="loadSubmissionsTab()">
+                                        <option value="all">All Statuses</option>
+                                        <option value="submitted" selected>Pending Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="changes_requested">Changes Requested</option>
+                                        <option value="rejected">Rejected</option>
+                                        <option value="draft">Drafts</option>
+                                    </select>
+                                    <button class="btn btn-secondary" onclick="loadSubmissionsTab()">↻ Refresh</button>
+                                </div>
+                            </div>
+
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project Title</th>
+                                            <th>Maker</th>
+                                            <th>Demo &amp; Repo</th>
+                                            <th>Hackatime</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="submissionsTableBody">
+                                        <tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">Loading submissions...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
                     <section class="tab-pane" id="pane-event-controls">
-                        <div class="placeholder-card">
-                            <h2 class="pane-heading">Event Controls</h2>
-                            <p style="color: #6a5e56;">Configure Pawgrammed dates, multipliers, and event state.</p>
+                        <div style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 760px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Event Controls</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Configure Pawgrammed dates, currency multipliers, submission gate, and announcement banners.</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="saveEventControls()">Save Changes</button>
+                            </div>
+
+                            <div style="background-color: #fffaf2; border: 2px dashed #cca98b; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                                <div class="form-group">
+                                    <label for="eventCtrlName">Event Name</label>
+                                    <input type="text" id="eventCtrlName" class="form-control" placeholder="Pawgrammed Season 1">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label for="eventCtrlStartDate">Start Date</label>
+                                        <input type="date" id="eventCtrlStartDate" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="eventCtrlEndDate">Submission Deadline</label>
+                                        <input type="date" id="eventCtrlEndDate" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label for="eventCtrlMultiplier">Paws Multiplier (e.g. 1.0, 1.5, 2.0)</label>
+                                        <input type="number" id="eventCtrlMultiplier" class="form-control" step="0.1" min="0.1" max="10.0" value="1.0">
+                                        <span style="font-size: 11px; color: #7a6e66;">Paws awarded = Verified Hours × Multiplier</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="eventCtrlMaxPaws">Max Paws Cap Per Project</label>
+                                        <input type="number" id="eventCtrlMaxPaws" class="form-control" min="1" max="100" value="25">
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 24px; padding: 6px 0;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
+                                        <input type="checkbox" id="eventCtrlSubmissionsOpen" style="width: 18px; height: 18px;">
+                                        Submissions Open
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
+                                        <input type="checkbox" id="eventCtrlResubmissionsOpen" style="width: 18px; height: 18px;">
+                                        Resubmissions Open
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventCtrlAnnouncement">Dashboard Announcement Banner (optional)</label>
+                                    <textarea id="eventCtrlAnnouncement" class="form-control" rows="2" placeholder="Announce multiplier weekends, deadline reminders, or con meetups!"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
                     <section class="tab-pane" id="pane-unified">
-                        <div class="placeholder-card">
-                            <h2 class="pane-heading">Unified Dashboard</h2>
-                            <p style="color: #6a5e56;">Cross-platform synchronization and event statistics.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Unified Dashboard</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Synchronize approved Pawgrammed projects with Hack Club's YSWS Unified Submissions Bridge.</p>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary" onclick="loadUnifiedTab()">↻ Refresh</button>
+                                    <button class="btn btn-primary" onclick="pushAllUnified()">Push All Pending &rarr;</button>
+                                </div>
+                            </div>
+
+                            <div class="fulfil-stats-row">
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="unifiedBridgeStatus" style="font-size: 14px; color: #211d1b;">Ready</span>
+                                    <span class="fulfil-stat-label">Bridge Status</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="unifiedStatSent" style="color: #1e7e34;">0</span>
+                                    <span class="fulfil-stat-label">Synced &amp; Sent</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="unifiedStatQueued" style="color: #b06200;">0</span>
+                                    <span class="fulfil-stat-label">Queued / Pending</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="unifiedStatErrors" style="color: #c53030;">0</span>
+                                    <span class="fulfil-stat-label">Errors</span>
+                                </div>
+                            </div>
+
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project &amp; Maker</th>
+                                            <th>Hours</th>
+                                            <th>State</th>
+                                            <th>Bridge ID</th>
+                                            <th>Last Attempt</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="unifiedTableBody">
+                                        <tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">Loading unified bridge queue...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
                     <section class="tab-pane" id="pane-shop-items">
-                        <div class="placeholder-card">
-                            <img src="images/dash-icons/shop-icon.png" class="placeholder-icon" alt="">
-                            <h2 class="pane-heading">Shop Items Management</h2>
-                            <p style="color: #6a5e56;">Configure prizes, paw costs, and catalog availability.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Shop Items Management</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Add, edit, or configure fursuit reward gear, paw prices, and inventory availability in the Rewards Shop.</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openShopItemModal()">+ Add New Item</button>
+                            </div>
+
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Price</th>
+                                            <th>Hours Req.</th>
+                                            <th>Variants</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="shopItemsTableBody">
+                                        <tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">Loading catalog items...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
@@ -1522,7 +1774,10 @@
                                     <h2 class="pane-heading" style="font-size: 24px; margin: 0;">Prize Fulfilment Queue</h2>
                                     <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Review orders, shipping addresses, and send custom fursuit gear to makers (Admin Only).</p>
                                 </div>
-                                <button class="btn btn-secondary" onclick="loadFulfilmentTab()">↻ Refresh Orders</button>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/api/admin/orders/export" class="btn btn-secondary" style="font-size: 12px; text-decoration: none;">⬇ Export CSV</a>
+                                    <button class="btn btn-secondary" onclick="loadFulfilmentTab()">↻ Refresh Orders</button>
+                                </div>
                             </div>
 
                             <div class="fulfil-stats-row">
@@ -1567,10 +1822,53 @@
                     </section>
 
                     <section class="tab-pane" id="pane-paws">
-                        <div class="placeholder-card">
-                            <img src="images/paw-print-icon.png" class="placeholder-icon" alt="">
-                            <h2 class="pane-heading">Paws Currency Ledger</h2>
-                            <p style="color: #6a5e56;">Review paw grants, deductions, and payouts.</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Paws Currency Ledger</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Full audit trail of all paw awards, shop deductions, and admin manual adjustments.</p>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary" onclick="loadPawsLedgerTab()">↻ Refresh</button>
+                                    <button class="btn btn-primary" onclick="openPawsAdjustModal()">+ Adjust Balance</button>
+                                </div>
+                            </div>
+
+                            <div class="fulfil-stats-row">
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="ledgerStatCirculating" style="color: #ff8c37;">🐾 0</span>
+                                    <span class="fulfil-stat-label">In Circulation</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="ledgerStatGranted" style="color: #1e7e34;">+0</span>
+                                    <span class="fulfil-stat-label">Total Granted</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="ledgerStatSpent" style="color: #b06200;">-0</span>
+                                    <span class="fulfil-stat-label">Spent on Prizes</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="ledgerStatTx">0</span>
+                                    <span class="fulfil-stat-label">Transactions</span>
+                                </div>
+                            </div>
+
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date &amp; ID</th>
+                                            <th>Maker</th>
+                                            <th>Delta</th>
+                                            <th>Reason</th>
+                                            <th>Note / Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pawsLedgerTableBody">
+                                        <tr><td colspan="5" style="text-align: center; color: #888; padding: 24px;">Loading currency ledger...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
@@ -1747,6 +2045,166 @@
                         </div>
                     </div>
                 </div>
+        <!-- Project Create / Edit Modal -->
+        <div class="modal-backdrop" id="projectModal" onclick="closeProjectModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closeProjectModal()">&times;</button>
+                <h3 class="modal-title" id="projectModalTitle">Create Project</h3>
+                <input type="hidden" id="projectModalId">
+                <div class="form-group">
+                    <label for="projectModalName">Project Title</label>
+                    <input type="text" id="projectModalName" class="form-control" placeholder="e.g. Protogen Visor Firmware">
+                </div>
+                <div class="form-group">
+                    <label for="projectModalDesc">Description</label>
+                    <textarea id="projectModalDesc" class="form-control" rows="3" placeholder="What does your project do? How does it connect to the furry theme?"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label for="projectModalRepo">GitHub Repo URL</label>
+                        <input type="url" id="projectModalRepo" class="form-control" placeholder="https://github.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectModalDemo">Live Demo / Video URL</label>
+                        <input type="url" id="projectModalDemo" class="form-control" placeholder="https://...">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label for="projectModalHtName">Hackatime Project Tag</label>
+                        <input type="text" id="projectModalHtName" class="form-control" placeholder="e.g. fursuit-visor">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectModalHours">Logged Coding Hours</label>
+                        <input type="number" id="projectModalHours" class="form-control" step="0.1" min="0" value="0.0">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button class="btn btn-secondary" type="button" onclick="closeProjectModal()">Cancel</button>
+                    <button class="btn btn-primary" type="button" onclick="saveProject()">Save Project</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Review Modal (Admin) -->
+        <div class="modal-backdrop" id="submissionReviewModal" onclick="closeReviewModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()" style="max-width: 580px;">
+                <button class="modal-close-btn" onclick="closeReviewModal()">&times;</button>
+                <h3 class="modal-title">Review Project Submission</h3>
+                <input type="hidden" id="reviewProjectId">
+                <div id="reviewProjectSummary" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+                    <div class="form-group">
+                        <label for="reviewApprovedHours">Approved Hours</label>
+                        <input type="number" id="reviewApprovedHours" class="form-control" step="0.5" min="0.5" oninput="updateReviewPawsCalculation()">
+                    </div>
+                    <div class="form-group">
+                        <label>Paws to Award</label>
+                        <div id="reviewCalculatedPaws" style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #ff8c37; padding: 8px 12px; background: #fffaf2; border: 2px solid #211d1b; border-radius: 10px;">🐾 0 paws</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reviewNoteToMaker">Feedback / Note to Maker</label>
+                    <textarea id="reviewNoteToMaker" class="form-control" rows="3" placeholder="Praise great code, highlight cool features, or detail needed changes..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <button class="btn btn-secondary" style="color: #a33;" onclick="submitProjectReview('rejected')">✕ Reject</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="submitProjectReview('changes_requested')">✎ Request Changes</button>
+                        <button class="btn btn-primary" style="background-color: #2f8546; color: white;" onclick="submitProjectReview('approved')">✓ Approve &amp; Award Paws</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Item Edit Modal (Admin) -->
+        <div class="modal-backdrop" id="shopItemModal" onclick="closeShopItemModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closeShopItemModal()">&times;</button>
+                <h3 class="modal-title" id="shopItemModalTitle">Reward Item</h3>
+                <input type="hidden" id="shopItemModalId">
+                <div class="form-group">
+                    <label for="shopItemModalName">Item Name</label>
+                    <input type="text" id="shopItemModalName" class="form-control" placeholder="e.g. Cat Ears">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label for="shopItemModalPrice">Paw Price</label>
+                        <input type="number" id="shopItemModalPrice" class="form-control" min="1" value="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="shopItemModalHours">Required Hours</label>
+                        <input type="number" id="shopItemModalHours" class="form-control" min="1" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="shopItemModalImage">Image URL or Local Path</label>
+                    <input type="text" id="shopItemModalImage" class="form-control" placeholder="images/catears.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="shopItemModalVariants">Variants (comma separated)</label>
+                    <input type="text" id="shopItemModalVariants" class="form-control" placeholder="Pink &amp; Black, White &amp; Pink, All Black">
+                </div>
+                <div class="form-group">
+                    <label for="shopItemModalDesc">Description</label>
+                    <textarea id="shopItemModalDesc" class="form-control" rows="2" placeholder="Item description"></textarea>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="shopItemModalStock" checked style="width: 18px; height: 18px;">
+                    <label for="shopItemModalStock" style="font-weight: 700; cursor: pointer;">Available in Shop (In Stock)</label>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button class="btn btn-secondary" onclick="closeShopItemModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveShopItem()">Save Item</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paws Adjustment Modal (Admin) -->
+        <div class="modal-backdrop" id="pawsAdjustModal" onclick="closePawsAdjustModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closePawsAdjustModal()">&times;</button>
+                <h3 class="modal-title">Manual Paws Adjustment</h3>
+                <div class="form-group">
+                    <label for="pawsAdjustUserSelect">Select Maker</label>
+                    <select id="pawsAdjustUserSelect" class="form-control"></select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label for="pawsAdjustType">Adjustment Type</label>
+                        <select id="pawsAdjustType" class="form-control">
+                            <option value="grant">Grant (+) Paws</option>
+                            <option value="deduct">Deduct (-) Paws</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pawsAdjustAmount">Amount</label>
+                        <input type="number" id="pawsAdjustAmount" class="form-control" min="1" max="100" value="5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pawsAdjustNote">Reason / Note</label>
+                    <input type="text" id="pawsAdjustNote" class="form-control" placeholder="e.g. Hackathon bonus, demo night prize">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button class="btn btn-secondary" onclick="closePawsAdjustModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitPawsAdjustment()">Apply Adjustment</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unified Payload Preview Modal (Admin) -->
+        <div class="modal-backdrop" id="unifiedPayloadModal" onclick="closeUnifiedPayloadModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()" style="max-width: 640px;">
+                <button class="modal-close-btn" onclick="closeUnifiedPayloadModal()">&times;</button>
+                <h3 class="modal-title">Unified Bridge Payload JSON</h3>
+                <pre id="unifiedPayloadPre" style="background: #211d1b; color: #a6f3a6; padding: 14px; border-radius: 12px; font-size: 12px; overflow-x: auto; max-height: 400px; font-family: monospace;"></pre>
+                <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                    <button class="btn btn-secondary" onclick="closeUnifiedPayloadModal()">Close</button>
+                </div>
             </div>
         </div>
 
@@ -1886,11 +2344,32 @@
                 const iconEl = document.getElementById('clipTabIcon');
                 if (iconEl) iconEl.src = current.icon;
 
+                if (tabId === 'projects') {
+                    loadProjectsTab();
+                }
+                if (tabId === 'explore') {
+                    loadExploreTab();
+                }
                 if (tabId === 'shop') {
                     loadShop();
                 }
+                if (tabId === 'submissions') {
+                    loadSubmissionsTab();
+                }
+                if (tabId === 'event-controls') {
+                    loadEventControlsTab();
+                }
+                if (tabId === 'unified') {
+                    loadUnifiedTab();
+                }
+                if (tabId === 'shop-items') {
+                    loadShopItemsTab();
+                }
                 if (tabId === 'fulfilment') {
                     loadFulfilmentTab();
+                }
+                if (tabId === 'paws') {
+                    loadPawsLedgerTab();
                 }
                 if (tabId === 'people') {
                     loadPeopleTab();
@@ -2418,6 +2897,927 @@
                 }
             }
 
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            let myProjectsList = [];
+
+            async function loadProjectsTab() {
+                const grid = document.getElementById('projectsGrid');
+                if (!grid) return;
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const [projRes, confRes] = await Promise.all([
+                            fetch('/api/my/projects'),
+                            fetch('/api/event/config')
+                        ]);
+                        const projData = await projRes.json();
+                        const confData = await confRes.json();
+
+                        const banner = document.getElementById('eventAnnouncementBanner');
+                        if (banner && confData.config && confData.config.announcement_banner && confData.config.announcement_banner.trim()) {
+                            banner.textContent = `📢 ${confData.config.announcement_banner}`;
+                            banner.style.display = 'block';
+                        } else if (banner) {
+                            banner.style.display = 'none';
+                        }
+
+                        myProjectsList = projData.projects || [];
+                        renderProjectsGrid(myProjectsList);
+                    } catch (e) {
+                        grid.innerHTML = '<div style="text-align: center; color: #a33; padding: 24px; grid-column: 1 / -1;">Failed to load your projects.</div>';
+                    }
+                } else {
+                    renderProjectsGrid([
+                        {
+                            id: 'demo-1',
+                            title: 'LED Matrix Protogen Visor',
+                            description: 'Custom MAX7219 firmware with animated furry emotes and Hackatime tracking.',
+                            repo_url: 'https://github.com/hackclub/pawgrammed',
+                            demo_url: 'https://pawgrammed.hackclub.com',
+                            hackatime_project_name: 'fursuit-visor',
+                            hours_logged: 3.5,
+                            awarded_paws: 4,
+                            status: 'approved'
+                        }
+                    ]);
+                }
+            }
+
+            function renderProjectsGrid(projects) {
+                const grid = document.getElementById('projectsGrid');
+                if (!grid) return;
+                if (projects.length === 0) {
+                    grid.innerHTML = `
+                        <div style="text-align: center; color: #888; padding: 36px 16px; grid-column: 1 / -1; background: #fffaf2; border: 2px dashed #cca98b; border-radius: 16px;">
+                            <p style="font-size: 16px; font-weight: 700; color: #211d1b; margin: 0 0 6px;">No projects yet!</p>
+                            <p style="font-size: 13px; color: #7a6e66; margin: 0 0 14px;">Start by drafting your furry hack, bot, or fursuit electronics project.</p>
+                            <button class="btn btn-primary" onclick="openProjectModal()">+ Create Your First Project</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = projects.map(p => {
+                    const statusMap = {
+                        draft: { label: 'Draft', class: 'draft' },
+                        submitted: { label: 'Pending Review', class: 'submitted' },
+                        approved: { label: `Approved (🐾 ${p.awarded_paws || Math.round(p.hours_logged || 0)})`, class: 'approved' },
+                        changes_requested: { label: 'Changes Requested', class: 'changes_requested' },
+                        rejected: { label: 'Rejected', class: 'rejected' }
+                    };
+                    const st = statusMap[p.status] || { label: p.status, class: 'draft' };
+                    const hours = (p.hours_logged || 0).toFixed(1);
+
+                    let actionBtns = '';
+                    if (p.status === 'draft' || p.status === 'changes_requested') {
+                        actionBtns = `
+                            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px;" onclick="openProjectModal('${p.id}')">Edit</button>
+                            <button class="btn btn-primary" style="font-size: 11.5px; padding: 4px 10px;" onclick="submitProject('${p.id}')">Submit &rarr;</button>
+                            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px; color: #a33;" onclick="deleteProject('${p.id}')">✕</button>
+                        `;
+                    } else {
+                        actionBtns = `
+                            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px;" onclick="openProjectModal('${p.id}')">View Details</button>
+                        `;
+                    }
+
+                    return `
+                        <div class="project-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                <div style="font-family: 'PawFont', cursive; font-size: 19px; color: #211d1b; line-height: 1.2;">${escapeHtml(p.title || 'Untitled')}</div>
+                                <span class="status-pill ${st.class}">${st.label}</span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #6a5e56; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                ${escapeHtml(p.description || 'No description provided yet.')}
+                            </p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; color: #7a6e66;">
+                                <span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">⏱ ${hours}h logged</span>
+                                ${p.hackatime_project_name ? `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">🏷 ${escapeHtml(p.hackatime_project_name)}</span>` : ''}
+                                ${p.language ? `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">💻 ${escapeHtml(p.language)}</span>` : ''}
+                            </div>
+                            ${p.feedback ? `<div style="font-size: 11.5px; background: #fff5e6; border-left: 3px solid #ff8c37; padding: 6px 8px; border-radius: 4px; color: #8c4500;"><strong>Review feedback:</strong> ${escapeHtml(p.feedback)}</div>` : ''}
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2d2c3;">
+                                <div style="display: flex; gap: 8px;">
+                                    ${p.repo_url ? `<a href="${escapeHtml(p.repo_url)}" target="_blank" rel="noopener" style="font-size: 12px; color: #211d1b; text-decoration: underline;">Repo</a>` : ''}
+                                    ${p.demo_url ? `<a href="${escapeHtml(p.demo_url)}" target="_blank" rel="noopener" style="font-size: 12px; color: #211d1b; text-decoration: underline;">Live Demo</a>` : ''}
+                                </div>
+                                <div style="display: flex; gap: 6px;">
+                                    ${actionBtns}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function openProjectModal(id = null) {
+                const modal = document.getElementById('projectModal');
+                if (!modal) return;
+                const titleEl = document.getElementById('projectModalTitle');
+                const idInput = document.getElementById('projectModalId');
+                const nameInput = document.getElementById('projectModalName');
+                const descInput = document.getElementById('projectModalDesc');
+                const repoInput = document.getElementById('projectModalRepo');
+                const demoInput = document.getElementById('projectModalDemo');
+                const htInput = document.getElementById('projectModalHtName');
+                const hoursInput = document.getElementById('projectModalHours');
+
+                if (id) {
+                    const p = myProjectsList.find(x => x.id === id);
+                    if (!p) return;
+                    if (titleEl) titleEl.textContent = 'Edit Project';
+                    if (idInput) idInput.value = p.id;
+                    if (nameInput) nameInput.value = p.title || '';
+                    if (descInput) descInput.value = p.description || '';
+                    if (repoInput) repoInput.value = p.repo_url || '';
+                    if (demoInput) demoInput.value = p.demo_url || '';
+                    if (htInput) htInput.value = p.hackatime_project_name || '';
+                    if (hoursInput) hoursInput.value = p.hours_logged ?? 0;
+                } else {
+                    if (titleEl) titleEl.textContent = 'Create New Project';
+                    if (idInput) idInput.value = '';
+                    if (nameInput) nameInput.value = '';
+                    if (descInput) descInput.value = '';
+                    if (repoInput) repoInput.value = '';
+                    if (demoInput) demoInput.value = '';
+                    if (htInput) htInput.value = '';
+                    if (hoursInput) hoursInput.value = '0.0';
+                }
+                modal.classList.add('active');
+            }
+
+            function closeProjectModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                const modal = document.getElementById('projectModal');
+                if (modal) modal.classList.remove('active');
+            }
+
+            async function saveProject() {
+                const id = document.getElementById('projectModalId').value;
+                const title = document.getElementById('projectModalName').value.trim();
+                const description = document.getElementById('projectModalDesc').value.trim();
+                const repo_url = document.getElementById('projectModalRepo').value.trim();
+                const demo_url = document.getElementById('projectModalDemo').value.trim();
+                const hackatime_project_name = document.getElementById('projectModalHtName').value.trim();
+                const hours_logged = parseFloat(document.getElementById('projectModalHours').value) || 0;
+
+                if (!title) {
+                    alert('Please give your project a title!');
+                    return;
+                }
+
+                const payload = { title, description, repo_url, demo_url, hackatime_project_name, hours_logged };
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const url = id ? `/api/projects/${id}` : '/api/projects';
+                        const method = id ? 'PUT' : 'POST';
+                        const res = await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                            alert(data.error || 'Failed saving project');
+                            return;
+                        }
+                        closeProjectModal();
+                        loadProjectsTab();
+                    } catch (e) {
+                        alert('Failed to save project. Check your connection.');
+                    }
+                } else {
+                    closeProjectModal();
+                    alert('Saved project in demo mode!');
+                }
+            }
+
+            async function submitProject(id) {
+                if (!confirm('Ready to submit this project for review? Once submitted, our team will verify your hours and award your paws!')) return;
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch(`/api/projects/${id}/submit`, { method: 'POST' });
+                        const data = await res.json();
+                        if (!res.ok) {
+                            alert(data.error || 'Failed to submit project');
+                            return;
+                        }
+                        alert('🎉 Project submitted successfully! Keep an eye on your notifications.');
+                        loadProjectsTab();
+                    } catch (e) {
+                        alert('Failed to submit project.');
+                    }
+                }
+            }
+
+            async function deleteProject(id) {
+                if (!confirm('Are you sure you want to delete this draft?')) return;
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+                        if (res.ok) loadProjectsTab();
+                    } catch (e) {}
+                }
+            }
+
+            let allExploreProjects = [];
+
+            async function loadExploreTab() {
+                const grid = document.getElementById('exploreGrid');
+                if (!grid) return;
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/explore/projects');
+                        const data = await res.json();
+                        allExploreProjects = data.projects || [];
+
+                        const totalHours = allExploreProjects.reduce((sum, p) => sum + (p.hours_logged || 0), 0);
+                        const totalPaws = allExploreProjects.reduce((sum, p) => sum + (p.awarded_paws || 0), 0);
+
+                        document.getElementById('exploreStatTotal').textContent = allExploreProjects.length;
+                        document.getElementById('exploreStatHours').textContent = `${totalHours.toFixed(1)}h`;
+                        document.getElementById('exploreStatPaws').textContent = `🐾 ${totalPaws}`;
+
+                        renderExploreGrid(allExploreProjects);
+                    } catch (e) {
+                        grid.innerHTML = '<div style="text-align: center; color: #a33; padding: 24px; grid-column: 1 / -1;">Failed to load explore showcase.</div>';
+                    }
+                } else {
+                    renderExploreGrid([
+                        {
+                            id: 'exp-1',
+                            title: 'Protogen Visor Simulator',
+                            description: 'An interactive three.js simulator showing visor expressions and matrix patterns.',
+                            user_name: 'HackClubber',
+                            user_avatar: 'images/rex_main_front.png',
+                            hours_logged: 5.2,
+                            awarded_paws: 6,
+                            repo_url: 'https://github.com/hackclub/pawgrammed',
+                            demo_url: 'https://pawgrammed.hackclub.com'
+                        }
+                    ]);
+                }
+            }
+
+            function filterExploreProjects() {
+                const q = (document.getElementById('exploreSearchInput').value || '').toLowerCase().trim();
+                if (!q) {
+                    renderExploreGrid(allExploreProjects);
+                    return;
+                }
+                const filtered = allExploreProjects.filter(p =>
+                    (p.title && p.title.toLowerCase().includes(q)) ||
+                    (p.description && p.description.toLowerCase().includes(q)) ||
+                    (p.user_name && p.user_name.toLowerCase().includes(q))
+                );
+                renderExploreGrid(filtered);
+            }
+
+            function renderExploreGrid(projects) {
+                const grid = document.getElementById('exploreGrid');
+                if (!grid) return;
+                if (projects.length === 0) {
+                    grid.innerHTML = '<div style="text-align: center; color: #888; padding: 36px; grid-column: 1 / -1;">No projects match your search yet!</div>';
+                    return;
+                }
+
+                grid.innerHTML = projects.map(p => {
+                    return `
+                        <div class="project-card">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                                <img src="${p.maker_avatar || p.user_avatar || 'images/rex_main_front.png'}" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
+                                <span style="font-size: 12px; font-weight: 700; color: #211d1b;">${escapeHtml(p.maker_name || p.user_name || 'Maker')}</span>
+                                <span class="status-pill approved" style="margin-left: auto;">🐾 ${p.paws_awarded ?? p.awarded_paws ?? Math.round(p.hours_logged || 0)}</span>
+                            </div>
+                            <div style="font-family: 'PawFont', cursive; font-size: 19px; color: #211d1b; line-height: 1.2;">
+                                ${escapeHtml(p.title || 'Untitled')}
+                            </div>
+                            <p style="font-size: 12.5px; color: #6a5e56; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                ${escapeHtml(p.description || 'Community creation.')}
+                            </p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2d2c3;">
+                                <span style="font-size: 11.5px; color: #7a6e66;">⏱ ${(p.hours_logged || 0).toFixed(1)}h logged</span>
+                                <div style="display: flex; gap: 8px;">
+                                    ${p.repo_url ? `<a href="${escapeHtml(p.repo_url)}" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">Repo</a>` : ''}
+                                    ${p.demo_url ? `<a href="${escapeHtml(p.demo_url)}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">Demo &rarr;</a>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            let allAdminSubmissions = [];
+
+            async function loadSubmissionsTab() {
+                const tbody = document.getElementById('submissionsTableBody');
+                if (!tbody) return;
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const status = document.getElementById('submissionStatusFilter').value;
+                        const res = await fetch(`/api/admin/submissions?status=${encodeURIComponent(status)}`);
+                        if (!res.ok) {
+                            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Admin access required.</td></tr>';
+                            return;
+                        }
+                        const data = await res.json();
+                        allAdminSubmissions = data.submissions || [];
+
+                        if (allAdminSubmissions.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No submissions found for this filter.</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = allAdminSubmissions.map(s => {
+                            const statusMap = {
+                                draft: 'draft',
+                                submitted: 'submitted',
+                                approved: 'approved',
+                                changes_requested: 'changes_requested',
+                                rejected: 'rejected'
+                            };
+                            return `
+                                <tr>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 13px;">${escapeHtml(s.title || 'Untitled')}</div>
+                                        <div style="font-size: 11px; color: #7a6e66; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(s.description || '')}</div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <img src="${s.maker_avatar || s.user_avatar || 'images/rex_main_front.png'}" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
+                                            <div>
+                                                <div style="font-weight: 600; font-size: 12px;">${escapeHtml(s.maker_name || s.user_name || 'Maker')}</div>
+                                                <div style="font-size: 10.5px; color: #777;">${escapeHtml(s.maker_email || s.user_email || '—')}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            ${s.repo_url ? `<a href="${escapeHtml(s.repo_url)}" target="_blank" rel="noopener" style="font-size: 11.5px; text-decoration: underline; color: #211d1b;">Repo</a>` : '<span style="color:#aaa; font-size:11px;">—</span>'}
+                                            ${s.demo_url ? `&bull; <a href="${escapeHtml(s.demo_url)}" target="_blank" rel="noopener" style="font-size: 11.5px; text-decoration: underline; color: #211d1b;">Demo</a>` : ''}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 12.5px;">⏱ ${(s.hours_logged || 0).toFixed(1)}h</div>
+                                        ${s.hackatime_project || s.hackatime_project_name ? `<div style="font-size: 10.5px; color: #7a6e66;">🏷 ${escapeHtml(s.hackatime_project || s.hackatime_project_name)}</div>` : ''}
+                                    </td>
+                                    <td>
+                                        <span class="status-pill ${statusMap[s.status] || 'draft'}">${s.status}</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="openReviewModal('${s.id}')">
+                                            Review &rarr;
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } catch (e) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed to load submissions queue.</td></tr>';
+                    }
+                }
+            }
+
+            let activeReviewSubmission = null;
+            let eventMultiplier = 1.0;
+
+            function openReviewModal(id) {
+                const s = allAdminSubmissions.find(x => x.id === id);
+                if (!s) return;
+                activeReviewSubmission = s;
+
+                document.getElementById('reviewProjectId').value = s.id;
+                const summaryEl = document.getElementById('reviewProjectSummary');
+                if (summaryEl) {
+                    summaryEl.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-family: 'PawFont', cursive; font-size: 18px; font-weight: 700;">${escapeHtml(s.title)}</span>
+                            <span style="font-size: 12px; color: #7a6e66;">Maker: <strong>${escapeHtml(s.maker_name || s.user_name || 'Maker')}</strong> (${escapeHtml(s.maker_email || s.user_email || '')})</span>
+                        </div>
+                        <p style="font-size: 12px; color: #5a4e46; margin: 4px 0 6px;">${escapeHtml(s.description || 'No description.')}</p>
+                        <div style="display: flex; gap: 12px; font-size: 12px;">
+                            ${s.repo_url ? `<a href="${escapeHtml(s.repo_url)}" target="_blank" rel="noopener" style="color: #211d1b; text-decoration: underline;">GitHub Repository &rarr;</a>` : ''}
+                            ${s.demo_url ? `<a href="${escapeHtml(s.demo_url)}" target="_blank" rel="noopener" style="color: #211d1b; text-decoration: underline;">Live Demo / Video &rarr;</a>` : ''}
+                        </div>
+                    `;
+                }
+
+                const hoursInput = document.getElementById('reviewApprovedHours');
+                hoursInput.value = s.hours_approved ?? s.hours_logged ?? 1.0;
+                document.getElementById('reviewNoteToMaker').value = s.note_to_maker || s.feedback || '';
+
+                updateReviewPawsCalculation();
+                document.getElementById('submissionReviewModal').classList.add('active');
+            }
+
+            function closeReviewModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                const modal = document.getElementById('submissionReviewModal');
+                if (modal) modal.classList.remove('active');
+            }
+
+            function updateReviewPawsCalculation() {
+                const hours = parseFloat(document.getElementById('reviewApprovedHours').value) || 0;
+                const paws = Math.round(hours * eventMultiplier);
+                const pawsEl = document.getElementById('reviewCalculatedPaws');
+                if (pawsEl) pawsEl.textContent = `🐾 ${paws} paws`;
+            }
+
+            async function submitProjectReview(decision) {
+                if (!activeReviewSubmission) return;
+                const hours = parseFloat(document.getElementById('reviewApprovedHours').value) || 0;
+                const feedback = document.getElementById('reviewNoteToMaker').value.trim();
+                const awarded_paws = Math.round(hours * eventMultiplier);
+
+                try {
+                    const res = await fetch(`/api/admin/submissions/${activeReviewSubmission.id}/review`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            decision,
+                            approvedHours: hours,
+                            noteToMaker: feedback,
+                            feedback,
+                            approved_hours: hours,
+                            awarded_paws
+                        })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Failed saving review');
+                        return;
+                    }
+                    closeReviewModal();
+                    loadSubmissionsTab();
+                    alert(`Review saved! Status set to "${decision}".`);
+                } catch (e) {
+                    alert('Failed submitting review.');
+                }
+            }
+
+            async function loadEventControlsTab() {
+                try {
+                    const res = await fetch('/api/event/config');
+                    const data = await res.json();
+                    const c = data.config || {};
+
+                    eventMultiplier = c.multiplier || c.paws_multiplier || 1.0;
+                    document.getElementById('eventCtrlName').value = c.event_name || c.name || 'Pawgrammed Season 1';
+                    document.getElementById('eventCtrlStartDate').value = c.start_date || '';
+                    document.getElementById('eventCtrlEndDate').value = c.end_date || '';
+                    document.getElementById('eventCtrlMultiplier').value = c.multiplier ?? c.paws_multiplier ?? 1.0;
+                    document.getElementById('eventCtrlMaxPaws').value = c.max_paws_cap ?? c.max_paws_per_project ?? 25;
+                    document.getElementById('eventCtrlSubmissionsOpen').checked = Boolean(c.submissions_open);
+                    document.getElementById('eventCtrlResubmissionsOpen').checked = Boolean(c.resubmissions_open);
+                    document.getElementById('eventCtrlAnnouncement').value = c.announcement || c.announcement_banner || '';
+                } catch (e) {}
+            }
+
+            async function saveEventControls() {
+                const name = document.getElementById('eventCtrlName').value.trim();
+                const start_date = document.getElementById('eventCtrlStartDate').value;
+                const end_date = document.getElementById('eventCtrlEndDate').value;
+                const multiplier = parseFloat(document.getElementById('eventCtrlMultiplier').value) || 1.0;
+                const max_paws = parseInt(document.getElementById('eventCtrlMaxPaws').value, 10) || 25;
+                const submissions_open = document.getElementById('eventCtrlSubmissionsOpen').checked;
+                const resubmissions_open = document.getElementById('eventCtrlResubmissionsOpen').checked;
+                const announcement = document.getElementById('eventCtrlAnnouncement').value.trim();
+
+                const payload = {
+                    event_name: name,
+                    name,
+                    start_date,
+                    end_date,
+                    multiplier,
+                    paws_multiplier: multiplier,
+                    max_paws_cap: max_paws,
+                    max_paws_per_project: max_paws,
+                    submissions_open,
+                    resubmissions_open,
+                    announcement,
+                    announcement_banner: announcement
+                };
+
+                try {
+                    const res = await fetch('/api/admin/event/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Failed saving event controls');
+                        return;
+                    }
+                    eventMultiplier = multiplier;
+                    alert('✓ Event controls updated successfully!');
+                } catch (e) {
+                    alert('Failed saving event controls.');
+                }
+            }
+
+            let unifiedOutboxRecords = [];
+
+            async function loadUnifiedTab() {
+                const tbody = document.getElementById('unifiedTableBody');
+                if (!tbody) return;
+
+                try {
+                    const res = await fetch('/api/admin/unified/status');
+                    if (!res.ok) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Admin access required.</td></tr>';
+                        return;
+                    }
+                    const data = await res.json();
+                    unifiedOutboxRecords = data.outbox || data.records || [];
+
+                    const isConfigured = Boolean(data.has_secret || data.bridge_configured);
+                    const statusEl = document.getElementById('unifiedBridgeStatus');
+                    if (statusEl) {
+                        statusEl.textContent = isConfigured ? 'Active (Live)' : 'Mock (Dry-Run)';
+                        statusEl.style.color = isConfigured ? '#1e7e34' : '#b06200';
+                    }
+
+                    document.getElementById('unifiedStatSent').textContent = data.stats?.sent ?? 0;
+                    document.getElementById('unifiedStatQueued').textContent = data.stats?.queued ?? 0;
+                    document.getElementById('unifiedStatErrors').textContent = data.stats?.error ?? 0;
+
+                    if (unifiedOutboxRecords.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No projects ready for Unified Bridge sync yet. Approved projects appear here automatically.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = unifiedOutboxRecords.map(r => {
+                        const dateRaw = r.last_attempt_at || r.last_attempt;
+                        const dateStr = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never';
+                        const st = r.state || r.status || 'queued';
+                        const statusClass = st === 'sent' ? 'approved' : (st === 'error' ? 'rejected' : 'submitted');
+
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 700; font-size: 13px;">${escapeHtml(r.project_title || r.title || 'Untitled')}</div>
+                                    <div style="font-size: 11px; color: #7a6e66;">${escapeHtml(r.maker_email || r.user_email || '—')}</div>
+                                </td>
+                                <td style="font-weight: 600;">${(r.hours || 0).toFixed(1)}h</td>
+                                <td>
+                                    <span class="status-pill ${statusClass}">${st}</span>
+                                </td>
+                                <td style="font-family: monospace; font-size: 11px;">${r.record_id || r.bridge_record_id || '—'}</td>
+                                <td style="font-size: 11.5px; color: #666;">${dateStr}</td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="previewUnifiedPayload('${r.id}')">JSON</button>
+                                        <button class="btn btn-primary" style="font-size: 11px; padding: 3px 8px;" onclick="pushUnified('${r.id}')">Push &rarr;</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } catch (e) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed loading unified bridge status.</td></tr>';
+                }
+            }
+
+            function previewUnifiedPayload(id) {
+                const rec = unifiedOutboxRecords.find(x => x.id === id);
+                if (!rec) return;
+                const pre = document.getElementById('unifiedPayloadPre');
+                if (pre) pre.textContent = JSON.stringify(rec.payload || rec, null, 2);
+                document.getElementById('unifiedPayloadModal').classList.add('active');
+            }
+
+            function closeUnifiedPayloadModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                const modal = document.getElementById('unifiedPayloadModal');
+                if (modal) modal.classList.remove('active');
+            }
+
+            async function pushUnified(id) {
+                try {
+                    const res = await fetch(`/api/admin/unified/push/${id}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert('Push error: ' + (data.error || 'Server error'));
+                        return;
+                    }
+                    loadUnifiedTab();
+                } catch (e) {
+                    alert('Failed pushing record to Unified Bridge.');
+                }
+            }
+
+            async function pushAllUnified() {
+                if (!confirm('Push all queued approved projects to Unified Submissions?')) return;
+                try {
+                    const res = await fetch('/api/admin/unified/push-all', { method: 'POST' });
+                    const data = await res.json();
+                    alert(`Unified sync complete: ${data.success_count || 0} succeeded, ${data.error_count || 0} errors.`);
+                    loadUnifiedTab();
+                } catch (e) {
+                    alert('Failed pushing all records.');
+                }
+            }
+
+            let adminCatalogItems = [];
+
+            async function loadShopItemsTab() {
+                const tbody = document.getElementById('shopItemsTableBody');
+                if (!tbody) return;
+
+                try {
+                    const res = await fetch('/api/shop/items');
+                    const data = await res.json();
+                    adminCatalogItems = data.items || [];
+
+                    if (adminCatalogItems.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No shop items in catalog.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = adminCatalogItems.map(item => {
+                        const inStock = item.in_stock !== false;
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <img src="${item.image || 'images/catears.jpg'}" style="width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #211d1b; object-fit: contain; background: #fff;" alt="">
+                                        <div>
+                                            <div style="font-weight: 700; text-transform: capitalize;">${escapeHtml(item.name)}</div>
+                                            <div style="font-size: 11px; color: #7a6e66;">Item #${item.number || '00'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="font-weight: 700; color: #ff8c37;">🐾 ${item.price} paws</td>
+                                <td>${item.hours}h</td>
+                                <td style="font-size: 12px; color: #666; max-width: 180px;">${Array.isArray(item.variants) ? item.variants.join(', ') : 'Default'}</td>
+                                <td>
+                                    <span class="status-pill ${inStock ? 'approved' : 'rejected'}">${inStock ? 'In Stock' : 'Sold Out'}</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="openShopItemModal('${item.id}')">Edit</button>
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px; color: #a33;" onclick="deleteShopItem('${item.id}')">✕</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } catch (e) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed loading catalog items.</td></tr>';
+                }
+            }
+
+            function openShopItemModal(id = null) {
+                const modal = document.getElementById('shopItemModal');
+                if (!modal) return;
+                const titleEl = document.getElementById('shopItemModalTitle');
+                const idInput = document.getElementById('shopItemModalId');
+                const nameInput = document.getElementById('shopItemModalName');
+                const priceInput = document.getElementById('shopItemModalPrice');
+                const hoursInput = document.getElementById('shopItemModalHours');
+                const imageInput = document.getElementById('shopItemModalImage');
+                const variantsInput = document.getElementById('shopItemModalVariants');
+                const descInput = document.getElementById('shopItemModalDesc');
+                const stockInput = document.getElementById('shopItemModalStock');
+
+                if (id) {
+                    const it = adminCatalogItems.find(x => x.id === id);
+                    if (!it) return;
+                    if (titleEl) titleEl.textContent = 'Edit Shop Item';
+                    if (idInput) idInput.value = it.id;
+                    if (nameInput) nameInput.value = it.name || '';
+                    if (priceInput) priceInput.value = it.price ?? 2;
+                    if (hoursInput) hoursInput.value = it.hours ?? 2;
+                    if (imageInput) imageInput.value = it.image || '';
+                    if (variantsInput) variantsInput.value = Array.isArray(it.variants) ? it.variants.join(', ') : (it.variants || '');
+                    if (descInput) descInput.value = it.desc || '';
+                    if (stockInput) stockInput.checked = it.in_stock !== false;
+                } else {
+                    if (titleEl) titleEl.textContent = 'Add Reward Item';
+                    if (idInput) idInput.value = '';
+                    if (nameInput) nameInput.value = '';
+                    if (priceInput) priceInput.value = '2';
+                    if (hoursInput) hoursInput.value = '2';
+                    if (imageInput) imageInput.value = 'images/catears.jpg';
+                    if (variantsInput) variantsInput.value = 'Default';
+                    if (descInput) descInput.value = '';
+                    if (stockInput) stockInput.checked = true;
+                }
+                modal.classList.add('active');
+            }
+
+            function closeShopItemModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                const modal = document.getElementById('shopItemModal');
+                if (modal) modal.classList.remove('active');
+            }
+
+            async function saveShopItem() {
+                const id = document.getElementById('shopItemModalId').value;
+                const name = document.getElementById('shopItemModalName').value.trim();
+                const price = parseInt(document.getElementById('shopItemModalPrice').value, 10) || 1;
+                const hours = parseInt(document.getElementById('shopItemModalHours').value, 10) || 1;
+                const image = document.getElementById('shopItemModalImage').value.trim() || 'images/catears.jpg';
+                const variantsRaw = document.getElementById('shopItemModalVariants').value;
+                const desc = document.getElementById('shopItemModalDesc').value.trim();
+                const in_stock = document.getElementById('shopItemModalStock').checked;
+
+                if (!name) {
+                    alert('Please provide an item name');
+                    return;
+                }
+
+                const variants = variantsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                const payload = { name, price, hours, image, variants, desc, in_stock };
+
+                try {
+                    const url = id ? `/api/admin/shop/items/${id}` : '/api/admin/shop/items';
+                    const method = id ? 'PUT' : 'POST';
+                    const res = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Failed saving item');
+                        return;
+                    }
+                    closeShopItemModal();
+                    loadShopItemsTab();
+                    loadShop();
+                } catch (e) {
+                    alert('Failed saving shop item.');
+                }
+            }
+
+            async function deleteShopItem(id) {
+                if (!confirm('Are you sure you want to remove this reward from the catalog?')) return;
+                try {
+                    const res = await fetch(`/api/admin/shop/items/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        loadShopItemsTab();
+                        loadShop();
+                    }
+                } catch (e) {}
+            }
+
+            async function loadPawsLedgerTab() {
+                const tbody = document.getElementById('pawsLedgerTableBody');
+                if (!tbody) return;
+
+                try {
+                    const res = await fetch('/api/admin/paws/ledger');
+                    if (!res.ok) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a33; padding: 24px;">Admin access required.</td></tr>';
+                        return;
+                    }
+                    const data = await res.json();
+                    const entries = data.ledger || [];
+
+                    const granted = entries.filter(e => e.delta > 0).reduce((sum, e) => sum + e.delta, 0);
+                    const spent = Math.abs(entries.filter(e => e.delta < 0).reduce((sum, e) => sum + e.delta, 0));
+                    const net = granted - spent;
+
+                    document.getElementById('ledgerStatCirculating').textContent = `🐾 ${net}`;
+                    document.getElementById('ledgerStatGranted').textContent = `+${granted}`;
+                    document.getElementById('ledgerStatSpent').textContent = `-${spent}`;
+                    document.getElementById('ledgerStatTx').textContent = entries.length;
+
+                    if (entries.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 24px;">No transactions recorded in ledger yet.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = entries.map(tx => {
+                        const dateStr = new Date(tx.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        const isPositive = tx.delta >= 0;
+                        const deltaClass = isPositive ? 'approved' : 'rejected';
+                        const sign = isPositive ? '+' : '';
+
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 700; font-size: 12px;">#${tx.id.slice(-8)}</div>
+                                    <div style="font-size: 11px; color: #7a6e66;">${dateStr}</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <img src="${tx.user_avatar || 'images/rex_main_front.png'}" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
+                                        <span style="font-weight: 600; font-size: 12px;">${escapeHtml(tx.user_name || 'Maker')}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-pill ${deltaClass}" style="font-size: 12px; font-weight: 700;">🐾 ${sign}${tx.delta}</span>
+                                </td>
+                                <td style="font-size: 12px; text-transform: capitalize; font-weight: 600;">
+                                    ${escapeHtml(tx.reason || tx.type || 'Adjustment')}
+                                </td>
+                                <td style="font-size: 11.5px; color: #6a5e56;">
+                                    ${escapeHtml(tx.notes || tx.order_id || tx.project_title || '—')}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } catch (e) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a33; padding: 24px;">Failed loading currency ledger.</td></tr>';
+                }
+            }
+
+            async function openPawsAdjustModal() {
+                const modal = document.getElementById('pawsAdjustModal');
+                if (!modal) return;
+
+                const select = document.getElementById('pawsAdjustUserSelect');
+                if (select) {
+                    select.innerHTML = '<option value="">Loading makers...</option>';
+                    try {
+                        const res = await fetch('/api/admin/people');
+                        const data = await res.json();
+                        const people = data.people || [];
+                        select.innerHTML = people.map(p => `<option value="${p.id}">${escapeHtml(p.name || 'Maker')} (${escapeHtml(p.email || 'no email')}) - 🐾 ${p.pawprints ?? 0}</option>`).join('');
+                    } catch (e) {
+                        select.innerHTML = '<option value="">Failed loading users</option>';
+                    }
+                }
+
+                document.getElementById('pawsAdjustAmount').value = '5';
+                document.getElementById('pawsAdjustNote').value = '';
+                modal.classList.add('active');
+            }
+
+            function closePawsAdjustModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                const modal = document.getElementById('pawsAdjustModal');
+                if (modal) modal.classList.remove('active');
+            }
+
+            async function submitPawsAdjustment() {
+                const user_id = document.getElementById('pawsAdjustUserSelect').value;
+                const type = document.getElementById('pawsAdjustType').value;
+                const amountVal = parseInt(document.getElementById('pawsAdjustAmount').value, 10) || 0;
+                const reason = document.getElementById('pawsAdjustNote').value.trim() || 'Admin manual balance adjustment';
+
+                if (!user_id) {
+                    alert('Please select a maker.');
+                    return;
+                }
+                if (amountVal <= 0) {
+                    alert('Amount must be greater than zero.');
+                    return;
+                }
+
+                const delta = type === 'deduct' ? -amountVal : amountVal;
+
+                try {
+                    const res = await fetch('/api/admin/paws/adjust', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: user_id,
+                            user_id,
+                            delta,
+                            amount: delta,
+                            note: reason,
+                            reason
+                        })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Failed adjusting paws');
+                        return;
+                    }
+                    closePawsAdjustModal();
+                    loadPawsLedgerTab();
+                    if (currentUser && currentUser.id === user_id && data.user) {
+                        updateUserUI(data.user);
+                    }
+                    alert('✓ Paws balance adjusted successfully.');
+                } catch (e) {
+                    alert('Failed adjusting paws.');
+                }
+            }
+
+            window.addEventListener('hashchange', () => {
+                const targetTab = (window.location.hash || '').replace('#', '');
+                if (targetTab && document.getElementById(`pane-${targetTab}`)) {
+                    switchTab(targetTab);
+                }
+            });
+
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('hackatime') === 'connected') {
                 window.history.replaceState({}, document.title, window.location.pathname);
@@ -2434,12 +3834,20 @@
                     })
                     .then(data => {
                         updateUserUI(data.user || {});
+                        const hashTab = (window.location.hash || '').replace('#', '');
+                        if (hashTab && document.getElementById(`pane-${hashTab}`)) {
+                            switchTab(hashTab);
+                        }
                     })
                     .catch(() => {
                         window.location.href = '/login';
                     });
             } else {
                 updateUserUI(currentUser);
+                const hashTab = (window.location.hash || '').replace('#', '');
+                if (hashTab && document.getElementById(`pane-${hashTab}`)) {
+                    switchTab(hashTab);
+                }
             }
         </script>
     </body>

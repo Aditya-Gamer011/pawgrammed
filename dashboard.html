@@ -4,6 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard - PAWGRAMMED</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
         <style>
             @font-face {
                 font-family: "Paw";
@@ -24,6 +27,12 @@
             @font-face {
                 font-family: "Fredoka";
                 font-weight: 600;
+                src: url("fredoka-semibold.ttf") format("truetype");
+            }
+
+            @font-face {
+                font-family: "Fredoka";
+                font-weight: 700;
                 src: url("fredoka-semibold.ttf") format("truetype");
             }
 
@@ -56,9 +65,20 @@
                 font-family: "Fredoka", sans-serif;
             }
 
+            .dashboard-viewport {
+                position: relative;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                overflow: hidden;
+            }
+
             .dashboard-stage {
                 position: relative;
-                width: min(100vw, calc(100vh * (2560 / 1440)));
+                width: min(calc(100vw - clamp(45px, 5vw, 90px)), calc(100vh * (2560 / 1440)));
                 aspect-ratio: 2560 / 1440;
                 max-height: 100vh;
                 max-height: 100dvh;
@@ -66,6 +86,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                transform: translateX(clamp(32px, 3.6vw, 68px));
             }
 
             .dashboard-frame {
@@ -80,125 +101,462 @@
                 z-index: 1;
             }
 
-            .dashboard-card {
+            .dash-heading-card {
                 position: absolute;
-                left: 9.85%;
-                top: 10%;
-                width: 80.3%;
-                height: 80%;
-                z-index: 2;
+                top: 6.94%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: clamp(140px, 19.5cqw, 500px);
+                aspect-ratio: 700 / 254;
+                z-index: 5;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                text-align: center;
-                padding: 3% 4%;
-                gap: clamp(8px, 1.4cqw, 24px);
+                pointer-events: none;
+                user-select: none;
             }
 
-            h1 {
-                font-family: "main", cursive, sans-serif;
-                font-size: clamp(22px, 3.2cqw, 52px);
-                font-weight: normal;
-                letter-spacing: 0.5px;
-                color: #211d1b;
-                line-height: 1.15;
-            }
-
-            .dashboard-subtitle {
-                font-size: clamp(13px, 1.3cqw, 22px);
-                color: #554d48;
-                max-width: 85%;
-                line-height: 1.35;
-            }
-
-            .user-profile-badge {
+            .dash-heading-card-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
                 width: 100%;
-                max-width: 46cqw;
-                padding: clamp(8px, 1.1cqw, 18px) clamp(14px, 1.5cqw, 26px);
-                background-color: #fae3cb;
+                height: 100%;
+                object-fit: contain;
+                z-index: 1;
+            }
+
+            .dash-heading-card-label {
+                position: relative;
+                z-index: 2;
+                font-family: "main", cursive, sans-serif;
+                font-size: clamp(22px, 2.9cqw, 48px);
+                color: #211d1b;
+                transform: rotate(3deg);
+                margin-top: 1%;
+                letter-spacing: 0.5px;
+            }
+
+            .dashboard-sidebar {
+                position: absolute;
+                left: clamp(10px, 1.4vw, 26px);
+                top: clamp(14px, 2.2vh, 28px);
+                bottom: clamp(14px, 2.2vh, 28px);
+                z-index: 10;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 12px;
+                width: clamp(165px, 13vw, 215px);
+                pointer-events: none;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                background-color: rgba(255, 248, 240, 0.96);
+                padding: 10px 8px;
                 border: 2px solid #211d1b;
-                border-radius: clamp(12px, 1.3cqw, 22px);
+                border-radius: 20px;
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+                backdrop-filter: blur(8px);
+                max-height: calc(100% - 75px);
+                overflow-y: auto;
+                pointer-events: auto;
+                margin: auto 0;
+            }
+
+            .sidebar-section-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.9px;
+                color: #8c7f76;
+                padding: 5px 12px 2px;
+            }
+
+            .nav-item {
                 display: flex;
                 align-items: center;
-                gap: clamp(8px, 1.2cqw, 18px);
+                gap: 10px;
+                padding: 8px 12px;
+                border-radius: 12px;
+                border: 1.5px solid transparent;
+                background: transparent;
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(13px, 1.1cqw, 15px);
+                font-weight: 600;
+                color: #211d1b;
+                text-decoration: none;
+                cursor: pointer;
+                transition: all 0.16s ease;
+                white-space: nowrap;
+                width: 100%;
                 text-align: left;
-                box-shadow: 0 4px 0 rgba(33, 29, 27, 0.1);
             }
 
-            .user-avatar {
-                width: clamp(38px, 3.8cqw, 58px);
-                height: clamp(38px, 3.8cqw, 58px);
-                border-radius: 50%;
-                border: 2px solid #211d1b;
-                background-color: #fff8f0;
+            .nav-item:hover {
+                background-color: #fae3cb;
+                border-color: #211d1b;
+                transform: translateX(2px);
+            }
+
+            .nav-item.active {
+                background-color: #211d1b;
+                color: #fff8f0;
+                border-color: #211d1b;
+                box-shadow: 0 3px 0 rgba(33, 29, 27, 0.15);
+            }
+
+            .nav-item.active .nav-icon {
+                filter: brightness(0) invert(1);
+            }
+
+            .nav-icon {
+                width: 18px;
+                height: 18px;
                 object-fit: contain;
-                padding: 4px;
                 flex-shrink: 0;
             }
 
-            .user-details {
+            .user-profile-pill {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                background-color: #fff8f0;
+                border: 2px solid #211d1b;
+                border-radius: 18px;
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+                cursor: pointer;
+                user-select: none;
+                pointer-events: auto;
+                margin-top: auto;
+                flex-shrink: 0;
+            }
+
+            .user-pill-avatar {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                border: 2px solid #211d1b;
+                background-color: #fae3cb;
+                object-fit: contain;
+                flex-shrink: 0;
+                padding: 2px;
+            }
+
+            .user-pill-info {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                flex: 1;
+                gap: 2px;
+            }
+
+            .user-pill-name {
+                font-size: clamp(13px, 1.15cqw, 15px);
+                font-weight: 700;
+                color: #211d1b;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .user-pill-currency {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: clamp(12px, 1cqw, 14px);
+                font-weight: 600;
+                color: #6e4e37;
+            }
+
+            .user-pill-currency img {
+                width: 14px;
+                height: 14px;
+                object-fit: contain;
+            }
+
+            .settings-btn {
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease;
+            }
+
+            .settings-btn:hover {
+                transform: rotate(30deg);
+            }
+
+            .settings-btn img {
+                width: 18px;
+                height: 18px;
+                object-fit: contain;
+            }
+
+            .dashboard-card {
+                position: absolute;
+                left: 9.85%;
+                top: 10.5%;
+                width: 80.3%;
+                height: 80.5%;
+                z-index: 2;
+                display: flex;
+                flex-direction: column;
+                padding-top: clamp(24px, 2.6cqw, 40px);
+                padding-bottom: clamp(10px, 1cqw, 16px);
+                padding-left: clamp(24px, 3.2cqw, 48px);
+                padding-right: clamp(24px, 3.2cqw, 48px);
+                overflow-y: auto;
+                box-sizing: border-box;
+            }
+
+            .tab-pane {
+                display: none;
+                width: 100%;
+                height: 100%;
+                flex-direction: column;
+                gap: 0.6cqw;
+            }
+
+            .tab-pane.active {
+                display: flex;
+            }
+
+            .stepper-card {
+                position: relative;
+                background-color: #fffaf2;
+                border: 2px dashed #cca98b;
+                border-radius: 18px;
+                padding: clamp(18px, 1.8cqw, 26px) clamp(18px, 1.8cqw, 28px) clamp(10px, 1.1cqw, 18px);
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 4px 10px rgba(33, 29, 27, 0.05);
+                margin-top: clamp(8px, 0.9cqw, 14px);
+            }
+
+            .stepper-bubbles-row {
+                position: absolute;
+                top: 0;
+                left: clamp(20px, 2.2cqw, 36px);
+                transform: translateY(-50%);
+                display: flex;
+                align-items: center;
+                gap: clamp(8px, 0.8cqw, 14px);
+                z-index: 3;
+            }
+
+            .step-bubble {
+                position: relative;
+                width: clamp(38px, 3.6cqw, 54px);
+                height: clamp(38px, 3.6cqw, 54px);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                pointer-events: none;
+                user-select: none;
+                filter: drop-shadow(0 3px 5px rgba(33, 29, 27, 0.16));
+            }
+
+            .step-bubble-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                pointer-events: none;
+            }
+
+            .step-bubble-glyph {
+                position: relative;
+                z-index: 2;
+                width: 52%;
+                height: 52%;
+                object-fit: contain;
+            }
+
+            .step-card-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: clamp(18px, 2cqw, 32px);
+                width: 100%;
+            }
+
+            .step-card-main {
+                display: flex;
+                align-items: center;
+                gap: clamp(18px, 2cqw, 28px);
                 flex: 1;
                 min-width: 0;
             }
 
-            .user-name {
-                font-size: clamp(14px, 1.4cqw, 20px);
-                font-weight: 700;
-                color: #211d1b;
-                margin-bottom: 2px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .user-meta {
+            .step-large-icon-wrap {
+                position: relative;
+                width: clamp(58px, 5.6cqw, 82px);
+                height: clamp(58px, 5.6cqw, 82px);
+                flex-shrink: 0;
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                flex-wrap: wrap;
-                font-size: clamp(11px, 1.05cqw, 15px);
-                color: #554d48;
-            }
-
-            .user-status-pill {
-                display: inline-flex;
-                align-items: center;
-                padding: 2px 10px;
-                border-radius: 999px;
-                border: 1.5px solid #211d1b;
-                background-color: #d7f5db;
-                color: #145a27;
-                font-size: clamp(10px, 0.9cqw, 13px);
-                font-weight: 600;
-                text-transform: capitalize;
-            }
-
-            .user-status-pill.unverified {
-                background-color: #fce8cc;
-                color: #8a4b08;
-            }
-
-            .dashboard-actions {
-                display: flex;
-                gap: clamp(8px, 1.2cqw, 18px);
                 justify-content: center;
-                flex-wrap: wrap;
-                margin-top: 4px;
+                filter: drop-shadow(0 4px 8px rgba(33, 29, 27, 0.12));
+            }
+
+            .step-large-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                pointer-events: none;
+            }
+
+            .step-large-icon {
+                position: relative;
+                z-index: 2;
+                width: 54%;
+                height: 54%;
+                object-fit: contain;
+            }
+
+            .step-info-block {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .step-next-up-label {
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(13px, 1.2cqw, 16px);
+                font-weight: 700;
+                color: #8c6b4e;
+                letter-spacing: 0.5px;
+            }
+
+            .step-heading {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(21px, 2.1cqw, 30px);
+                color: #211d1b;
+                line-height: 1.2;
+                margin: 0;
+            }
+
+            .step-subtext {
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(13px, 1.2cqw, 17px);
+                color: #5c524c;
+                line-height: 1.35;
+                margin: 1px 0 0;
+            }
+
+            .step-action-wrap {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .step-action-wrap .btn {
+                font-size: clamp(13px, 1.1cqw, 16px);
+                padding: clamp(8px, 0.8cqw, 12px) clamp(16px, 1.5cqw, 24px);
+            }
+
+            .home-lower-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8cqw;
+                align-items: stretch;
+                position: relative;
+            }
+
+            .info-card {
+                background-color: #fffaf2;
+                border: 2px dashed #cca98b;
+                border-radius: 18px;
+                padding: clamp(10px, 1cqw, 16px) clamp(14px, 1.3cqw, 22px);
+                display: flex;
+                flex-direction: column;
+                gap: clamp(4px, 0.4cqw, 6px);
+                position: relative;
+                box-shadow: 0 4px 10px rgba(33, 29, 27, 0.05);
+            }
+
+            .info-card-header {
+                display: flex;
+                align-items: center;
+                gap: clamp(8px, 0.8cqw, 12px);
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(16px, 1.6cqw, 22px);
+                color: #211d1b;
+            }
+
+            .info-card-icon {
+                width: clamp(24px, 2.3cqw, 34px);
+                height: clamp(24px, 2.3cqw, 34px);
+                object-fit: contain;
+                flex-shrink: 0;
+            }
+
+            .info-card-subtitle {
+                font-size: clamp(12px, 1cqw, 14px);
+                font-weight: 600;
+                color: #8c7f76;
+            }
+
+            .info-card-body {
+                font-size: clamp(12.5px, 1.15cqw, 15px);
+                color: #4f4742;
+                line-height: 1.35;
+                margin-top: 1px;
+            }
+
+            .home-rex-mascot {
+                position: absolute;
+                right: 48%;
+                bottom: -4px;
+                width: clamp(68px, 6.8cqw, 100px);
+                height: auto;
+                pointer-events: none;
+                user-select: none;
+                z-index: 5;
+                filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+            }
+
+            .right-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 0.6cqw;
             }
 
             .btn {
-                padding: clamp(7px, 0.85cqw, 13px) clamp(16px, 1.6cqw, 26px);
-                border-radius: clamp(10px, 1.1cqw, 16px);
+                padding: clamp(5px, 0.6cqw, 9px) clamp(12px, 1.1cqw, 18px);
+                border-radius: 10px;
                 border: 2px solid #211d1b;
                 font-family: "Fredoka", sans-serif;
-                font-size: clamp(12px, 1.1cqw, 17px);
+                font-size: clamp(12px, 1.05cqw, 14px);
                 font-weight: 600;
                 text-decoration: none;
                 cursor: pointer;
-                transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-                display: inline-block;
-                box-shadow: 0 4px 0 rgba(33, 29, 27, 0.12);
+                transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                white-space: nowrap;
+                box-shadow: 0 3px 0 rgba(33, 29, 27, 0.1);
             }
 
             .btn-primary {
@@ -210,7 +568,7 @@
                 background-color: #fff8f0;
                 color: #211d1b;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 0 rgba(33, 29, 27, 0.18);
+                box-shadow: 0 5px 0 rgba(33, 29, 27, 0.15);
             }
 
             .btn-secondary {
@@ -222,24 +580,662 @@
                 background-color: #211d1b;
                 color: #fff8f0;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 0 rgba(33, 29, 27, 0.18);
+                box-shadow: 0 5px 0 rgba(33, 29, 27, 0.15);
             }
 
-            @media (max-width: 680px) {
+            .btn-orange {
+                background-color: #ff8c37;
+                color: #211d1b;
+            }
+
+            .btn-orange:hover {
+                background-color: #ffa15c;
+                transform: translateY(-2px);
+            }
+
+            .placeholder-card {
+                background-color: #fffaf2;
+                border: 2px dashed #cca98b;
+                border-radius: 18px;
+                padding: 2.5cqw;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                height: 100%;
+            }
+
+            .placeholder-icon {
+                width: clamp(40px, 3.8cqw, 60px);
+                height: clamp(40px, 3.8cqw, 60px);
+                object-fit: contain;
+                opacity: 0.85;
+            }
+
+            .people-table-wrap {
+                width: 100%;
+                background-color: #fff8ee;
+                border: 2px solid #211d1b;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 4px 0 rgba(33, 29, 27, 0.08);
+            }
+
+            .people-table {
+                width: 100%;
+                border-collapse: collapse;
+                text-align: left;
+                font-size: clamp(10px, 0.85cqw, 13px);
+            }
+
+            .people-table th {
+                background-color: #fae3cb;
+                padding: 8px 12px;
+                font-weight: 700;
+                color: #211d1b;
+                border-bottom: 2px solid #211d1b;
+            }
+
+            .people-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #ebd5c1;
+                color: #3b342f;
+            }
+
+            .people-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .role-badge {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 999px;
+                border: 1.5px solid #211d1b;
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+
+            .role-badge.maker {
+                background-color: #e3f2fd;
+                color: #0d47a1;
+            }
+
+            .role-badge.admin {
+                background-color: #fce4ec;
+                color: #880e4f;
+            }
+
+            .modal-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(33, 29, 27, 0.65);
+                backdrop-filter: blur(4px);
+                z-index: 100;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+
+            .modal-backdrop.open {
+                display: flex;
+            }
+
+            .modal-window {
+                background-color: #FFF8EE;
+                border: 3px solid #211d1b;
+                border-radius: 22px;
+                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+                width: 100%;
+                max-width: 460px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                position: relative;
+            }
+
+            .modal-close-btn {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                background: transparent;
+                border: none;
+                font-size: 20px;
+                font-weight: 700;
+                cursor: pointer;
+                color: #211d1b;
+            }
+
+            .modal-title {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: 22px;
+                color: #211d1b;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+                font-weight: 700;
+                color: #4f4742;
+            }
+
+            .form-control {
+                padding: 8px 12px;
+                border-radius: 10px;
+                border: 2px solid #211d1b;
+                font-family: "Fredoka", sans-serif;
+                font-size: 13px;
+                background-color: #fffaf2;
+                color: #211d1b;
+            }
+
+            .form-control:focus {
+                outline: none;
+                background-color: #ffffff;
+                box-shadow: 0 0 0 3px rgba(255, 140, 55, 0.35);
+            }
+
+            .pane-heading {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(20px, 2.2cqw, 28px);
+                color: #211d1b;
+                margin: 0;
+            }
+
+            .shop-header-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                flex-wrap: wrap;
+                margin-bottom: 6px;
+            }
+
+            .shop-header-title {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(20px, 2.2cqw, 28px);
+                color: #211d1b;
+                margin: 0;
+            }
+
+            .shop-header-subtitle {
+                font-size: clamp(12.5px, 1.15cqw, 14.5px);
+                color: #5c524c;
+                margin: 2px 0 0;
+            }
+
+            .shop-balance-pill {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background-color: #fffaf2;
+                border: 2px solid #211d1b;
+                border-radius: 999px;
+                padding: 4px 12px;
+                font-size: 13px;
+                font-weight: 700;
+                color: #211d1b;
+                box-shadow: 0 3px 0 rgba(33, 29, 27, 0.1);
+            }
+
+            .shop-balance-icon {
+                width: 16px;
+                height: 16px;
+                object-fit: contain;
+            }
+
+            .shop-dev-faucet-btn {
+                background: #ff8c37;
+                border: 1.5px solid #211d1b;
+                border-radius: 999px;
+                font-family: "Fredoka", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 2px 8px;
+                cursor: pointer;
+                color: #211d1b;
+                transition: transform 0.1s ease;
+            }
+
+            .shop-dev-faucet-btn:hover {
+                transform: scale(1.05);
+            }
+
+            #pane-shop {
+                height: auto;
+                min-height: 100%;
+            }
+
+            .shop-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: clamp(14px, 1.8cqw, 24px);
+                width: 100%;
+                margin-top: 6px;
+                padding-bottom: 24px;
+                align-items: stretch;
+            }
+
+            .shop-card {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 860 / 1393;
+                cursor: pointer;
+                transition: transform 0.18s ease, filter 0.18s ease;
+                user-select: none;
+                filter: drop-shadow(0 4px 8px rgba(33, 29, 27, 0.1));
+            }
+
+            .shop-card:hover {
+                transform: translateY(-5px);
+                filter: drop-shadow(0 10px 18px rgba(33, 29, 27, 0.2));
+            }
+
+            .shop-card-frame {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: fill;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            .shop-card-window {
+                position: absolute;
+                top: 19%;
+                left: 3%;
+                width: 94%;
+                height: 34%;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 4px;
+                box-sizing: border-box;
+            }
+
+            .shop-card-thumb {
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+                border-radius: 12px;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            }
+
+            .shop-card-body {
+                position: absolute;
+                top: 56%;
+                left: 6%;
+                width: 88%;
+                height: 40%;
+                z-index: 2;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                text-align: center;
+                box-sizing: border-box;
+                padding-bottom: 6%;
+            }
+
+            .shop-card-title {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(15.5px, 1.4cqw, 20px);
+                color: #211d1b;
+                margin: 0;
+                line-height: 1.2;
+                text-transform: capitalize;
+            }
+
+            .shop-card-cost {
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(12px, 1.05cqw, 14px);
+                color: #4a3c32;
+                font-weight: 600;
+                margin: 2px 0 0;
+            }
+
+            .shop-card-btn {
+                width: 100%;
+                padding: clamp(7px, 0.75cqw, 10px) clamp(8px, 0.85cqw, 12px);
+                border-radius: 9px;
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(11px, 0.95cqw, 13px);
+                font-weight: 700;
+                text-align: center;
+                border: 2px solid #211d1b;
+                box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+                white-space: nowrap;
+                transition: transform 0.15s ease, background-color 0.15s ease;
+            }
+
+            .shop-card-btn.insufficient {
+                background-color: #baa28e;
+                color: #ffffff;
+                border-color: #7d6b5e;
+                cursor: pointer;
+            }
+
+            .shop-card-btn.available {
+                background-color: #ff8c37;
+                color: #211d1b;
+                cursor: pointer;
+            }
+
+            .shop-card-btn.available:hover {
+                background-color: #ffa15c;
+                transform: translateY(-1px);
+            }
+
+            .shop-modal-window {
+                background-color: #f6efe3;
+                border: 3px dashed #baa088;
+                border-radius: 24px;
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                width: 100%;
+                max-width: 680px;
+                padding: clamp(18px, 2cqw, 26px);
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: relative;
+            }
+
+            .shop-modal-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.25fr;
+                gap: clamp(16px, 2cqw, 24px);
+                align-items: stretch;
+            }
+
+            .shop-modal-left {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .shop-modal-img-box {
+                background-color: #ffffff;
+                border: 2px solid #211d1b;
+                border-radius: 16px;
+                padding: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                aspect-ratio: 1;
+                box-shadow: 0 4px 8px rgba(33, 29, 27, 0.06);
+            }
+
+            .shop-modal-img-box img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+            .shop-modal-title {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: clamp(21px, 2.1cqw, 28px);
+                color: #211d1b;
+                margin: 0;
+                line-height: 1.2;
+                text-transform: capitalize;
+            }
+
+            .shop-modal-desc {
+                font-family: "Fredoka", sans-serif;
+                font-size: clamp(12px, 1.05cqw, 13.5px);
+                color: #615349;
+                line-height: 1.4;
+                margin: 0;
+            }
+
+            .shop-modal-price-tag {
+                font-family: "Fredoka", sans-serif;
+                font-size: 13.5px;
+                font-weight: 700;
+                color: #211d1b;
+            }
+
+            .shop-modal-right {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                justify-content: space-between;
+            }
+
+            .shop-option-row {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding-bottom: 10px;
+                border-bottom: 1.5px dashed #d5beab;
+            }
+
+            .shop-option-label {
+                font-size: 12px;
+                font-weight: 700;
+                color: #4a3e35;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .shop-field-icon {
+                width: 15px;
+                height: 15px;
+                flex-shrink: 0;
+                color: #5a493c;
+            }
+
+            .shop-option-select,
+            .shop-option-textarea {
+                padding: 7px 10px;
+                border-radius: 9px;
+                border: 2px solid #211d1b;
+                background-color: #fffaf2;
+                font-family: "Fredoka", sans-serif;
+                font-size: 13px;
+                color: #211d1b;
+                outline: none;
+            }
+
+            .shop-option-textarea {
+                resize: vertical;
+                min-height: 52px;
+            }
+
+            .shop-option-select:focus,
+            .shop-option-textarea:focus {
+                background-color: #ffffff;
+                box-shadow: 0 0 0 3px rgba(255, 140, 55, 0.35);
+            }
+
+            .shop-qty-wrap {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .shop-qty-btn {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                border: 2px solid #211d1b;
+                background-color: #4a3c32;
+                color: #fff8f0;
+                font-family: "Fredoka", sans-serif;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.1s ease, background-color 0.15s ease;
+            }
+
+            .shop-qty-btn:hover {
+                background-color: #211d1b;
+                transform: scale(1.05);
+            }
+
+            .shop-qty-val {
+                font-family: "Fredoka", sans-serif;
+                font-size: 16px;
+                font-weight: 700;
+                color: #211d1b;
+                min-width: 24px;
+                text-align: center;
+            }
+
+            .shop-order-btn-large {
+                width: 100%;
+                padding: 12px 18px;
+                border-radius: 12px;
+                border: 2.5px solid #211d1b;
+                font-family: "Fredoka", sans-serif;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.18s ease;
+                box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+            }
+
+            .shop-order-btn-large.disabled {
+                background-color: #baa28e;
+                color: #ffffff;
+                border-color: #7d6b5e;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+
+            .shop-order-btn-large.active {
+                background-color: #ff8c37;
+                color: #211d1b;
+            }
+
+            .shop-order-btn-large.active:hover {
+                background-color: #ffa15c;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            }
+
+            .fulfil-stats-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .fulfil-stat-card {
+                background-color: #fffaf2;
+                border: 2px dashed #cca98b;
+                border-radius: 14px;
+                padding: 10px 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .fulfil-stat-num {
+                font-family: "Fredoka", sans-serif;
+                font-weight: 700;
+                font-size: 24px;
+                color: #211d1b;
+            }
+
+            .fulfil-stat-label {
+                font-size: 11px;
+                font-weight: 600;
+                color: #7a6e66;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .fulfil-status-badge {
+                display: inline-block;
+                padding: 3px 8px;
+                border-radius: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .fulfil-status-badge.pending {
+                background-color: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeeba;
+            }
+
+            .fulfil-status-badge.shipped {
+                background-color: #d1ecf1;
+                color: #0c5460;
+                border: 1px solid #bee5eb;
+            }
+
+            .fulfil-status-badge.delivered {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            @media (max-width: 820px) {
+                .shop-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .shop-modal-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .fulfil-stats-row {
+                    grid-template-columns: repeat(2, 1fr);
+                }
                 html, body {
                     overflow-y: auto;
+                    height: auto;
+                    min-height: 100vh;
                 }
 
                 body {
+                    align-items: flex-start;
+                    padding: 16px 12px 32px;
+                }
+
+                .dashboard-viewport {
+                    flex-direction: column;
                     align-items: center;
-                    padding: 24px 16px;
+                    height: auto;
+                    overflow: visible;
                 }
 
                 .dashboard-stage {
                     width: 100%;
-                    max-width: 500px;
+                    max-width: 520px;
                     height: auto;
-                    max-height: none;
                     aspect-ratio: auto;
                     position: relative;
                 }
@@ -248,66 +1244,1186 @@
                     display: none;
                 }
 
+                .dash-heading-card {
+                    position: static;
+                    transform: none;
+                    width: min(160px, 60%);
+                    margin: 0 auto 10px;
+                }
+
+                .dashboard-sidebar {
+                    position: static;
+                    transform: none;
+                    width: 100%;
+                    max-width: 520px;
+                    margin-bottom: 12px;
+                }
+
+                .sidebar-nav {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    max-height: none;
+                }
+
                 .dashboard-card {
                     position: relative;
                     left: auto;
                     top: auto;
                     width: 100%;
                     height: auto;
-                    min-height: 400px;
+                    min-height: 480px;
                     background-color: #FFF8EE;
                     border: 2.5px solid #211d1b;
                     border-radius: 22px;
-                    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18), 0 4px 0 rgba(33, 29, 27, 0.12);
-                    padding: 36px 20px 28px;
-                    gap: 16px;
+                    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+                    padding: 20px 14px;
                 }
 
-                .user-profile-badge {
-                    max-width: 100%;
+                .home-lower-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .stepper-card {
+                    margin-top: 24px;
+                    padding: 26px 14px 16px;
+                }
+
+                .stepper-bubbles-row {
+                    left: 14px;
+                }
+
+                .step-card-content {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 12px;
+                }
+
+                .step-action-wrap {
+                    width: 100%;
+                }
+
+                .step-action-wrap .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+
+                .home-rex-mascot {
+                    display: none;
                 }
             }
         </style>
     </head>
     <body>
-        <div class="dashboard-stage">
-            <img src="images/final-final-dash.png" class="dashboard-frame" alt="" aria-hidden="true" onerror="this.src='images/finai-final-dash.png'">
+        <div class="dashboard-viewport">
+            <aside class="dashboard-sidebar" id="sidebarContainer">
+                <nav class="sidebar-nav" id="sidebarNav">
+                    <button class="nav-item active" data-tab="home">
+                        <img src="images/dash-icons/home-icon.png" class="nav-icon" alt="">
+                        <span>Home</span>
+                    </button>
+                    <button class="nav-item" data-tab="projects">
+                        <img src="images/dash-icons/projects-icon.png" class="nav-icon" alt="">
+                        <span>Projects</span>
+                    </button>
+                    <button class="nav-item" data-tab="explore">
+                        <img src="images/dash-icons/explore-icon.png" class="nav-icon" alt="">
+                        <span>Explore</span>
+                    </button>
+                    <button class="nav-item" data-tab="shop">
+                        <img src="images/dash-icons/shop-icon.png" class="nav-icon" alt="">
+                        <span>Shop</span>
+                    </button>
 
-            <main class="dashboard-card">
-                <h1>This works yayayayay</h1>
-                <p class="dashboard-subtitle">Welcome to your Pawgrammed lair! You are successfully logged in.</p>
-                <div class="user-profile-badge" id="userBox">
-                    <img src="images/rex_main_front.png" class="user-avatar" alt="Rex mascot">
-                    <div class="user-details">
-                        <div class="user-name">Loading your profile...</div>
-                        <div class="user-meta">Connecting to Hack Club Auth</div>
+                    <div id="adminNavGroup" style="display: none; flex-direction: column; gap: 4px;">
+                        <div class="sidebar-section-label">Admin</div>
+                        <button class="nav-item" data-tab="submissions">
+                            <span>Submissions</span>
+                        </button>
+                        <button class="nav-item" data-tab="event-controls">
+                            <span>Event Controls</span>
+                        </button>
+                        <button class="nav-item" data-tab="unified">
+                            <span>Unified</span>
+                        </button>
+                        <button class="nav-item" data-tab="shop-items">
+                            <img src="images/dash-icons/shop-icon.png" class="nav-icon" alt="">
+                            <span>Shop items</span>
+                        </button>
+                        <button class="nav-item" data-tab="fulfilment">
+                            <span>Fulfilment</span>
+                        </button>
+                        <button class="nav-item" data-tab="paws">
+                            <img src="images/paw-print-icon.png" class="nav-icon" alt="">
+                            <span>Paws</span>
+                        </button>
+                        <button class="nav-item" data-tab="people">
+                            <img src="images/dash-icons/people-icon.png" class="nav-icon" alt="">
+                            <span>People</span>
+                        </button>
                     </div>
-                </div>
-                <div class="dashboard-actions">
-                    <a href="/" class="btn btn-secondary">&larr; Back to Home</a>
-                    <a href="/logout" class="btn btn-primary">Log out</a>
-                </div>
-            </main>
-        </div>
-        <script>
-            function renderUser(u) {
-                const name = u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || u.nickname || 'Hacker';
-                const email = u.email || u.primary_email || 'No email provided';
-                const rawStatus = (u.verification_status || (u.email_verified ? 'verified' : 'unverified')).toString();
-                const isVerified = rawStatus.toLowerCase().includes('verified') || rawStatus.toLowerCase().includes('eligible');
-                const statusClass = isVerified ? '' : 'unverified';
-                const avatar = u.profile_picture || u.avatar_url || 'images/rex_main_front.png';
+                </nav>
 
-                document.getElementById('userBox').innerHTML = `
-                    <img src="${avatar}" class="user-avatar" alt="User avatar" onerror="this.src='images/rex_main_front.png'">
-                    <div class="user-details">
-                        <div class="user-name">${name}</div>
-                        <div class="user-meta">
-                            <span>${email}</span>
-                            <span class="user-status-pill ${statusClass}">${rawStatus}</span>
+                <div class="user-profile-pill" id="userPill" onclick="openSettingsModal()">
+                    <img src="images/rex_main_front.png" class="user-pill-avatar" id="pillAvatar" alt="User Avatar">
+                    <div class="user-pill-info">
+                        <div class="user-pill-name" id="pillName">Loading...</div>
+                        <div class="user-pill-currency">
+                            <img src="images/paw-print-icon.png" alt="paws">
+                            <span id="pillPawprints">0</span> paws
                         </div>
                     </div>
-                `;
+                    <button class="settings-btn" title="Settings" onclick="event.stopPropagation(); openSettingsModal();">
+                        <img src="images/dash-icons/gear-icon.png" alt="Settings">
+                    </button>
+                </div>
+            </aside>
+
+            <div class="dashboard-stage">
+                <img src="images/final-final-dash.png" class="dashboard-frame" alt="" aria-hidden="true" onerror="this.src='images/finai-final-dash.png'">
+
+                <div class="dash-heading-card" id="dashHeadingCard">
+                    <img src="images/dash-heading-card.png" class="dash-heading-card-bg" alt="" aria-hidden="true">
+                    <span class="dash-heading-card-label" id="clipTabLabel">Home</span>
+                </div>
+
+                <main class="dashboard-card">
+                    <section class="tab-pane active" id="pane-home">
+                        <div class="stepper-card">
+                            <div class="stepper-bubbles-row" id="stepperBubblesRow"></div>
+
+                            <div class="step-card-content" id="stepCardContent">
+                                <div class="step-card-main">
+                                    <div class="step-large-icon-wrap">
+                                        <img src="images/circular-bg-3.png" class="step-large-bg" id="stepLargeBg" alt="">
+                                        <img src="images/dash-icons/gear-icon.png" class="step-large-icon" id="stepLargeIcon" alt="">
+                                    </div>
+                                    <div class="step-info-block">
+                                        <div class="step-next-up-label" id="stepBannerTag">Next up...</div>
+                                        <h3 class="step-heading" id="stepBannerTitle">Set up Hackatime</h3>
+                                        <p class="step-subtext" id="stepBannerDesc">Work on your project with Hackatime running. Connect your editor to start logging hours!</p>
+                                    </div>
+                                </div>
+                                <div class="step-action-wrap" id="stepBannerAction">
+                                    <a href="/auth/hackatime" class="btn btn-orange">Connect Hackatime &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="home-lower-grid">
+                            <div class="info-card">
+                                <div class="info-card-header">
+                                    <svg class="info-card-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#211d1b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                    </svg>
+                                    <span>Notifications</span>
+                                </div>
+                                <div class="info-card-subtitle">Hey, listen!</div>
+                                <div class="info-card-body" id="notifText">
+                                    Nothing yet. Ship reviews, paw grants, and order updates will show up here.
+                                </div>
+                            </div>
+
+                            <img src="images/rex-studious.png" class="home-rex-mascot" alt="Rex mascot">
+
+                            <div class="right-stack">
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <img src="images/dash-icons/cloud-bubble-icon.png" class="info-card-icon" alt="">
+                                        <span>Need any help?</span>
+                                    </div>
+                                    <div class="info-card-body">
+                                        Ask away at <strong>#pawgrammed</strong> on Slack! The fursuit isn't gonna fund itself.
+                                    </div>
+                                    <div style="margin-top: 4px;">
+                                        <a href="https://hackclub.slack.com/" target="_blank" rel="noopener" class="btn btn-secondary">Open Slack &rarr;</a>
+                                    </div>
+                                </div>
+
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <img src="images/dash-icons/newsletter-icon.png" class="info-card-icon" alt="">
+                                        <span>Announcements</span>
+                                    </div>
+                                    <div class="info-card-body">
+                                        Welcome to Pawgrammed! Build and ship furry-themed projects, track your hours, and claim custom fursuit accessories.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-projects">
+                        <div class="placeholder-card">
+                            <img src="images/dash-icons/projects-icon.png" class="placeholder-icon" alt="">
+                            <h2 class="pane-heading">Your Projects</h2>
+                            <p style="color: #6a5e56; max-width: 480px;">No projects created yet. Start a new project to connect with Hackatime and begin logging hours!</p>
+                            <button class="btn btn-primary" onclick="alert('Project creation is coming right up in the next step!')">+ Create New Project</button>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-explore">
+                        <div class="placeholder-card">
+                            <img src="images/dash-icons/explore-icon.png" class="placeholder-icon" alt="">
+                            <h2 class="pane-heading">Explore Community Projects</h2>
+                            <p style="color: #6a5e56; max-width: 480px;">Discover what other makers and furries across Hack Club are building and shipping.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-shop">
+                        <div class="shop-header-row">
+                            <div>
+                                <h2 class="shop-header-title">The Rewards Shop</h2>
+                                <p class="shop-header-subtitle">You made stuff, now get the goods. The fursuit is NOT gonna fund itself.</p>
+                            </div>
+                            <div class="shop-balance-pill">
+                                <img src="images/paw-print-icon.png" class="shop-balance-icon" alt="">
+                                <span>Balance: <strong id="shopPanePawprints">0</strong> paws</span>
+                                <button type="button" class="shop-dev-faucet-btn" onclick="devGrantPaws()" title="Dev shortcut: +10 paws to test">+10 paws (dev)</button>
+                            </div>
+                        </div>
+                        <div class="shop-grid" id="shopGrid"></div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-submissions">
+                        <div class="placeholder-card">
+                            <h2 class="pane-heading">Submissions Review</h2>
+                            <p style="color: #6a5e56;">Admin queue for reviewing shipped maker projects.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-event-controls">
+                        <div class="placeholder-card">
+                            <h2 class="pane-heading">Event Controls</h2>
+                            <p style="color: #6a5e56;">Configure Pawgrammed dates, multipliers, and event state.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-unified">
+                        <div class="placeholder-card">
+                            <h2 class="pane-heading">Unified Dashboard</h2>
+                            <p style="color: #6a5e56;">Cross-platform synchronization and event statistics.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-shop-items">
+                        <div class="placeholder-card">
+                            <img src="images/dash-icons/shop-icon.png" class="placeholder-icon" alt="">
+                            <h2 class="pane-heading">Shop Items Management</h2>
+                            <p style="color: #6a5e56;">Configure prizes, paw costs, and catalog availability.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-fulfilment">
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading" style="font-size: 24px; margin: 0;">Prize Fulfilment Queue</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Review orders, shipping addresses, and send custom fursuit gear to makers (Admin Only).</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="loadFulfilmentTab()">↻ Refresh Orders</button>
+                            </div>
+
+                            <div class="fulfil-stats-row">
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="fulfilStatTotal">0</span>
+                                    <span class="fulfil-stat-label">Total Orders</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="fulfilStatPending" style="color: #b06200;">0</span>
+                                    <span class="fulfil-stat-label">Pending</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="fulfilStatShipped" style="color: #1e7e34;">0</span>
+                                    <span class="fulfil-stat-label">Shipped</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="fulfilStatPaws">🐾 0</span>
+                                    <span class="fulfil-stat-label">Paws Spent</span>
+                                </div>
+                            </div>
+
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date &amp; ID</th>
+                                            <th>Maker</th>
+                                            <th>Reward Item</th>
+                                            <th>Shipping Address &amp; Notes</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fulfilTableBody">
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; color: #888; padding: 24px;">Loading fulfilment orders...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-paws">
+                        <div class="placeholder-card">
+                            <img src="images/paw-print-icon.png" class="placeholder-icon" alt="">
+                            <h2 class="pane-heading">Paws Currency Ledger</h2>
+                            <p style="color: #6a5e56;">Review paw grants, deductions, and payouts.</p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-people">
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h2 class="pane-heading">People &amp; Makers</h2>
+                                    <p style="font-size: 13px; color: #6a5e56;">Users signed into Pawgrammed via Hack Club Auth (Admin Only).</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="loadPeopleTab()">Refresh</button>
+                            </div>
+                            <div class="people-table-wrap">
+                                <table class="people-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Maker</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Paws</th>
+                                            <th>Hours</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="peopleTableBody">
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; color: #888; padding: 20px;">Loading registered makers...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="settingsModal" onclick="closeSettingsModal(event)">
+            <div class="modal-window" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closeSettingsModal()">&times;</button>
+                <h3 class="modal-title">Account &amp; Settings</h3>
+                <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 2px dashed #cca98b;">
+                    <img src="images/rex_main_front.png" id="modalAvatar" style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid #211d1b; object-fit: contain; background: #fff8f0; padding: 2px;" alt="">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;" id="modalName">Hacker</div>
+                        <div style="font-size: 12px; color: #666;" id="modalEmail">user@hackclub.com</div>
+                        <div style="margin-top: 4px;">
+                            <span class="role-badge" id="modalRoleBadge">Maker</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputNickname">Nickname / Slack Handle</label>
+                    <input type="text" id="inputNickname" class="form-control" placeholder="e.g. floof_coder">
+                </div>
+
+                <div class="form-group">
+                    <label>Hackatime</label>
+                    <div id="hackatimeDisconnectedBox" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 13px; color: #4f4742; line-height: 1.35;">Authorize Hackatime with 1-click so Pawgrammed can verify your project coding hours.</div>
+                        <div>
+                            <a href="/auth/hackatime" class="btn btn-orange" style="font-size: 12px; padding: 6px 14px;">Connect Hackatime &rarr;</a>
+                        </div>
+                    </div>
+                    <div id="hackatimeConnectedBox" style="display: none; background: #eaf8ee; border: 2px solid #3c824c; border-radius: 12px; padding: 12px; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #2f8546; color: white; border-radius: 50%; font-size: 13px; font-weight: 700;">&#10003;</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 13px; color: #1e592f;">Hackatime Connected</div>
+                                    <div style="font-size: 11.5px; color: #3c6e48;" id="hackatimeUserHandle">@maker</div>
+                                </div>
+                            </div>
+                            <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 19px; color: #1e592f;" id="hackatimeHoursDisplay">0.0h</div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                            <button class="btn btn-secondary" type="button" style="font-size: 11.5px; padding: 4px 10px;" id="btnSyncHours" onclick="syncHackatimeHours()">↻ Sync Hours</button>
+                            <button class="btn btn-secondary" type="button" style="font-size: 11.5px; padding: 4px 10px; color: #a33;" onclick="disconnectHackatime()">Disconnect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-secondary" onclick="toggleRoleDev()" title="Switch between Maker and Admin mode">Toggle Role</button>
+                        <a href="/logout" class="btn btn-secondary">Log out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-backdrop" id="shopDetailModal" onclick="closeShopDetailModal(event)">
+            <div class="shop-modal-window" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closeShopDetailModal()">&times;</button>
+                <div class="shop-modal-grid">
+                    <div class="shop-modal-left">
+                        <div class="shop-modal-img-box">
+                            <img src="images/catears.jpg" id="shopModalImg" alt="Product photo">
+                        </div>
+                        <h3 class="shop-modal-title" id="shopModalTitle">cat ears</h3>
+                        <p class="shop-modal-desc" id="shopModalDesc">Fluffy clip-on cat ears with ultra-soft faux fur and inner pink lining.</p>
+                        <div class="shop-modal-price-tag" id="shopModalPrice">🐾 2 paws (~2 hours)</div>
+                    </div>
+                    <div class="shop-modal-right">
+                        <div class="shop-option-row">
+                            <label class="shop-option-label" for="shopModalVariant">
+                                <svg class="shop-field-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+                                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                                    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                                    <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                                    <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                                </svg>
+                                Colour / Variant
+                            </label>
+                            <select id="shopModalVariant" class="shop-option-select">
+                                <option value="Default">Default</option>
+                            </select>
+                        </div>
+
+                        <div class="shop-option-row">
+                            <label class="shop-option-label">
+                                <svg class="shop-field-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m7.5 4.27 9 5.15"/>
+                                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                                    <path d="M12 22V12"/>
+                                </svg>
+                                Quantity
+                            </label>
+                            <div class="shop-qty-wrap">
+                                <button type="button" class="shop-qty-btn" onclick="adjustShopQty(-1)">−</button>
+                                <span class="shop-qty-val" id="shopModalQty">1</span>
+                                <button type="button" class="shop-qty-btn" onclick="adjustShopQty(1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="shop-option-row">
+                            <label class="shop-option-label" for="shopModalAddress">
+                                <svg class="shop-field-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                Shipping Address
+                            </label>
+                            <textarea id="shopModalAddress" class="shop-option-textarea" placeholder="Full street address, city, state/province, postal code, country"></textarea>
+                            <a href="https://auth.hackclub.com" target="_blank" rel="noopener" style="font-size: 11px; color: #8c6b4e; text-decoration: underline; margin-top: 2px;">Add or change an address on Hack Club Auth</a>
+                        </div>
+
+                        <div class="shop-option-row" style="border-bottom: none;">
+                            <label class="shop-option-label" for="shopModalNotes">
+                                <svg class="shop-field-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/>
+                                    <path d="M2 6h4"/>
+                                    <path d="M2 10h4"/>
+                                    <path d="M2 14h4"/>
+                                    <path d="M2 18h4"/>
+                                    <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
+                                </svg>
+                                Order notes
+                            </label>
+                            <textarea id="shopModalNotes" class="shop-option-textarea" placeholder="important information, customization requests, or haikus for our fulfillment team"></textarea>
+                        </div>
+
+                        <div>
+                            <button type="button" id="shopModalOrderBtn" class="shop-order-btn-large" onclick="submitShopOrder()">
+                                You need 🐾 2 more
+                            </button>
+                            <div style="font-size: 11.5px; color: #7a6e66; text-align: center; margin-top: 6px;">
+                                Your balance: 🐾 <span id="shopModalBalance">0</span> paws
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let currentUser = {
+                name: 'Orpheus Hackworth',
+                email: 'orpheus@hackclub.com',
+                nickname: 'orpheus',
+                avatar_url: 'images/rex_main_front.png',
+                role: 'Admin',
+                pawprints: 12,
+                hackatime_key: '',
+                hackatime_hours: 0,
+                verification_status: 'YSWS Eligible'
+            };
+
+            const stepsList = [
+                {
+                    id: 1,
+                    title: 'Log in',
+                    desc: 'You are signed in! Your account is connected and ready to ship projects.',
+                    icon: 'images/dash-icons/home-icon.png',
+                    actionHtml: '<span style="font-weight: 700; color: #1a5725;">&#10003; Done</span>',
+                    isDone: (u) => true
+                },
+                {
+                    id: 2,
+                    title: 'Set up Hackatime',
+                    desc: 'Install the WakaTime extension in VS Code/editor and authorize Pawgrammed to track your coding hours.',
+                    icon: 'images/dash-icons/gear-icon.png',
+                    actionHtml: '<a href="/auth/hackatime" class="btn btn-orange">Connect Hackatime &rarr;</a>',
+                    isDone: (u) => Boolean(u && (u.hackatime_connected || (u.hackatime_key && u.hackatime_key.trim())))
+                },
+                {
+                    id: 3,
+                    title: 'Create a Project',
+                    desc: 'Create your project card. Any furry-themed code: web toys, bots, games, or VR accessories count!',
+                    icon: 'images/dash-icons/projects-icon.png',
+                    actionHtml: '<button class="btn btn-primary" onclick="switchTab(\'projects\')">Go to Projects</button>',
+                    isDone: (u) => Boolean(u && u.project_count && u.project_count > 0)
+                },
+                {
+                    id: 4,
+                    title: 'Log time',
+                    desc: 'Work on your project with Hackatime running. Thirty minutes is enough for a first ship.',
+                    icon: 'images/clock.png',
+                    actionHtml: '<a href="https://hackatime.hackclub.com/" target="_blank" rel="noopener" class="btn btn-secondary">Check Hackatime &rarr;</a>',
+                    isDone: (u) => Boolean(u && (u.hackatime_hours || 0) >= 0.5)
+                },
+                {
+                    id: 5,
+                    title: 'Ship it',
+                    desc: 'Submit your completed project for review, earn Pawprints currency, and order custom fursuit gear!',
+                    icon: 'images/paw-prize.png',
+                    actionHtml: '<button class="btn btn-orange" onclick="switchTab(\'projects\')">Ship Project &rarr;</button>',
+                    isDone: (u) => Boolean(u && u.shipped && u.shipped > 0)
+                }
+            ];
+
+            function renderStepper(user) {
+                const bubblesContainer = document.getElementById('stepperBubblesRow');
+                if (!bubblesContainer) return;
+
+                bubblesContainer.innerHTML = stepsList.map(step => {
+                    const done = step.isDone(user);
+                    return `
+                        <div class="step-bubble ${done ? 'completed' : ''}" title="${step.title}">
+                            <img src="${done ? 'images/tick-circular-icon.png' : 'images/circular-bg-3.png'}" class="step-bubble-bg" alt="">
+                            ${!done ? `<img src="${step.icon}" class="step-bubble-glyph" alt="">` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                const nextStep = stepsList.find(s => !s.isDone(user)) || stepsList[stepsList.length - 1];
+                updateStepContent(nextStep, user);
+            }
+
+            function updateStepContent(step, user) {
+                const done = step.isDone(user);
+
+                const tagEl = document.getElementById('stepBannerTag');
+                const titleEl = document.getElementById('stepBannerTitle');
+                const descEl = document.getElementById('stepBannerDesc');
+                const largeBgEl = document.getElementById('stepLargeBg');
+                const largeIconEl = document.getElementById('stepLargeIcon');
+                const actionEl = document.getElementById('stepBannerAction');
+
+                if (tagEl) {
+                    tagEl.textContent = done ? 'All caught up!' : 'Next up...';
+                    tagEl.style.color = done ? '#1a5725' : '#8c6b4e';
+                }
+                if (titleEl) titleEl.textContent = step.title;
+                if (descEl) descEl.textContent = step.desc;
+
+                if (largeBgEl && largeIconEl) {
+                    if (done) {
+                        largeBgEl.src = 'images/tick-circular-icon.png';
+                        largeIconEl.style.display = 'none';
+                    } else {
+                        largeBgEl.src = 'images/circular-bg-3.png';
+                        largeIconEl.src = step.icon;
+                        largeIconEl.style.display = 'block';
+                    }
+                }
+
+                if (actionEl) {
+                    actionEl.innerHTML = step.actionHtml;
+                }
+            }
+
+            function switchTab(tabId) {
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.tab === tabId);
+                });
+
+                document.querySelectorAll('.tab-pane').forEach(el => {
+                    el.classList.toggle('active', el.id === `pane-${tabId}`);
+                });
+
+                const tabLabels = {
+                    'home': { label: 'Home', icon: 'images/dash-icons/home-icon.png' },
+                    'projects': { label: 'Projects', icon: 'images/dash-icons/projects-icon.png' },
+                    'explore': { label: 'Explore', icon: 'images/dash-icons/explore-icon.png' },
+                    'shop': { label: 'Shop', icon: 'images/dash-icons/shop-icon.png' },
+                    'submissions': { label: 'Submissions', icon: 'images/dash-icons/home-icon.png' },
+                    'event-controls': { label: 'Event Controls', icon: 'images/dash-icons/gear-icon.png' },
+                    'unified': { label: 'Unified', icon: 'images/dash-icons/home-icon.png' },
+                    'shop-items': { label: 'Shop Items', icon: 'images/dash-icons/shop-icon.png' },
+                    'fulfilment': { label: 'Fulfilment', icon: 'images/dash-icons/shop-icon.png' },
+                    'paws': { label: 'Paws Currency', icon: 'images/paw-print-icon.png' },
+                    'people': { label: 'People', icon: 'images/dash-icons/people-icon.png' }
+                };
+
+                const current = tabLabels[tabId] || { label: tabId, icon: 'images/dash-icons/home-icon.png' };
+                const labelEl = document.getElementById('clipTabLabel');
+                if (labelEl) labelEl.textContent = current.label;
+                const iconEl = document.getElementById('clipTabIcon');
+                if (iconEl) iconEl.src = current.icon;
+
+                if (tabId === 'shop') {
+                    loadShop();
+                }
+                if (tabId === 'fulfilment') {
+                    loadFulfilmentTab();
+                }
+                if (tabId === 'people') {
+                    loadPeopleTab();
+                }
+            }
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    if (tab) switchTab(tab);
+                });
+            });
+
+            function updateUserUI(u) {
+                currentUser = u;
+                renderStepper(u);
+                const name = u.name || u.nickname || 'Maker';
+                const avatar = u.avatar_url || 'images/rex_main_front.png';
+                const paws = u.pawprints ?? 0;
+                const role = u.role || 'Maker';
+
+                document.getElementById('pillName').textContent = name;
+                document.getElementById('pillAvatar').src = avatar;
+                document.getElementById('pillPawprints').textContent = paws;
+
+                document.getElementById('modalAvatar').src = avatar;
+                document.getElementById('modalName').textContent = name;
+                document.getElementById('modalEmail').textContent = u.email || 'No email';
+                const roleBadge = document.getElementById('modalRoleBadge');
+                roleBadge.textContent = role;
+                roleBadge.className = `role-badge ${role.toLowerCase()}`;
+
+                document.getElementById('inputNickname').value = u.nickname || '';
+
+                const isConnected = Boolean(u && (u.hackatime_connected || (u.hackatime_key && u.hackatime_key.trim())));
+                const discBox = document.getElementById('hackatimeDisconnectedBox');
+                const connBox = document.getElementById('hackatimeConnectedBox');
+                if (discBox && connBox) {
+                    discBox.style.display = isConnected ? 'none' : 'flex';
+                    connBox.style.display = isConnected ? 'flex' : 'none';
+                }
+                const handleEl = document.getElementById('hackatimeUserHandle');
+                if (handleEl) {
+                    handleEl.textContent = u.hackatime_github ? `@${u.hackatime_github}` : (u.hackatime_slack_id ? `@${u.hackatime_slack_id}` : 'Connected');
+                }
+                const hoursEl = document.getElementById('hackatimeHoursDisplay');
+                if (hoursEl) {
+                    hoursEl.textContent = `${(u.hackatime_hours || 0).toFixed(1)}h`;
+                }
+
+                const shopPanePawprints = document.getElementById('shopPanePawprints');
+                if (shopPanePawprints) shopPanePawprints.textContent = paws;
+                const shopModalBalance = document.getElementById('shopModalBalance');
+                if (shopModalBalance) shopModalBalance.textContent = paws;
+                renderShop();
+
+                const adminNav = document.getElementById('adminNavGroup');
+                if (role === 'Admin') {
+                    adminNav.style.display = 'flex';
+                } else {
+                    adminNav.style.display = 'none';
+                    const activePane = document.querySelector('.tab-pane.active');
+                    if (activePane && ['pane-submissions', 'pane-event-controls', 'pane-unified', 'pane-shop-items', 'pane-fulfilment', 'pane-paws', 'pane-people'].includes(activePane.id)) {
+                        switchTab('home');
+                    }
+                }
+            }
+
+            function openSettingsModal() {
+                document.getElementById('settingsModal').classList.add('open');
+            }
+
+            function closeSettingsModal(e) {
+                if (!e || e.target.id === 'settingsModal' || e.target.classList.contains('modal-close-btn')) {
+                    document.getElementById('settingsModal').classList.remove('open');
+                }
+            }
+
+            async function saveSettings() {
+                const nickname = document.getElementById('inputNickname').value;
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nickname })
+                        });
+                        const data = await res.json();
+                        if (data.user) {
+                            updateUserUI(data.user);
+                        }
+                    } catch (e) {
+                        console.error('Failed saving settings:', e);
+                    }
+                } else {
+                    currentUser.nickname = nickname;
+                    updateUserUI(currentUser);
+                }
+                closeSettingsModal();
+            }
+
+            async function syncHackatimeHours() {
+                const btn = document.getElementById('btnSyncHours');
+                if (btn) btn.textContent = '↻ Syncing...';
+                try {
+                    const res = await fetch('/api/hackatime/sync', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.user) {
+                        updateUserUI(data.user);
+                    }
+                } catch (e) {
+                    console.error('Failed syncing Hackatime:', e);
+                } finally {
+                    if (btn) btn.textContent = '↻ Sync Hours';
+                }
+            }
+
+            async function disconnectHackatime() {
+                if (!confirm('Are you sure you want to disconnect Hackatime?')) return;
+                try {
+                    const res = await fetch('/api/hackatime/disconnect', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.user) {
+                        updateUserUI(data.user);
+                    }
+                } catch (e) {
+                    console.error('Failed disconnecting Hackatime:', e);
+                }
+            }
+
+            async function toggleRoleDev() {
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/dev/toggle-role', { method: 'POST' });
+                        const data = await res.json();
+                        if (data.user) {
+                            updateUserUI(data.user);
+                        }
+                    } catch (e) {
+                        console.error('Role toggle failed:', e);
+                    }
+                } else {
+                    currentUser.role = currentUser.role === 'Admin' ? 'Maker' : 'Admin';
+                    updateUserUI(currentUser);
+                }
+            }
+
+            async function loadPeopleTab() {
+                const tbody = document.getElementById('peopleTableBody');
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/admin/people');
+                        if (!res.ok) {
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #a33; padding: 20px;">Access denied: Admin role required.</td></tr>`;
+                            return;
+                        }
+                        const data = await res.json();
+                        const people = data.people || [];
+                        if (people.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888; padding: 20px;">No registered makers yet.</td></tr>`;
+                            return;
+                        }
+                        tbody.innerHTML = people.map(p => `
+                            <tr>
+                                <td style="display: flex; align-items: center; gap: 8px;">
+                                    <img src="${p.avatar_url || 'images/rex_main_front.png'}" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
+                                    <span style="font-weight: 600;">${p.name || 'Maker'}</span>
+                                </td>
+                                <td>${p.email || '—'}</td>
+                                <td><span class="role-badge ${(p.role || 'maker').toLowerCase()}">${p.role || 'Maker'}</span></td>
+                                <td style="font-weight: 700;">🐾 ${p.pawprints ?? 0}</td>
+                                <td>${(p.hackatime_hours || 0).toFixed(1)}h</td>
+                                <td style="text-transform: capitalize;">${p.verification_status || 'Verified'}</td>
+                            </tr>
+                        `).join('');
+                    } catch (err) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #a33; padding: 20px;">Failed to load people.</td></tr>`;
+                    }
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td style="display: flex; align-items: center; gap: 8px;">
+                                <img src="images/rex_main_front.png" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #211d1b;" alt="">
+                                <span style="font-weight: 600;">Orpheus Hackworth</span>
+                            </td>
+                            <td>orpheus@hackclub.com</td>
+                            <td><span class="role-badge admin">Admin</span></td>
+                            <td style="font-weight: 700;">🐾 12</td>
+                            <td>3.5h</td>
+                            <td>Eligible</td>
+                        </tr>
+                        <tr>
+                            <td style="display: flex; align-items: center; gap: 8px;">
+                                <img src="images/rex_main_front.png" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #211d1b;" alt="">
+                                <span style="font-weight: 600;">FurryHacker42</span>
+                            </td>
+                            <td>maker@hackclub.com</td>
+                            <td><span class="role-badge maker">Maker</span></td>
+                            <td style="font-weight: 700;">🐾 0</td>
+                            <td>0.5h</td>
+                            <td>Verified</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            let shopItemsData = [
+                {
+                    id: 'cat-ears',
+                    number: '01',
+                    name: 'cat ears',
+                    hours: 2,
+                    price: 2,
+                    image: 'images/catears.jpg',
+                    variants: ['Pink & Black', 'White & Pink', 'All Black'],
+                    desc: 'Fluffy clip-on cat ears with ultra-soft faux fur and inner pink lining.'
+                },
+                {
+                    id: 'furtail',
+                    number: '02',
+                    name: 'furtail',
+                    hours: 5,
+                    price: 5,
+                    image: 'images/furrytail.jpg',
+                    variants: ['Black', 'White', 'Fox Orange'],
+                    desc: 'Plump and posable faux fur tail with adjustable belt loop clip.'
+                },
+                {
+                    id: 'paws',
+                    number: '03',
+                    name: 'paws',
+                    hours: 5,
+                    price: 5,
+                    image: 'images/paws.jpg',
+                    variants: ['White & Pink', 'Black & Blue', 'Brown & Cream'],
+                    desc: 'Giant cuddly cosplay paw mittens with soft silicone paw pads.'
+                },
+                {
+                    id: 'protobean-plush',
+                    number: '04',
+                    name: 'protobean plush',
+                    hours: 5,
+                    price: 5,
+                    image: 'images/plush.jpg',
+                    variants: ['Purple Protobean', 'Classic Blue'],
+                    desc: 'Squishy protobean companion plushie to keep you company while shipping code.'
+                }
+            ];
+
+            let activeModalItem = null;
+            let activeModalQty = 1;
+
+            async function loadShop() {
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/shop/items');
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.items && data.items.length) {
+                                shopItemsData = data.items;
+                            }
+                        }
+                    } catch (e) {}
+                }
+                renderShop();
+            }
+
+            function renderShop() {
+                const grid = document.getElementById('shopGrid');
+                if (!grid) return;
+                const userPaws = currentUser.pawprints ?? 0;
+                const balanceEl = document.getElementById('shopPanePawprints');
+                if (balanceEl) balanceEl.textContent = userPaws;
+
+                grid.innerHTML = shopItemsData.map(item => {
+                    const needed = Math.max(0, item.price - userPaws);
+                    const canAfford = needed === 0;
+                    const btnClass = canAfford ? 'available' : 'insufficient';
+                    const btnText = canAfford ? `Buy (🐾 ${item.price})` : `You need 🐾 ${needed} more`;
+
+                    return `
+                        <div class="shop-card" onclick="openShopDetailModal('${item.id}')">
+                            <img src="images/shop-item-card.png" class="shop-card-frame" alt="">
+                            <div class="shop-card-window">
+                                <img src="${item.image}" class="shop-card-thumb" alt="${item.name}">
+                            </div>
+                            <div class="shop-card-body">
+                                <div>
+                                    <h3 class="shop-card-title">${item.name}</h3>
+                                    <div class="shop-card-cost">🐾 ${item.price} paws (~${item.hours} hrs)</div>
+                                </div>
+                                <button type="button" class="shop-card-btn ${btnClass}">
+                                    ${btnText}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function openShopDetailModal(itemId) {
+                const item = shopItemsData.find(i => i.id === itemId);
+                if (!item) return;
+                activeModalItem = item;
+                activeModalQty = 1;
+
+                document.getElementById('shopModalImg').src = item.image;
+                document.getElementById('shopModalTitle').textContent = item.name;
+                document.getElementById('shopModalDesc').textContent = item.desc;
+                document.getElementById('shopModalPrice').textContent = `🐾 ${item.price} paws (~${item.hours} hours)`;
+                document.getElementById('shopModalQty').textContent = '1';
+
+                const variantSelect = document.getElementById('shopModalVariant');
+                variantSelect.innerHTML = (item.variants || ['Default']).map(v => `<option value="${v}">${v}</option>`).join('');
+
+                const addressInput = document.getElementById('shopModalAddress');
+                if (addressInput) {
+                    addressInput.value = currentUser.shipping_address || '';
+                }
+                const notesInput = document.getElementById('shopModalNotes');
+                if (notesInput) {
+                    notesInput.value = '';
+                }
+
+                updateModalOrderBtn();
+                document.getElementById('shopDetailModal').classList.add('open');
+            }
+
+            function closeShopDetailModal(e) {
+                if (!e || e.target.id === 'shopDetailModal' || e.target.classList.contains('modal-close-btn')) {
+                    document.getElementById('shopDetailModal').classList.remove('open');
+                }
+            }
+
+            function adjustShopQty(delta) {
+                activeModalQty = Math.max(1, Math.min(10, activeModalQty + delta));
+                const qtyEl = document.getElementById('shopModalQty');
+                if (qtyEl) qtyEl.textContent = activeModalQty;
+                updateModalOrderBtn();
+            }
+
+            function updateModalOrderBtn() {
+                if (!activeModalItem) return;
+                const totalCost = activeModalItem.price * activeModalQty;
+                const userPaws = currentUser.pawprints ?? 0;
+                const needed = Math.max(0, totalCost - userPaws);
+                const btn = document.getElementById('shopModalOrderBtn');
+                const balEl = document.getElementById('shopModalBalance');
+                if (balEl) balEl.textContent = userPaws;
+
+                if (!btn) return;
+                if (needed > 0) {
+                    btn.className = 'shop-order-btn-large disabled';
+                    btn.disabled = true;
+                    btn.textContent = `You need 🐾 ${needed} more`;
+                } else {
+                    btn.className = 'shop-order-btn-large active';
+                    btn.disabled = false;
+                    btn.innerHTML = `Place Order (🐾 ${totalCost}) &rarr;`;
+                }
+            }
+
+            async function submitShopOrder() {
+                if (!activeModalItem) return;
+                const address = document.getElementById('shopModalAddress').value.trim();
+                const notes = document.getElementById('shopModalNotes').value.trim();
+                const variant = document.getElementById('shopModalVariant').value;
+                const qty = activeModalQty;
+
+                if (!address) {
+                    alert('Please provide a shipping address so our fulfilment team can send your gear!');
+                    document.getElementById('shopModalAddress').focus();
+                    return;
+                }
+
+                const btn = document.getElementById('shopModalOrderBtn');
+                btn.disabled = true;
+                btn.textContent = 'Submitting order...';
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/shop/order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                itemId: activeModalItem.id,
+                                variant,
+                                quantity: qty,
+                                address,
+                                notes
+                            })
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                            alert(data.error === 'insufficient_paws' ? `You need 🐾 ${data.needed} more paws for this order!` : 'Order failed: ' + (data.error || 'Server error'));
+                            updateModalOrderBtn();
+                            return;
+                        }
+                        if (data.user) {
+                            updateUserUI(data.user);
+                        }
+                        alert(`🎉 Order placed successfully! Our fulfilment team has received your order for ${activeModalItem.name}.`);
+                        closeShopDetailModal();
+                        renderShop();
+                    } catch (e) {
+                        alert('Failed submitting order. Please check your connection.');
+                        updateModalOrderBtn();
+                    }
+                } else {
+                    currentUser.pawprints = Math.max(0, (currentUser.pawprints || 0) - (activeModalItem.price * qty));
+                    updateUserUI(currentUser);
+                    alert(`🎉 Order placed in demo mode!`);
+                    closeShopDetailModal();
+                    renderShop();
+                }
+            }
+
+            async function devGrantPaws() {
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/dev/grant-paws', { method: 'POST' });
+                        const data = await res.json();
+                        if (data.user) {
+                            updateUserUI(data.user);
+                            renderShop();
+                        }
+                    } catch (e) {}
+                } else {
+                    currentUser.pawprints = (currentUser.pawprints || 0) + 10;
+                    updateUserUI(currentUser);
+                    renderShop();
+                }
+            }
+
+            async function loadFulfilmentTab() {
+                const tbody = document.getElementById('fulfilTableBody');
+                if (!tbody) return;
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/admin/orders');
+                        if (!res.ok) {
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Access denied: Admin role required for Fulfilment Queue.</td></tr>`;
+                            return;
+                        }
+                        const data = await res.json();
+                        const orders = data.orders || [];
+
+                        document.getElementById('fulfilStatTotal').textContent = orders.length;
+                        document.getElementById('fulfilStatPending').textContent = orders.filter(o => o.status === 'pending').length;
+                        document.getElementById('fulfilStatShipped').textContent = orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length;
+                        const totalSpent = orders.reduce((sum, o) => sum + (o.total_paws || 0), 0);
+                        document.getElementById('fulfilStatPaws').textContent = `🐾 ${totalSpent}`;
+
+                        if (orders.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No prize orders submitted yet.</td></tr>`;
+                            return;
+                        }
+
+                        tbody.innerHTML = orders.map(ord => {
+                            const dateStr = new Date(ord.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                            return `
+                                <tr>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 12.5px;">#${ord.id.slice(-8)}</div>
+                                        <div style="font-size: 11px; color: #888;">${dateStr}</div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <img src="${ord.user_avatar || 'images/rex_main_front.png'}" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
+                                            <div>
+                                                <div style="font-weight: 700;">${ord.user_name || 'Maker'}</div>
+                                                <div style="font-size: 11px; color: #777;">${ord.user_email || '—'}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <img src="${ord.item_image || 'images/catears.jpg'}" style="width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #211d1b; object-fit: contain; background: #fff;" alt="">
+                                            <div>
+                                                <div style="font-weight: 700; text-transform: capitalize;">${ord.item_name}</div>
+                                                <div style="font-size: 11.5px; color: #666;">${ord.variant} (${ord.quantity}x) &bull; 🐾 ${ord.total_paws}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="max-width: 240px;">
+                                        <div style="font-size: 12px; line-height: 1.3; color: #211d1b;">📍 ${ord.address}</div>
+                                        ${ord.notes ? `<div style="font-size: 11px; color: #6b5a4e; margin-top: 3px; font-style: italic;">📝 "${ord.notes}"</div>` : ''}
+                                        ${ord.tracking_number ? `<div style="font-size: 11px; color: #1e7e34; margin-top: 2px;">Tracking: <strong>${ord.tracking_number}</strong></div>` : ''}
+                                    </td>
+                                    <td>
+                                        <span class="fulfil-status-badge ${ord.status}">${ord.status}</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="toggleOrderStatus('${ord.id}', '${ord.status === 'pending' ? 'shipped' : 'pending'}')">
+                                            ${ord.status === 'pending' ? 'Mark Shipped' : 'Mark Pending'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } catch (e) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed to load fulfilment queue.</td></tr>`;
+                    }
+                }
+            }
+
+            async function toggleOrderStatus(orderId, newStatus) {
+                let tracking = '';
+                if (newStatus === 'shipped') {
+                    tracking = prompt('Enter postal tracking number (or leave blank):') || '';
+                }
+                try {
+                    const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus, tracking_number: tracking })
+                    });
+                    if (res.ok) {
+                        loadFulfilmentTab();
+                    }
+                } catch (e) {
+                    alert('Failed updating status');
+                }
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('hackatime') === 'connected') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (urlParams.get('hackatime_error')) {
+                console.warn('Hackatime error:', urlParams.get('hackatime_error'));
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             if (window.location.protocol !== 'file:') {
@@ -317,17 +2433,13 @@
                         return res.json();
                     })
                     .then(data => {
-                        renderUser(data.user || {});
+                        updateUserUI(data.user || {});
                     })
                     .catch(() => {
                         window.location.href = '/login';
                     });
             } else {
-                renderUser({
-                    name: 'Orpheus Hackworth',
-                    email: 'orpheus@hackclub.com',
-                    verification_status: 'YSWS Eligible'
-                });
+                updateUserUI(currentUser);
             }
         </script>
     </body>

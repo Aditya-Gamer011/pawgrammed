@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard - PAWGRAMMED</title>
+        <link rel="icon" type="image/png" href="images/paw-prize.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -139,67 +140,77 @@
 
             .dashboard-sidebar {
                 position: absolute;
-                left: clamp(10px, 1.4vw, 26px);
+                left: clamp(12px, 1.8vw, 32px);
                 top: clamp(14px, 2.2vh, 28px);
                 bottom: clamp(14px, 2.2vh, 28px);
                 z-index: 10;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                gap: 12px;
-                width: clamp(165px, 13vw, 215px);
+                gap: 14px;
+                width: clamp(210px, 15.5vw, 265px);
                 pointer-events: none;
             }
 
             .sidebar-nav {
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 6px;
                 background-color: rgba(255, 248, 240, 0.96);
-                padding: 10px 8px;
+                padding: 12px 10px;
                 border: 2px solid #211d1b;
-                border-radius: 20px;
+                border-radius: 22px;
                 box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
                 backdrop-filter: blur(8px);
-                max-height: calc(100% - 75px);
+                max-height: calc(100% - 90px);
                 overflow-y: auto;
                 pointer-events: auto;
                 margin: auto 0;
             }
 
             .sidebar-section-label {
-                font-size: 11px;
+                font-size: 11.5px;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.9px;
                 color: #8c7f76;
-                padding: 5px 12px 2px;
+                padding: 6px 14px 3px;
             }
 
             .nav-item {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 8px 12px;
-                border-radius: 12px;
+                gap: 12px;
+                padding: 10px 14px;
+                border-radius: 14px;
                 border: 1.5px solid transparent;
                 background: transparent;
                 font-family: "Fredoka", sans-serif;
-                font-size: clamp(13px, 1.1cqw, 15px);
+                font-size: clamp(14px, 1.12vw, 16.5px);
                 font-weight: 600;
                 color: #211d1b;
                 text-decoration: none;
                 cursor: pointer;
-                transition: all 0.16s ease;
                 white-space: nowrap;
                 width: 100%;
                 text-align: left;
+                transition: background-color 0.15s ease;
             }
 
-            .nav-item:hover {
-                background-color: #fae3cb;
-                border-color: #211d1b;
-                transform: translateX(2px);
+            .nav-item:hover:not(.active) {
+                background-color: rgba(33, 29, 27, 0.08);
+            }
+
+            .paw-icon {
+                width: 14px;
+                height: 14px;
+                object-fit: contain;
+                vertical-align: -2px;
+                display: inline-block;
+            }
+
+            .nav-item {
+                --nav-icon-cutout: #fff8f0;
             }
 
             .nav-item.active {
@@ -207,27 +218,64 @@
                 color: #fff8f0;
                 border-color: #211d1b;
                 box-shadow: 0 3px 0 rgba(33, 29, 27, 0.15);
+                --nav-icon-cutout: #211d1b;
             }
 
             .nav-item.active .nav-icon {
                 filter: brightness(0) invert(1);
             }
 
-            .nav-icon {
-                width: 18px;
-                height: 18px;
+            .nav-icon, svg.nav-icon {
+                width: 20px;
+                height: 20px;
                 object-fit: contain;
                 flex-shrink: 0;
+            }
+
+            .nav-item svg.nav-icon,
+            .nav-item.active svg.nav-icon {
+                filter: none;
+            }
+
+            .screenshot-dropzone {
+                background: #fffdf9;
+                border: 2px dashed #cca98b;
+                border-radius: 14px;
+                padding: 16px 14px;
+                text-align: center;
+                cursor: pointer;
+                transition: border-color 0.15s ease, background 0.15s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100px;
+                position: relative;
+            }
+
+            .screenshot-dropzone:hover, .screenshot-dropzone.dragover {
+                border-color: #ff8c37;
+                background: #fffaf2;
+            }
+
+            .screenshot-dropzone img.preview {
+                max-height: 180px;
+                width: auto;
+                max-width: 100%;
+                border-radius: 10px;
+                border: 1.5px solid #211d1b;
+                object-fit: contain;
+                background: #fff8f0;
             }
 
             .user-profile-pill {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 8px 12px;
+                gap: 12px;
+                padding: 10px 14px;
                 background-color: #fff8f0;
                 border: 2px solid #211d1b;
-                border-radius: 18px;
+                border-radius: 20px;
                 box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
                 cursor: pointer;
                 user-select: none;
@@ -237,8 +285,8 @@
             }
 
             .user-pill-avatar {
-                width: 38px;
-                height: 38px;
+                width: 44px;
+                height: 44px;
                 border-radius: 50%;
                 border: 2px solid #211d1b;
                 background-color: #fae3cb;
@@ -252,11 +300,11 @@
                 flex-direction: column;
                 min-width: 0;
                 flex: 1;
-                gap: 2px;
+                gap: 3px;
             }
 
             .user-pill-name {
-                font-size: clamp(13px, 1.15cqw, 15px);
+                font-size: clamp(14px, 1.15vw, 16.5px);
                 font-weight: 700;
                 color: #211d1b;
                 white-space: nowrap;
@@ -267,15 +315,16 @@
             .user-pill-currency {
                 display: flex;
                 align-items: center;
-                gap: 5px;
-                font-size: clamp(12px, 1cqw, 14px);
+                gap: 6px;
+                font-size: clamp(13px, 1.05vw, 15px);
                 font-weight: 600;
                 color: #6e4e37;
+                white-space: nowrap;
             }
 
             .user-pill-currency img {
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 object-fit: contain;
             }
 
@@ -283,12 +332,13 @@
                 background: transparent;
                 border: none;
                 cursor: pointer;
-                padding: 4px;
-                border-radius: 6px;
+                padding: 6px;
+                border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 transition: transform 0.2s ease;
+                flex-shrink: 0;
             }
 
             .settings-btn:hover {
@@ -296,26 +346,61 @@
             }
 
             .settings-btn img {
-                width: 18px;
-                height: 18px;
+                width: 20px;
+                height: 20px;
                 object-fit: contain;
             }
 
             .dashboard-card {
                 position: absolute;
                 left: 9.85%;
-                top: 10.5%;
-                width: 80.3%;
-                height: 80.5%;
+                top: 10.2%;
+                width: 80.2%;
+                height: 79.2%;
                 z-index: 2;
                 display: flex;
                 flex-direction: column;
-                padding-top: clamp(24px, 2.6cqw, 40px);
-                padding-bottom: clamp(10px, 1cqw, 16px);
-                padding-left: clamp(24px, 3.2cqw, 48px);
-                padding-right: clamp(24px, 3.2cqw, 48px);
+                padding-top: clamp(20px, 2.2cqw, 36px);
+                padding-bottom: clamp(14px, 1.5cqw, 24px);
+                padding-left: clamp(22px, 2.8cqw, 44px);
+                padding-right: clamp(22px, 2.8cqw, 44px);
                 overflow-y: auto;
+                overflow-x: hidden;
                 box-sizing: border-box;
+                border-radius: clamp(16px, 2cqw, 28px);
+            }
+
+            *::-webkit-scrollbar {
+                width: 7px;
+                height: 7px;
+            }
+
+            *::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            *::-webkit-scrollbar-thumb {
+                background: #d8c7b8;
+                border-radius: 999px;
+            }
+
+            *::-webkit-scrollbar-thumb:hover {
+                background: #baa28e;
+            }
+
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #d8c7b8 transparent;
+            }
+
+            .dashboard-card::-webkit-scrollbar-track {
+                margin: clamp(16px, 2cqw, 28px) 0;
+            }
+
+            .modal-window::-webkit-scrollbar-track,
+            .shop-modal-window::-webkit-scrollbar-track,
+            .modal-body-scroll::-webkit-scrollbar-track {
+                margin: 6px 0;
             }
 
             .tab-pane {
@@ -567,7 +652,6 @@
             .btn-primary:hover {
                 background-color: #fff8f0;
                 color: #211d1b;
-                transform: translateY(-2px);
                 box-shadow: 0 5px 0 rgba(33, 29, 27, 0.15);
             }
 
@@ -579,7 +663,6 @@
             .btn-secondary:hover {
                 background-color: #211d1b;
                 color: #fff8f0;
-                transform: translateY(-2px);
                 box-shadow: 0 5px 0 rgba(33, 29, 27, 0.15);
             }
 
@@ -590,7 +673,6 @@
 
             .btn-orange:hover {
                 background-color: #ffa15c;
-                transform: translateY(-2px);
             }
 
             .placeholder-card {
@@ -683,8 +765,21 @@
                 padding: 16px;
             }
 
-            .modal-backdrop.open {
+            .modal-backdrop.open,
+            .modal-backdrop.active {
                 display: flex;
+            }
+
+            #customConfirmModal {
+                z-index: 10000;
+            }
+
+            #confirmModalCancelBtn:hover, #confirmModalOkBtn:hover {
+                background-color: rgba(33, 29, 27, 0.08) !important;
+            }
+
+            #confirmModalCancelBtn:active, #confirmModalOkBtn:active {
+                background-color: rgba(33, 29, 27, 0.16) !important;
             }
 
             .modal-window {
@@ -694,23 +789,27 @@
                 box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
                 width: 100%;
                 max-width: 460px;
-                padding: 22px;
+                max-height: min(88vh, 760px);
+                padding: 22px 22px 18px 22px;
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
                 position: relative;
+                box-sizing: border-box;
+                overflow: hidden;
             }
 
             .modal-close-btn {
                 position: absolute;
-                top: 14px;
-                right: 14px;
+                top: 16px;
+                right: 18px;
                 background: transparent;
                 border: none;
-                font-size: 20px;
+                font-size: 22px;
                 font-weight: 700;
                 cursor: pointer;
                 color: #211d1b;
+                z-index: 2;
+                line-height: 1;
             }
 
             .modal-title {
@@ -718,6 +817,33 @@
                 font-weight: 700;
                 font-size: 22px;
                 color: #211d1b;
+                margin: 0 0 12px 0;
+                flex-shrink: 0;
+                padding-right: 28px;
+            }
+
+            .modal-body-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                padding: 4px 6px 18px 2px;
+                -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent 100%);
+                mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent 100%);
+            }
+
+            .modal-footer {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                padding-top: 12px;
+                margin-top: 4px;
+                border-top: 1.5px dashed #cca98b;
             }
 
             .form-group {
@@ -762,7 +888,7 @@
                 justify-content: space-between;
                 gap: 16px;
                 flex-wrap: wrap;
-                margin-bottom: 6px;
+                margin-bottom: 2px;
             }
 
             .shop-header-title {
@@ -823,10 +949,12 @@
 
             .shop-grid {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: clamp(14px, 1.8cqw, 24px);
+                grid-template-columns: repeat(3, minmax(0, clamp(200px, 22cqw, 250px)));
+                justify-content: center;
+                gap: clamp(12px, 1.6cqw, 20px);
                 width: 100%;
-                margin-top: 6px;
+                margin: 4px auto 0;
+                padding-top: 4px;
                 padding-bottom: 24px;
                 align-items: stretch;
             }
@@ -836,14 +964,8 @@
                 width: 100%;
                 aspect-ratio: 860 / 1393;
                 cursor: pointer;
-                transition: transform 0.18s ease, filter 0.18s ease;
                 user-select: none;
                 filter: drop-shadow(0 4px 8px rgba(33, 29, 27, 0.1));
-            }
-
-            .shop-card:hover {
-                transform: translateY(-5px);
-                filter: drop-shadow(0 10px 18px rgba(33, 29, 27, 0.2));
             }
 
             .shop-card-frame {
@@ -898,16 +1020,16 @@
             .shop-card-title {
                 font-family: "Fredoka", sans-serif;
                 font-weight: 700;
-                font-size: clamp(15.5px, 1.4cqw, 20px);
+                font-size: clamp(14.5px, 1.3cqw, 18.5px);
                 color: #211d1b;
                 margin: 0;
-                line-height: 1.2;
+                line-height: 1.18;
                 text-transform: capitalize;
             }
 
             .shop-card-cost {
                 font-family: "Fredoka", sans-serif;
-                font-size: clamp(12px, 1.05cqw, 14px);
+                font-size: clamp(11.5px, 1cqw, 13.5px);
                 color: #4a3c32;
                 font-weight: 600;
                 margin: 2px 0 0;
@@ -915,16 +1037,16 @@
 
             .shop-card-btn {
                 width: 100%;
-                padding: clamp(7px, 0.75cqw, 10px) clamp(8px, 0.85cqw, 12px);
+                padding: clamp(6.5px, 0.7cqw, 9.5px) clamp(8px, 0.8cqw, 12px);
                 border-radius: 9px;
                 font-family: "Fredoka", sans-serif;
-                font-size: clamp(11px, 0.95cqw, 13px);
+                font-size: clamp(11px, 0.9cqw, 12.8px);
                 font-weight: 700;
                 text-align: center;
                 border: 2px solid #211d1b;
                 box-shadow: 0 2px 0 rgba(0,0,0,0.15);
                 white-space: nowrap;
-                transition: transform 0.15s ease, background-color 0.15s ease;
+                transition: background-color 0.15s ease;
             }
 
             .shop-card-btn.insufficient {
@@ -942,7 +1064,6 @@
 
             .shop-card-btn.available:hover {
                 background-color: #ffa15c;
-                transform: translateY(-1px);
             }
 
             .shop-modal-window {
@@ -952,6 +1073,8 @@
                 box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
                 width: 100%;
                 max-width: 680px;
+                max-height: min(90vh, 760px);
+                overflow-y: auto;
                 padding: clamp(18px, 2cqw, 26px);
                 display: flex;
                 flex-direction: column;
@@ -1138,7 +1261,6 @@
 
             .shop-order-btn-large.active:hover {
                 background-color: #ffa15c;
-                transform: translateY(-2px);
                 box-shadow: 0 6px 0 rgba(0,0,0,0.2);
             }
 
@@ -1202,6 +1324,16 @@
                 border: 1px solid #c3e6cb;
             }
 
+            .fulfil-status-badge.cancelled {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .fulfil-dropdown-item:hover {
+                background-color: rgba(33, 29, 27, 0.08);
+            }
+
             .project-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1218,12 +1350,13 @@
                 flex-direction: column;
                 justify-content: space-between;
                 gap: 10px;
-                transition: transform 0.15s ease, box-shadow 0.15s ease;
+                transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
             }
 
             .project-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 14px rgba(33, 29, 27, 0.08);
+                background-color: #f3e6d3;
+                border-color: #bfa184;
+                box-shadow: 0 4px 12px rgba(33, 29, 27, 0.08);
             }
 
             .status-pill {
@@ -1400,16 +1533,38 @@
                         <img src="images/dash-icons/shop-icon.png" class="nav-icon" alt="">
                         <span>Shop</span>
                     </button>
+                    <button class="nav-item" data-tab="orders">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        <span>Orders</span>
+                    </button>
 
                     <div id="adminNavGroup" style="display: none; flex-direction: column; gap: 4px;">
                         <div class="sidebar-section-label">Admin</div>
                         <button class="nav-item" data-tab="submissions">
+                            <svg class="nav-icon" viewBox="0 0 24 24">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" fill="currentColor"/>
+                                <rect width="8" height="4" x="8" y="2" rx="1" fill="var(--nav-icon-cutout, #fff8f0)"/>
+                                <path d="m9 14 2 2 4-4" fill="none" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                             <span>Submissions</span>
                         </button>
                         <button class="nav-item" data-tab="event-controls">
+                            <svg class="nav-icon" viewBox="0 0 24 24">
+                                <rect width="18" height="18" x="3" y="4" rx="3" fill="currentColor"/>
+                                <path d="M8 2v3M16 2v3" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M3 9.5h18" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.8"/>
+                                <path d="M21.29 14.7a2.43 2.43 0 0 0-2.65-.52c-.3.12-.57.3-.8.53l-.34.34-.35-.34a2.43 2.43 0 0 0-2.65-.53c-.3.12-.56.3-.79.53-.95.94-1 2.53.2 3.74L17.5 21l3.6-3.55c1.2-1.21 1.14-2.8.19-3.75z" fill="var(--nav-icon-cutout, #fff8f0)"/>
+                            </svg>
                             <span>Event Controls</span>
                         </button>
                         <button class="nav-item" data-tab="unified">
+                            <svg class="nav-icon" viewBox="0 0 24 24">
+                                <rect width="18" height="18" x="3" y="3" rx="3" fill="currentColor"/>
+                                <path d="M3 9h18" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="2"/>
+                                <path d="M9 21V9" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="2"/>
+                            </svg>
                             <span>Unified</span>
                         </button>
                         <button class="nav-item" data-tab="shop-items">
@@ -1417,6 +1572,14 @@
                             <span>Shop items</span>
                         </button>
                         <button class="nav-item" data-tab="fulfilment">
+                            <svg class="nav-icon" viewBox="0 0 24 24">
+                                <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" fill="currentColor"/>
+                                <path d="m7.5 4.27 9 5.15" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.8" stroke-linecap="round"/>
+                                <polyline points="3.29 7 12 12 20.71 7" fill="none" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="12" x2="12" y2="22" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.8" stroke-linecap="round"/>
+                                <circle cx="17.5" cy="17" r="4.5" fill="currentColor" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.2"/>
+                                <path d="m15.5 17 1.5 1.5 3-3" fill="none" stroke="var(--nav-icon-cutout, #fff8f0)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                             <span>Fulfilment</span>
                         </button>
                         <button class="nav-item" data-tab="paws">
@@ -1530,8 +1693,6 @@
                                 <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
                             </div>
 
-                            <div id="eventAnnouncementBanner" style="display: none; background: #fffaf2; border: 2px dashed #ff8c37; border-radius: 14px; padding: 10px 14px; font-size: 13px; color: #8c4500; font-weight: 600;"></div>
-
                             <div id="projectsGrid" class="project-grid">
                                 <div style="text-align: center; color: #888; padding: 24px; grid-column: 1 / -1;">Loading your projects...</div>
                             </div>
@@ -1561,7 +1722,7 @@
                                     <span class="fulfil-stat-label">Total Hours Coded</span>
                                 </div>
                                 <div class="fulfil-stat-card">
-                                    <span class="fulfil-stat-num" id="exploreStatPaws" style="color: #ff8c37;">🐾 0</span>
+                                    <span class="fulfil-stat-num" id="exploreStatPaws" style="color: #ff8c37;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 0</span>
                                     <span class="fulfil-stat-label">Paws Earned</span>
                                 </div>
                             </div>
@@ -1581,10 +1742,25 @@
                             <div class="shop-balance-pill">
                                 <img src="images/paw-print-icon.png" class="shop-balance-icon" alt="">
                                 <span>Balance: <strong id="shopPanePawprints">0</strong> paws</span>
-                                <button type="button" class="shop-dev-faucet-btn" onclick="devGrantPaws()" title="Dev shortcut: +10 paws to test">+10 paws (dev)</button>
+                                <button type="button" class="shop-dev-faucet-btn" id="shopDevFaucetBtn" style="display: none;" onclick="devGrantPaws()" title="Dev shortcut: +10 paws to test">+10 paws (dev)</button>
                             </div>
                         </div>
                         <div class="shop-grid" id="shopGrid"></div>
+                    </section>
+
+                    <section class="tab-pane" id="pane-orders">
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h2 class="pane-heading">Your Orders</h2>
+                                    <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Track the custom gear and prizes you've claimed with your paws.</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="loadOrdersTab()">↻ Refresh</button>
+                            </div>
+                            <div id="ordersContainer">
+                                <div style="text-align: center; color: #888; padding: 24px;">Loading your orders...</div>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="tab-pane" id="pane-submissions">
@@ -1794,7 +1970,7 @@
                                     <span class="fulfil-stat-label">Shipped</span>
                                 </div>
                                 <div class="fulfil-stat-card">
-                                    <span class="fulfil-stat-num" id="fulfilStatPaws">🐾 0</span>
+                                    <span class="fulfil-stat-num" id="fulfilStatPaws"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 0</span>
                                     <span class="fulfil-stat-label">Paws Spent</span>
                                 </div>
                             </div>
@@ -1836,7 +2012,7 @@
 
                             <div class="fulfil-stats-row">
                                 <div class="fulfil-stat-card">
-                                    <span class="fulfil-stat-num" id="ledgerStatCirculating" style="color: #ff8c37;">🐾 0</span>
+                                    <span class="fulfil-stat-num" id="ledgerStatCirculating" style="color: #ff8c37;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 0</span>
                                     <span class="fulfil-stat-label">In Circulation</span>
                                 </div>
                                 <div class="fulfil-stat-card">
@@ -1910,52 +2086,117 @@
             <div class="modal-window" onclick="event.stopPropagation()">
                 <button class="modal-close-btn" onclick="closeSettingsModal()">&times;</button>
                 <h3 class="modal-title">Account &amp; Settings</h3>
-                <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 2px dashed #cca98b;">
-                    <img src="images/rex_main_front.png" id="modalAvatar" style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid #211d1b; object-fit: contain; background: #fff8f0; padding: 2px;" alt="">
-                    <div>
-                        <div style="font-weight: 700; font-size: 15px;" id="modalName">Hacker</div>
-                        <div style="font-size: 12px; color: #666;" id="modalEmail">user@hackclub.com</div>
-                        <div style="margin-top: 4px;">
-                            <span class="role-badge" id="modalRoleBadge">Maker</span>
+
+                <div class="modal-body-scroll" id="settingsModalScrollBody">
+                    <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 2px dashed #cca98b;">
+                        <img src="images/rex_main_front.png" id="modalAvatar" style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid #211d1b; object-fit: cover; background: #fff8f0; padding: 2px;" alt="">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 700; font-size: 15px; color: #211d1b;" id="modalName">Hacker</div>
+                            <div style="font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="modalEmail">user@hackclub.com</div>
+                            <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
+                                <span class="role-badge" id="modalRoleBadge">Maker</span>
+                                <span id="modalSlackHandleBadge" style="font-size: 11px; background: #f0e6dc; padding: 2px 8px; border-radius: 8px; color: #5a4e46; font-weight: 600;">@maker</span>
+                                <span id="modalVerificationBadge" style="font-size: 11px; background: #eaf8ee; color: #1e592f; padding: 2px 8px; border-radius: 8px; font-weight: 600;">Verified</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="inputNickname">Nickname / Slack Handle</label>
-                    <input type="text" id="inputNickname" class="form-control" placeholder="e.g. floof_coder">
-                </div>
+                    <div class="form-group">
+                        <label for="inputNickname">Display Name</label>
+                        <input type="text" id="inputNickname" class="form-control" readonly tabindex="-1" style="background: #f7f0e7; border-color: #d8c6b5; color: #5a4e46; cursor: not-allowed;" placeholder="Your name">
+                    </div>
 
-                <div class="form-group">
-                    <label>Hackatime</label>
-                    <div id="hackatimeDisconnectedBox" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-                        <div style="font-size: 13px; color: #4f4742; line-height: 1.35;">Authorize Hackatime with 1-click so Pawgrammed can verify your project coding hours.</div>
-                        <div>
-                            <a href="/auth/hackatime" class="btn btn-orange" style="font-size: 12px; padding: 6px 14px;">Connect Hackatime &rarr;</a>
+                    <div class="form-group">
+                        <label for="inputEmail">Email</label>
+                        <input type="email" id="inputEmail" class="form-control" readonly tabindex="-1" style="background: #f7f0e7; border-color: #d8c6b5; color: #5a4e46; cursor: not-allowed;" placeholder="your.email@example.com">
+                        <div style="font-size: 11.5px; color: #7a6e66; line-height: 1.4; margin-top: 3px;">
+                            This comes from your Hack Club account. Change it there and it changes here.
+                            <a href="https://auth.hackclub.com/" target="_blank" rel="noopener" style="color: #ec3750; font-weight: 700; text-decoration: underline; margin-left: 2px; display: inline-flex; align-items: center; gap: 3px;">
+                                <span>open Hack Club account</span>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </a>
                         </div>
                     </div>
-                    <div id="hackatimeConnectedBox" style="display: none; background: #eaf8ee; border: 2px solid #3c824c; border-radius: 12px; padding: 12px; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #2f8546; color: white; border-radius: 50%; font-size: 13px; font-weight: 700;">&#10003;</span>
+
+                    <div class="form-group" style="margin-top: 4px;">
+                        <div style="background: #fff4ea; border: 2px solid #211d1b; border-radius: 16px; padding: 14px 16px;">
+                            <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11.5px; letter-spacing: 0.8px; text-transform: uppercase; color: #211d1b; margin-bottom: 3px;">
+                                <span>WHERE GRANTS GO</span>
+                            </div>
+                            <div style="font-size: 12px; color: #7a6e66; line-height: 1.35; margin-bottom: 12px;">
+                                Fill this in once and checkout is one click. Only organizers packing your grant can see it.
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
                                 <div>
-                                    <div style="font-weight: 700; font-size: 13px; color: #1e592f;">Hackatime Connected</div>
-                                    <div style="font-size: 11.5px; color: #3c6e48;" id="hackatimeUserHandle">@maker</div>
+                                    <label for="inputAddressName" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">Name for the Parcel</label>
+                                    <input type="text" id="inputAddressName" class="form-control" placeholder="Aditya" style="width: 100%; box-sizing: border-box;">
+                                </div>
+
+                                <div>
+                                    <label for="inputAddressLine1" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">Address</label>
+                                    <input type="text" id="inputAddressLine1" class="form-control" placeholder="street and number" style="width: 100%; box-sizing: border-box;">
+                                </div>
+
+                                <div>
+                                    <label for="inputAddressLine2" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">Address Line 2</label>
+                                    <input type="text" id="inputAddressLine2" class="form-control" placeholder="flat, building, optional" style="width: 100%; box-sizing: border-box;">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label for="inputAddressCity" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">City</label>
+                                        <input type="text" id="inputAddressCity" class="form-control" placeholder="" style="width: 100%; box-sizing: border-box;">
+                                    </div>
+                                    <div>
+                                        <label for="inputAddressState" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">State or Province</label>
+                                        <input type="text" id="inputAddressState" class="form-control" placeholder="" style="width: 100%; box-sizing: border-box;">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label for="inputAddressPostcode" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">Postcode</label>
+                                        <input type="text" id="inputAddressPostcode" class="form-control" placeholder="" style="width: 100%; box-sizing: border-box;">
+                                    </div>
+                                    <div>
+                                        <label for="inputAddressCountry" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #4f4742; display: block; margin-bottom: 4px;">Country</label>
+                                        <input type="text" id="inputAddressCountry" class="form-control" placeholder="" style="width: 100%; box-sizing: border-box;">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 4px;">
+                                    <button type="button" class="btn btn-primary" id="btnSaveAddress" onclick="saveAddressOnly()">Save Address</button>
                                 </div>
                             </div>
-                            <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 19px; color: #1e592f;" id="hackatimeHoursDisplay">0.0h</div>
                         </div>
-                        <div style="display: flex; gap: 8px; margin-top: 4px;">
-                            <button class="btn btn-secondary" type="button" style="font-size: 11.5px; padding: 4px 10px;" id="btnSyncHours" onclick="syncHackatimeHours()">↻ Sync Hours</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hackatime</label>
+                        <div id="hackatimeDisconnectedBox" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 13px; color: #4f4742; line-height: 1.35;">Authorize Hackatime with 1-click so Pawgrammed can verify your project coding hours.</div>
+                            <div>
+                                <a href="/auth/hackatime" class="btn btn-orange" style="font-size: 12px; padding: 6px 14px;">Connect Hackatime &rarr;</a>
+                            </div>
+                        </div>
+                        <div id="hackatimeConnectedBox" style="display: none; background: #fff8f0; border: 2px solid #211d1b; border-radius: 16px; padding: 12px 14px; align-items: center; justify-content: space-between; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #2f8546; color: white; border-radius: 50%; font-size: 13px; font-weight: 700; flex-shrink: 0;">&#10003;</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 13px; color: #211d1b;">Hackatime Connected</div>
+                                    <div style="font-size: 11.5px; color: #6a5e56;" id="hackatimeUserHandle">@maker</div>
+                                </div>
+                            </div>
                             <button class="btn btn-secondary" type="button" style="font-size: 11.5px; padding: 4px 10px; color: #a33;" onclick="disconnectHackatime()">Disconnect</button>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                <div class="modal-footer" style="justify-content: space-between;">
                     <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
                     <div style="display: flex; gap: 6px;">
-                        <button class="btn btn-secondary" onclick="toggleRoleDev()" title="Switch between Maker and Admin mode">Toggle Role</button>
+                        <button class="btn btn-secondary" id="devToggleRoleBtn" style="display: none;" onclick="toggleRoleDev()" title="Switch between Maker and Admin mode">Toggle Role</button>
                         <a href="/logout" class="btn btn-secondary">Log out</a>
                     </div>
                 </div>
@@ -1972,7 +2213,7 @@
                         </div>
                         <h3 class="shop-modal-title" id="shopModalTitle">cat ears</h3>
                         <p class="shop-modal-desc" id="shopModalDesc">Fluffy clip-on cat ears with ultra-soft faux fur and inner pink lining.</p>
-                        <div class="shop-modal-price-tag" id="shopModalPrice">🐾 2 paws (~2 hours)</div>
+                        <div class="shop-modal-price-tag" id="shopModalPrice"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 2 paws (~2 hours)</div>
                     </div>
                     <div class="shop-modal-right">
                         <div class="shop-option-row">
@@ -2037,51 +2278,115 @@
 
                         <div>
                             <button type="button" id="shopModalOrderBtn" class="shop-order-btn-large" onclick="submitShopOrder()">
-                                You need 🐾 2 more
+                                You need <img src="images/paw-print-icon.png" class="paw-icon" alt=""> 2 more
                             </button>
                             <div style="font-size: 11.5px; color: #7a6e66; text-align: center; margin-top: 6px;">
-                                Your balance: 🐾 <span id="shopModalBalance">0</span> paws
+                                Your balance: <img src="images/paw-print-icon.png" class="paw-icon" alt=""> <span id="shopModalBalance">0</span> paws
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
         <!-- Project Create / Edit Modal -->
         <div class="modal-backdrop" id="projectModal" onclick="closeProjectModal(event)">
-            <div class="modal-window" onclick="event.stopPropagation()">
+            <div class="modal-window" onclick="event.stopPropagation()" style="max-width: 540px;">
                 <button class="modal-close-btn" onclick="closeProjectModal()">&times;</button>
                 <h3 class="modal-title" id="projectModalTitle">Create Project</h3>
                 <input type="hidden" id="projectModalId">
-                <div class="form-group">
-                    <label for="projectModalName">Project Title</label>
-                    <input type="text" id="projectModalName" class="form-control" placeholder="e.g. Protogen Visor Firmware">
-                </div>
-                <div class="form-group">
-                    <label for="projectModalDesc">Description</label>
-                    <textarea id="projectModalDesc" class="form-control" rows="3" placeholder="What does your project do? How does it connect to the furry theme?"></textarea>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+
+                <div class="modal-body-scroll" id="projectModalScrollBody">
+                    <div class="form-group" style="margin-bottom: 2px;">
+                        <label style="font-weight: 700; font-size: 13.5px; color: #211d1b; margin-bottom: 6px; display: block;">
+                            Screenshot <span style="font-size: 11px; font-weight: normal; color: #887a70;">(optional)</span>
+                        </label>
+                        <div class="screenshot-dropzone" id="projectModalDropzone" onclick="document.getElementById('projectModalScreenshotInput').click()">
+                            <input type="file" id="projectModalScreenshotInput" accept="image/*" style="display: none;" onchange="handleScreenshotFileSelect(this)">
+                            <div id="projectModalDropzonePrompt" style="display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none;">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cca98b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                    <circle cx="12" cy="13" r="3"/>
+                                </svg>
+                                <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; color: #211d1b;">Upload screenshot</div>
+                                <div style="font-size: 11.5px; color: #7a6e66;">Click to browse, drag &amp; drop, or paste (Ctrl+V)</div>
+                            </div>
+                            <div id="projectModalPreviewWrap" style="display: none; position: relative; width: 100%; text-align: center;">
+                                <img id="projectModalScreenshotPreview" class="preview" alt="Project screenshot preview">
+                                <button type="button" class="btn btn-secondary" onclick="event.stopPropagation(); clearProjectScreenshot();" style="position: absolute; top: 6px; right: 6px; font-size: 11px; padding: 3px 8px; background: rgba(255,248,240,0.92); border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="projectModalRepo">GitHub Repo URL</label>
-                        <input type="url" id="projectModalRepo" class="form-control" placeholder="https://github.com/...">
+                        <label for="projectModalName">Project Title <span style="color: #e53e3e;">*</span></label>
+                        <input type="text" id="projectModalName" class="form-control" placeholder="e.g. Protogen Visor Firmware" required>
                     </div>
                     <div class="form-group">
-                        <label for="projectModalDemo">Live Demo / Video URL</label>
-                        <input type="url" id="projectModalDemo" class="form-control" placeholder="https://...">
+                        <label for="projectModalDesc">Description <span style="font-size: 11px; font-weight: normal; color: #887a70;">(optional)</span></label>
+                        <textarea id="projectModalDesc" class="form-control" rows="3" placeholder="What does your project do? How does it connect to the furry theme?"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label for="projectModalRepo">GitHub Repo URL <span style="font-size: 11px; font-weight: normal; color: #887a70;">(optional)</span></label>
+                            <input type="url" id="projectModalRepo" class="form-control" placeholder="https://github.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label for="projectModalDemo">Live Demo / Video URL <span style="font-size: 11px; font-weight: normal; color: #887a70;">(optional)</span></label>
+                            <input type="url" id="projectModalDemo" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 2px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <label style="margin: 0; font-weight: 700; font-size: 13.5px; color: #211d1b;">
+                                Hackatime Projects
+                            </label>
+                            <span id="projectModalHoursBadge" style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 13px; color: #1e592f; background: #eaf8ee; border: 1.5px solid #3c824c; border-radius: 8px; padding: 1px 8px;">0.0h</span>
+                        </div>
+
+                        <div id="projectModalHtNotConnected" style="display: none; background: #fff4ea; border: 2px dashed #e89a58; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: #5c4432; line-height: 1.4; margin-bottom: 6px;">
+                                Connect your Hackatime account to automatically pull tracked coding hours for your project.
+                            </div>
+                            <a href="/auth/hackatime" class="btn btn-orange" style="font-size: 11.5px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                <span>Connect Hackatime &rarr;</span>
+                            </a>
+                        </div>
+
+                        <div id="projectModalHtProjectsWrap" style="background: #fffdf9; border: 2px solid #211d1b; border-radius: 12px; padding: 8px 10px; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+                            <div id="projectModalHtLoading" style="font-size: 12px; color: #7a6e66; padding: 6px; text-align: center;">Loading Hackatime projects...</div>
+                            <div id="projectModalHtList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label for="projectModalAiDeclaration">AI usage declaration <span style="font-size: 11px; font-weight: normal; color: #887a70;">(optional)</span></label>
+                        <textarea id="projectModalAiDeclaration" class="form-control" rows="2" placeholder='How did you use AI? Write "None" if you didn&#39;t.'></textarea>
+
+                        <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 10px;">
+                            <input type="checkbox" id="projectModalPriorProject" style="accent-color: #ff8c37; width: 17px; height: 17px; cursor: pointer; margin-top: 2px;" onchange="toggleProjectUpdateDesc(this.checked)">
+                            <label for="projectModalPriorProject" style="font-size: 12.5px; color: #211d1b; cursor: pointer; user-select: none; line-height: 1.35; margin: 0;">
+                                This project was started <strong>before 17 October 2026</strong>, or was <strong>previously shipped</strong> to a Hack Club event.
+                            </label>
+                        </div>
+
+                        <div id="projectModalUpdateDescGroup" class="form-group" style="display: none; margin-top: 10px;">
+                            <label for="projectModalUpdateDesc" style="font-size: 12.5px; font-weight: 700; color: #4f4742; display: block; margin-bottom: 2px;">
+                                Update Description <span style="color: #e53e3e;">*</span>
+                            </label>
+                            <textarea id="projectModalUpdateDesc" class="form-control" rows="2" style="width: 100%; box-sizing: border-box;" placeholder="What did you update and why?"></textarea>
+                        </div>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="form-group">
-                        <label for="projectModalHtName">Hackatime Project Tag</label>
-                        <input type="text" id="projectModalHtName" class="form-control" placeholder="e.g. fursuit-visor">
+
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button class="btn btn-orange" type="button" id="btnSubmitProjectModal" onclick="submitCurrentProjectFromModal()" style="font-weight: 700;">Submit Project &rarr;</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" type="button" onclick="closeProjectModal()">Cancel</button>
+                        <button class="btn btn-primary" type="button" onclick="saveProject()">Save Project</button>
                     </div>
-                    <div class="form-group">
-                        <label for="projectModalHours">Logged Coding Hours</label>
-                        <input type="number" id="projectModalHours" class="form-control" step="0.1" min="0" value="0.0">
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
-                    <button class="btn btn-secondary" type="button" onclick="closeProjectModal()">Cancel</button>
-                    <button class="btn btn-primary" type="button" onclick="saveProject()">Save Project</button>
                 </div>
             </div>
         </div>
@@ -2092,29 +2397,32 @@
                 <button class="modal-close-btn" onclick="closeReviewModal()">&times;</button>
                 <h3 class="modal-title">Review Project Submission</h3>
                 <input type="hidden" id="reviewProjectId">
-                <div id="reviewProjectSummary" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
-                    <div class="form-group">
-                        <label for="reviewApprovedHours">Approved Hours</label>
-                        <input type="number" id="reviewApprovedHours" class="form-control" step="0.5" min="0.5" oninput="updateReviewPawsCalculation()">
+
+                <div class="modal-body-scroll" id="submissionReviewScrollBody">
+                    <div id="reviewProjectSummary" style="background: #fffaf2; border: 2px dashed #cca98b; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px;"></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+                        <div class="form-group">
+                            <label for="reviewApprovedHours">Approved Hours</label>
+                            <input type="number" id="reviewApprovedHours" class="form-control" step="0.5" min="0.5" oninput="updateReviewPawsCalculation()">
+                        </div>
+                        <div class="form-group">
+                            <label>Paws to Award</label>
+                            <div id="reviewCalculatedPaws" style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #ff8c37; padding: 8px 12px; background: #fffaf2; border: 2px solid #211d1b; border-radius: 10px; display: flex; align-items: center; gap: 6px;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 0 paws</div>
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label>Paws to Award</label>
-                        <div id="reviewCalculatedPaws" style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #ff8c37; padding: 8px 12px; background: #fffaf2; border: 2px solid #211d1b; border-radius: 10px;">🐾 0 paws</div>
+                        <label for="reviewNoteToMaker">Feedback / Note to Maker</label>
+                        <textarea id="reviewNoteToMaker" class="form-control" rows="3" placeholder="Praise great code, highlight cool features, or detail needed changes..."></textarea>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="reviewNoteToMaker">Feedback / Note to Maker</label>
-                    <textarea id="reviewNoteToMaker" class="form-control" rows="3" placeholder="Praise great code, highlight cool features, or detail needed changes..."></textarea>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                    <button class="btn btn-secondary" style="color: #a33;" onclick="submitProjectReview('rejected')">✕ Reject</button>
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button class="btn btn-secondary" style="color: #a33; display: inline-flex; align-items: center; gap: 5px;" onclick="submitProjectReview('rejected')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Reject</button>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary" onclick="submitProjectReview('changes_requested')">✎ Request Changes</button>
-                        <button class="btn btn-primary" style="background-color: #2f8546; color: white;" onclick="submitProjectReview('approved')">✓ Approve &amp; Award Paws</button>
+                        <button class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 5px;" onclick="submitProjectReview('changes_requested')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>Request Changes</button>
+                        <button class="btn btn-primary" style="background-color: #2f8546; color: white; display: inline-flex; align-items: center; gap: 5px;" onclick="submitProjectReview('approved')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Approve &amp; Award Paws</button>
                     </div>
                 </div>
             </div>
@@ -2126,37 +2434,41 @@
                 <button class="modal-close-btn" onclick="closeShopItemModal()">&times;</button>
                 <h3 class="modal-title" id="shopItemModalTitle">Reward Item</h3>
                 <input type="hidden" id="shopItemModalId">
-                <div class="form-group">
-                    <label for="shopItemModalName">Item Name</label>
-                    <input type="text" id="shopItemModalName" class="form-control" placeholder="e.g. Cat Ears">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+
+                <div class="modal-body-scroll" id="shopItemModalScrollBody">
                     <div class="form-group">
-                        <label for="shopItemModalPrice">Paw Price</label>
-                        <input type="number" id="shopItemModalPrice" class="form-control" min="1" value="2">
+                        <label for="shopItemModalName">Item Name</label>
+                        <input type="text" id="shopItemModalName" class="form-control" placeholder="e.g. Cat Ears">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label for="shopItemModalPrice">Paws Price</label>
+                            <input type="number" id="shopItemModalPrice" class="form-control" min="1" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label for="shopItemModalHours">Required Hours</label>
+                            <input type="number" id="shopItemModalHours" class="form-control" min="1" value="2">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="shopItemModalHours">Required Hours</label>
-                        <input type="number" id="shopItemModalHours" class="form-control" min="1" value="2">
+                        <label for="shopItemModalImage">Image URL or Local Path</label>
+                        <input type="text" id="shopItemModalImage" class="form-control" placeholder="images/catears.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="shopItemModalVariants">Variants (comma separated)</label>
+                        <input type="text" id="shopItemModalVariants" class="form-control" placeholder="Pink &amp; Black, White &amp; Pink, All Black">
+                    </div>
+                    <div class="form-group">
+                        <label for="shopItemModalDesc">Description</label>
+                        <textarea id="shopItemModalDesc" class="form-control" rows="2" placeholder="Item description"></textarea>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="shopItemModalStock" checked style="width: 18px; height: 18px;">
+                        <label for="shopItemModalStock" style="font-weight: 700; cursor: pointer;">Available in Shop (In Stock)</label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="shopItemModalImage">Image URL or Local Path</label>
-                    <input type="text" id="shopItemModalImage" class="form-control" placeholder="images/catears.jpg">
-                </div>
-                <div class="form-group">
-                    <label for="shopItemModalVariants">Variants (comma separated)</label>
-                    <input type="text" id="shopItemModalVariants" class="form-control" placeholder="Pink &amp; Black, White &amp; Pink, All Black">
-                </div>
-                <div class="form-group">
-                    <label for="shopItemModalDesc">Description</label>
-                    <textarea id="shopItemModalDesc" class="form-control" rows="2" placeholder="Item description"></textarea>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="shopItemModalStock" checked style="width: 18px; height: 18px;">
-                    <label for="shopItemModalStock" style="font-weight: 700; cursor: pointer;">Available in Shop (In Stock)</label>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+
+                <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeShopItemModal()">Cancel</button>
                     <button class="btn btn-primary" onclick="saveShopItem()">Save Item</button>
                 </div>
@@ -2168,28 +2480,32 @@
             <div class="modal-window" onclick="event.stopPropagation()">
                 <button class="modal-close-btn" onclick="closePawsAdjustModal()">&times;</button>
                 <h3 class="modal-title">Manual Paws Adjustment</h3>
-                <div class="form-group">
-                    <label for="pawsAdjustUserSelect">Select Maker</label>
-                    <select id="pawsAdjustUserSelect" class="form-control"></select>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+
+                <div class="modal-body-scroll" id="pawsAdjustModalScrollBody">
                     <div class="form-group">
-                        <label for="pawsAdjustType">Adjustment Type</label>
-                        <select id="pawsAdjustType" class="form-control">
-                            <option value="grant">Grant (+) Paws</option>
-                            <option value="deduct">Deduct (-) Paws</option>
-                        </select>
+                        <label for="pawsAdjustUserSelect">Select Maker</label>
+                        <select id="pawsAdjustUserSelect" class="form-control"></select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label for="pawsAdjustType">Adjustment Type</label>
+                            <select id="pawsAdjustType" class="form-control">
+                                <option value="grant">Grant (+) Paws</option>
+                                <option value="deduct">Deduct (-) Paws</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pawsAdjustAmount">Amount</label>
+                            <input type="number" id="pawsAdjustAmount" class="form-control" min="1" max="100" value="5">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="pawsAdjustAmount">Amount</label>
-                        <input type="number" id="pawsAdjustAmount" class="form-control" min="1" max="100" value="5">
+                        <label for="pawsAdjustNote">Reason / Note</label>
+                        <input type="text" id="pawsAdjustNote" class="form-control" placeholder="e.g. Hackathon bonus, demo night prize">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="pawsAdjustNote">Reason / Note</label>
-                    <input type="text" id="pawsAdjustNote" class="form-control" placeholder="e.g. Hackathon bonus, demo night prize">
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+
+                <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closePawsAdjustModal()">Cancel</button>
                     <button class="btn btn-primary" onclick="submitPawsAdjustment()">Apply Adjustment</button>
                 </div>
@@ -2201,14 +2517,101 @@
             <div class="modal-window" onclick="event.stopPropagation()" style="max-width: 640px;">
                 <button class="modal-close-btn" onclick="closeUnifiedPayloadModal()">&times;</button>
                 <h3 class="modal-title">Unified Bridge Payload JSON</h3>
-                <pre id="unifiedPayloadPre" style="background: #211d1b; color: #a6f3a6; padding: 14px; border-radius: 12px; font-size: 12px; overflow-x: auto; max-height: 400px; font-family: monospace;"></pre>
-                <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+
+                <div class="modal-body-scroll">
+                    <pre id="unifiedPayloadPre" style="background: #211d1b; color: #a6f3a6; padding: 14px; border-radius: 12px; font-size: 12px; overflow-x: auto; max-height: 400px; font-family: monospace; margin: 0;"></pre>
+                </div>
+
+                <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeUnifiedPayloadModal()">Close</button>
                 </div>
             </div>
         </div>
 
+        <div class="modal-backdrop" id="customConfirmModal" style="display: none; align-items: center; justify-content: center;" onclick="handleConfirmBackdropClick(event)">
+            <div style="position: relative; width: clamp(340px, 92vw, 540px); aspect-ratio: 1031 / 620; user-select: none;" onclick="event.stopPropagation()">
+                <img src="images/are-u-sure-box.png" style="width: 100%; height: 100%; display: block; pointer-events: none;" alt="">
+                <div id="confirmModalMessage" style="position: absolute; top: 18.5%; left: 7.4%; width: 83.4%; height: 43.8%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: clamp(14px, 2.7vw, 18px); color: #211d1b; line-height: 1.35; padding: 12px 18px; box-sizing: border-box;">
+                    <div id="confirmModalText">Are you sure?</div>
+                    <input type="text" id="confirmModalInput" class="form-control" style="display: none; margin-top: 8px; width: 85%; font-size: 13px; padding: 5px 10px; background: #fff8f0;" placeholder="">
+                </div>
+                <button type="button" id="confirmModalCancelBtn" onclick="resolveCustomConfirm(false)" style="position: absolute; top: 62.4%; left: 7.4%; width: 41.7%; height: 19.8%; background: transparent; border: none; cursor: pointer; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(14px, 2.5vw, 18px); color: #211d1b; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s ease;">
+                    Cancel
+                </button>
+                <button type="button" id="confirmModalOkBtn" onclick="resolveCustomConfirm(true)" style="position: absolute; top: 62.4%; left: 49.1%; width: 41.7%; height: 19.8%; background: transparent; border: none; cursor: pointer; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(14px, 2.5vw, 18px); color: #211d1b; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s ease;">
+                    Confirm
+                </button>
+            </div>
+        </div>
+
         <script>
+            let confirmResolver = null;
+
+            function showConfirm(message, { okText = 'OK', cancelText = 'Cancel', isPrompt = false, defaultValue = '' } = {}) {
+                return new Promise(resolve => {
+                    confirmResolver = { resolve, isPrompt };
+                    const modal = document.getElementById('customConfirmModal');
+                    const textEl = document.getElementById('confirmModalText');
+                    const inputEl = document.getElementById('confirmModalInput');
+                    const okBtn = document.getElementById('confirmModalOkBtn');
+                    const cancelBtn = document.getElementById('confirmModalCancelBtn');
+
+                    if (textEl) textEl.textContent = message;
+                    if (okBtn) okBtn.textContent = okText;
+                    if (cancelBtn) cancelBtn.textContent = cancelText;
+
+                    if (inputEl) {
+                        if (isPrompt) {
+                            inputEl.style.display = 'block';
+                            inputEl.value = defaultValue || '';
+                            setTimeout(() => { inputEl.focus(); inputEl.select(); }, 60);
+                        } else {
+                            inputEl.style.display = 'none';
+                        }
+                    }
+
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        modal.classList.add('active', 'open');
+                    }
+                });
+            }
+
+            function resolveCustomConfirm(result) {
+                const modal = document.getElementById('customConfirmModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('active', 'open');
+                }
+                if (confirmResolver) {
+                    if (confirmResolver.isPrompt) {
+                        const inputEl = document.getElementById('confirmModalInput');
+                        confirmResolver.resolve(result ? (inputEl ? inputEl.value : '') : null);
+                    } else {
+                        confirmResolver.resolve(Boolean(result));
+                    }
+                    confirmResolver = null;
+                }
+            }
+
+            function handleConfirmBackdropClick(e) {
+                if (e.target.id === 'customConfirmModal') {
+                    resolveCustomConfirm(false);
+                }
+            }
+
+            window.addEventListener('keydown', e => {
+                const modal = document.getElementById('customConfirmModal');
+                if (!modal || modal.style.display !== 'flex') return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    resolveCustomConfirm(false);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    resolveCustomConfirm(true);
+                }
+            });
+
             let currentUser = {
                 name: 'Orpheus Hackworth',
                 email: 'orpheus@hackclub.com',
@@ -2218,7 +2621,17 @@
                 pawprints: 12,
                 hackatime_key: '',
                 hackatime_hours: 0,
-                verification_status: 'YSWS Eligible'
+                verification_status: 'YSWS Eligible',
+                address: {
+                    name: 'Orpheus Hackworth',
+                    line1: '15 Falls Rd',
+                    line2: '',
+                    city: 'Shelburne',
+                    state: 'VT',
+                    postal_code: '05482',
+                    country: 'United States'
+                },
+                shipping_address: 'Orpheus Hackworth, 15 Falls Rd, Shelburne, VT, 05482, United States'
             };
 
             const stepsList = [
@@ -2248,11 +2661,11 @@
                 },
                 {
                     id: 4,
-                    title: 'Log time',
-                    desc: 'Work on your project with Hackatime running. Thirty minutes is enough for a first ship.',
+                    title: 'Track time',
+                    desc: 'Work on your project with Hackatime running. Log at least 5 minutes in a selected Hackatime project.',
                     icon: 'images/clock.png',
-                    actionHtml: '<a href="https://hackatime.hackclub.com/" target="_blank" rel="noopener" class="btn btn-secondary">Check Hackatime &rarr;</a>',
-                    isDone: (u) => Boolean(u && (u.hackatime_hours || 0) >= 0.5)
+                    actionHtml: '<button class="btn btn-primary" onclick="switchTab(\'projects\')">View Projects &rarr;</button>',
+                    isDone: (u) => hasUserTrackedMinimumProjectTime(u)
                 },
                 {
                     id: 5,
@@ -2263,6 +2676,23 @@
                     isDone: (u) => Boolean(u && u.shipped && u.shipped > 0)
                 }
             ];
+
+            function hasUserTrackedMinimumProjectTime(user) {
+                if (Array.isArray(myProjectsList) && myProjectsList.length > 0) {
+                    return myProjectsList.some(p => {
+                        const tags = Array.isArray(p.hackatime_projects) && p.hackatime_projects.length > 0
+                            ? p.hackatime_projects
+                            : (p.hackatime_project ? p.hackatime_project.split(',').map(s => s.trim()).filter(Boolean) : []);
+                        if (tags.length === 0) return false;
+                        const secs = p.seconds_logged !== undefined ? p.seconds_logged : Math.round((p.hours_logged || 0) * 3600);
+                        return secs >= 300 || (p.hours_logged && p.hours_logged >= (5 / 60));
+                    });
+                }
+                if (user && user.has_min_tracked_time !== undefined) {
+                    return Boolean(user.has_min_tracked_time);
+                }
+                return false;
+            }
 
             function renderStepper(user) {
                 const bubblesContainer = document.getElementById('stepperBubblesRow');
@@ -2329,12 +2759,13 @@
                     'projects': { label: 'Projects', icon: 'images/dash-icons/projects-icon.png' },
                     'explore': { label: 'Explore', icon: 'images/dash-icons/explore-icon.png' },
                     'shop': { label: 'Shop', icon: 'images/dash-icons/shop-icon.png' },
+                    'orders': { label: 'Your Orders', icon: 'images/dash-icons/shop-icon.png' },
                     'submissions': { label: 'Submissions', icon: 'images/dash-icons/home-icon.png' },
                     'event-controls': { label: 'Event Controls', icon: 'images/dash-icons/gear-icon.png' },
                     'unified': { label: 'Unified', icon: 'images/dash-icons/home-icon.png' },
                     'shop-items': { label: 'Shop Items', icon: 'images/dash-icons/shop-icon.png' },
                     'fulfilment': { label: 'Fulfilment', icon: 'images/dash-icons/shop-icon.png' },
-                    'paws': { label: 'Paws Currency', icon: 'images/paw-print-icon.png' },
+                    'paws': { label: 'Paws Ledger', icon: 'images/paw-print-icon.png' },
                     'people': { label: 'People', icon: 'images/dash-icons/people-icon.png' }
                 };
 
@@ -2352,6 +2783,9 @@
                 }
                 if (tabId === 'shop') {
                     loadShop();
+                }
+                if (tabId === 'orders') {
+                    loadOrdersTab();
                 }
                 if (tabId === 'submissions') {
                     loadSubmissionsTab();
@@ -2376,6 +2810,87 @@
                 }
             }
 
+            async function loadOrdersTab() {
+                const container = document.getElementById('ordersContainer');
+                if (!container) return;
+                try {
+                    const res = await fetch('/api/orders');
+                    const data = await res.json();
+                    const orders = data.orders || [];
+
+                    if (orders.length === 0) {
+                        container.innerHTML = `
+                            <div class="placeholder-card" style="padding: 40px 20px;">
+                                <h3 style="font-size: 18px; margin: 0 0 4px; color: #211d1b;">No Orders yet!</h3>
+                                <p style="font-size: 13px; color: #7a6e66; margin: 0 0 14px;">You haven't ordered any custom gear yet. Ship projects, earn paws, and visit the Shop!</p>
+                                <button class="btn btn-primary" onclick="switchTab('shop')">Browse Shop &rarr;</button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            ${orders.map(ord => `
+                                <div style="background-color: #fffaf2; border: 2px solid #211d1b; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                    <div style="display: flex; align-items: center; gap: 14px; min-width: 220px;">
+                                        <img src="${ord.item_image || 'images/catears.jpg'}" style="width: 54px; height: 54px; border-radius: 12px; border: 2px solid #211d1b; object-fit: contain; background: #fff;" alt="">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 16px; color: #211d1b; text-transform: capitalize;">${escapeHtml(ord.item_name)}</div>
+                                            <div style="font-size: 12px; color: #7a6e66; margin-top: 2px;">
+                                                <span>Variant: <strong>${escapeHtml(ord.variant || 'Default')}</strong></span>
+                                                <span style="margin: 0 6px;">&bull;</span>
+                                                <span>Qty: <strong>${ord.quantity || 1}</strong></span>
+                                            </div>
+                                            <div style="font-size: 12px; color: #ff8c37; font-weight: 700; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                                                <img src="images/paw-print-icon.png" class="paw-icon" alt="">
+                                                <span>${ord.total_paws} paws</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 12px; color: #6a5e56; max-width: 260px; line-height: 1.4;">
+                                        <div style="font-weight: 600; color: #211d1b; margin-bottom: 2px;">Shipping Address:</div>
+                                        <div>${escapeHtml(ord.address)}</div>
+                                        ${ord.tracking_number ? `<div style="color: #1e7e34; font-weight: 700; margin-top: 4px;">Tracking: ${escapeHtml(ord.tracking_number)}</div>` : ''}
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                                        <span class="fulfil-status-badge ${ord.status}">${ord.status}</span>
+                                        <span style="font-size: 11px; color: #888;">${new Date(ord.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                        ${ord.status === 'pending' ? `
+                                            <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; color: #a33; border-color: #d88;" onclick="cancelMyOrder('${ord.id}')">Cancel Order</button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } catch (e) {
+                    container.innerHTML = `<div style="text-align: center; color: #a33; padding: 24px;">Failed to load your orders.</div>`;
+                }
+            }
+
+            async function cancelMyOrder(orderId) {
+                if (!await showConfirm('Are you sure you want to cancel this pending order? Your paws will be refunded immediately.', { okText: 'Cancel Order', cancelText: 'Keep Order' })) {
+                    return;
+                }
+                try {
+                    const res = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.message || data.error || 'Failed to cancel order.');
+                        return;
+                    }
+                    if (data.newBalance !== undefined && currentUser) {
+                        currentUser.pawprints = data.newBalance;
+                        updateUserUI(currentUser);
+                    }
+                    await loadOrdersTab();
+                    alert('Order cancelled. Your paws have been refunded.');
+                } catch (e) {
+                    alert('Network error while cancelling order.');
+                }
+            }
+
             document.querySelectorAll('.nav-item').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const tab = btn.dataset.tab;
@@ -2395,6 +2910,23 @@
                 document.getElementById('pillAvatar').src = avatar;
                 document.getElementById('pillPawprints').textContent = paws;
 
+                const notifEl = document.getElementById('notifText');
+                if (notifEl) {
+                    if (Array.isArray(u.notifications) && u.notifications.length > 0) {
+                        notifEl.innerHTML = u.notifications.map(n => `
+                            <div style="padding: 8px 10px; background: #fffdf9; border: 1.5px solid #211d1b; border-radius: 12px; margin-bottom: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 3px;">
+                                    <span style="font-weight: 700; font-size: 12px; color: ${n.type === 'order_cancelled' ? '#a33' : '#ff8c37'};">${escapeHtml(n.title || 'Notice')}</span>
+                                    <span style="font-size: 10px; color: #8c7f76;">${new Date(n.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                </div>
+                                <div style="font-size: 12px; color: #3b322e; line-height: 1.35;">${escapeHtml(n.message)}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        notifEl.textContent = 'Nothing yet. Ship reviews, paw grants, and order updates will show up here.';
+                    }
+                }
+
                 document.getElementById('modalAvatar').src = avatar;
                 document.getElementById('modalName').textContent = name;
                 document.getElementById('modalEmail').textContent = u.email || 'No email';
@@ -2402,7 +2934,38 @@
                 roleBadge.textContent = role;
                 roleBadge.className = `role-badge ${role.toLowerCase()}`;
 
-                document.getElementById('inputNickname').value = u.nickname || '';
+                document.getElementById('inputNickname').value = name;
+                const emailInput = document.getElementById('inputEmail');
+                if (emailInput) emailInput.value = u.email || '';
+                populateAddressFields(u);
+
+                const slackBadge = document.getElementById('modalSlackHandleBadge');
+                if (slackBadge) {
+                    const handle = u.slack_handle || (u.slack_id ? `@${u.slack_id}` : '');
+                    if (handle) {
+                        slackBadge.textContent = handle.startsWith('@') ? handle : `@${handle}`;
+                        slackBadge.style.display = 'inline-block';
+                    } else {
+                        slackBadge.style.display = 'none';
+                    }
+                }
+
+                const verBadge = document.getElementById('modalVerificationBadge');
+                if (verBadge) {
+                    if (u.verification_status === 'verified_eligible' || u.verification_status === 'verified' || u.ysws_eligible) {
+                        verBadge.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>Verified';
+                        verBadge.style.background = '#eaf8ee';
+                        verBadge.style.color = '#1e592f';
+                    } else if (u.verification_status === 'pending') {
+                        verBadge.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Verification Pending';
+                        verBadge.style.background = '#fff4ea';
+                        verBadge.style.color = '#8c5200';
+                    } else {
+                        verBadge.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Needs Verification';
+                        verBadge.style.background = '#fff0f0';
+                        verBadge.style.color = '#a33';
+                    }
+                }
 
                 const isConnected = Boolean(u && (u.hackatime_connected || (u.hackatime_key && u.hackatime_key.trim())));
                 const discBox = document.getElementById('hackatimeDisconnectedBox');
@@ -2413,7 +2976,7 @@
                 }
                 const handleEl = document.getElementById('hackatimeUserHandle');
                 if (handleEl) {
-                    handleEl.textContent = u.hackatime_github ? `@${u.hackatime_github}` : (u.hackatime_slack_id ? `@${u.hackatime_slack_id}` : 'Connected');
+                    handleEl.textContent = u.hackatime_github ? `@${u.hackatime_github}` : (u.hackatime_slack_id ? `@${u.hackatime_slack_id}` : (u.slack_handle ? `@${u.slack_handle.replace(/^@/, '')}` : 'Connected'));
                 }
                 const hoursEl = document.getElementById('hackatimeHoursDisplay');
                 if (hoursEl) {
@@ -2427,6 +2990,14 @@
                 renderShop();
 
                 const adminNav = document.getElementById('adminNavGroup');
+                const devFaucetBtn = document.getElementById('shopDevFaucetBtn');
+                const devToggleRoleBtn = document.getElementById('devToggleRoleBtn');
+                if (devFaucetBtn) {
+                    devFaucetBtn.style.display = role === 'Admin' ? 'inline-block' : 'none';
+                }
+                if (devToggleRoleBtn) {
+                    devToggleRoleBtn.style.display = role === 'Admin' ? 'inline-block' : 'none';
+                }
                 if (role === 'Admin') {
                     adminNav.style.display = 'flex';
                 } else {
@@ -2439,24 +3010,207 @@
             }
 
             function openSettingsModal() {
-                document.getElementById('settingsModal').classList.add('open');
+                document.getElementById('settingsModal').classList.add('open', 'active');
+                const sb = document.getElementById('settingsModalScrollBody');
+                if (sb) {
+                    sb.scrollTop = 0;
+                    setTimeout(() => updateModalScrollMask(sb), 20);
+                }
             }
 
             function closeSettingsModal(e) {
                 if (!e || e.target.id === 'settingsModal' || e.target.classList.contains('modal-close-btn')) {
-                    document.getElementById('settingsModal').classList.remove('open');
+                    document.getElementById('settingsModal').classList.remove('open', 'active');
                 }
             }
 
-            async function saveSettings() {
-                const nickname = document.getElementById('inputNickname').value;
+            function updateModalScrollMask(el) {
+                if (!el) return;
+                const canScroll = el.scrollHeight > el.clientHeight + 4;
+                if (!canScroll) {
+                    el.style.webkitMaskImage = 'none';
+                    el.style.maskImage = 'none';
+                    return;
+                }
+                const isAtTop = el.scrollTop <= 4;
+                const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 6;
+                if (isAtTop && isAtBottom) {
+                    el.style.webkitMaskImage = 'none';
+                    el.style.maskImage = 'none';
+                } else if (isAtTop) {
+                    el.style.webkitMaskImage = 'linear-gradient(to bottom, black calc(100% - 24px), transparent 100%)';
+                    el.style.maskImage = 'linear-gradient(to bottom, black calc(100% - 24px), transparent 100%)';
+                } else if (isAtBottom) {
+                    el.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 22px)';
+                    el.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 22px)';
+                } else {
+                    el.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 22px, black calc(100% - 24px), transparent 100%)';
+                    el.style.maskImage = 'linear-gradient(to bottom, transparent 0%, black 22px, black calc(100% - 24px), transparent 100%)';
+                }
+            }
+
+            function initModalScrollMasks() {
+                document.querySelectorAll('.modal-body-scroll').forEach(el => {
+                    if (!el._hasScrollMaskListener) {
+                        el._hasScrollMaskListener = true;
+                        el.addEventListener('scroll', () => updateModalScrollMask(el), { passive: true });
+                        if (window.ResizeObserver) {
+                            new ResizeObserver(() => updateModalScrollMask(el)).observe(el);
+                        }
+                    }
+                    updateModalScrollMask(el);
+                });
+            }
+
+            function populateAddressFields(u) {
+                const a = (u && u.address) || {};
+                const nameEl = document.getElementById('inputAddressName');
+                const line1El = document.getElementById('inputAddressLine1');
+                const line2El = document.getElementById('inputAddressLine2');
+                const cityEl = document.getElementById('inputAddressCity');
+                const stateEl = document.getElementById('inputAddressState');
+                const postEl = document.getElementById('inputAddressPostcode');
+                const countryEl = document.getElementById('inputAddressCountry');
+
+                const parcelName = a.name || (a.first_name ? [a.first_name, a.last_name].filter(Boolean).join(' ') : (u ? (u.name || u.nickname || '') : ''));
+                if (nameEl) nameEl.value = parcelName;
+                if (line1El) line1El.value = a.line1 || '';
+                if (line2El) line2El.value = a.line2 || '';
+                if (cityEl) cityEl.value = a.city || '';
+                if (stateEl) stateEl.value = a.state || '';
+                if (postEl) postEl.value = a.postal_code || a.postcode || '';
+                if (countryEl) countryEl.value = a.country || '';
+
+                if (!a.line1 && u && u.shipping_address && u.shipping_address !== 'bbb') {
+                    const parts = u.shipping_address.split(',').map(s => s.trim()).filter(Boolean);
+                    if (parts.length > 0 && line1El && !line1El.value) {
+                        line1El.value = parts[0] || '';
+                        if (parts.length > 1 && cityEl) cityEl.value = parts[1] || '';
+                        if (parts.length > 2 && stateEl) stateEl.value = parts[2] || '';
+                        if (parts.length > 3 && countryEl) countryEl.value = parts[parts.length - 1] || '';
+                    }
+                }
+            }
+
+            async function syncAddressFromHca() {
+                const btn = document.getElementById('btnSyncHcaAddress');
+                const oldHtml = btn ? btn.innerHTML : '';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span>Checking Hack Club...</span>';
+                }
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/user/sync-hca-address', { method: 'POST' });
+                        const data = await res.json();
+                        if (data.ok && data.user) {
+                            updateUserUI(data.user);
+                            if (btn) btn.innerHTML = '<span>✓ Pre-filled!</span>';
+                            setTimeout(() => {
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = oldHtml;
+                                }
+                            }, 1800);
+                            return;
+                        }
+
+                        if (data.needs_reauth && data.auth_url) {
+                            window.location.href = data.auth_url;
+                            return;
+                        }
+
+                        alert(data.message || 'Could not fetch address from Hack Club account. Please ensure your address is saved at auth.hackclub.com.');
+                    } catch (e) {
+                        alert('Failed connecting to Hack Club Auth.');
+                    } finally {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = oldHtml;
+                        }
+                    }
+                } else {
+                    populateAddressFields(currentUser);
+                    if (btn) btn.innerHTML = '<span>✓ Pre-filled!</span>';
+                    setTimeout(() => {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = oldHtml;
+                        }
+                    }, 1800);
+                }
+            }
+
+            function collectAddressObject() {
+                return {
+                    name: document.getElementById('inputAddressName')?.value.trim() || '',
+                    line1: document.getElementById('inputAddressLine1')?.value.trim() || '',
+                    line2: document.getElementById('inputAddressLine2')?.value.trim() || '',
+                    city: document.getElementById('inputAddressCity')?.value.trim() || '',
+                    state: document.getElementById('inputAddressState')?.value.trim() || '',
+                    postal_code: document.getElementById('inputAddressPostcode')?.value.trim() || '',
+                    country: document.getElementById('inputAddressCountry')?.value.trim() || ''
+                };
+            }
+
+            function formatAddressString(addr) {
+                if (!addr) return '';
+                return [
+                    addr.name,
+                    addr.line1,
+                    addr.line2,
+                    addr.city,
+                    addr.state,
+                    addr.postal_code,
+                    addr.country
+                ].filter(Boolean).join(', ');
+            }
+
+            async function saveAddressOnly() {
+                const btn = document.getElementById('btnSaveAddress');
+                const oldText = btn ? btn.textContent : 'Save Address';
+                if (btn) btn.textContent = 'Saving...';
+
+                const address = collectAddressObject();
+                const shipping_address = formatAddressString(address);
 
                 if (window.location.protocol !== 'file:') {
                     try {
                         const res = await fetch('/api/settings', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ nickname })
+                            body: JSON.stringify({ address, shipping_address })
+                        });
+                        const data = await res.json();
+                        if (data.user) {
+                            updateUserUI(data.user);
+                        }
+                        if (btn) btn.textContent = 'Saved!';
+                        setTimeout(() => { if (btn) btn.textContent = oldText; }, 1600);
+                    } catch (e) {
+                        alert('Failed saving address.');
+                        if (btn) btn.textContent = oldText;
+                    }
+                } else {
+                    currentUser.address = address;
+                    currentUser.shipping_address = shipping_address;
+                    updateUserUI(currentUser);
+                    if (btn) btn.textContent = 'Saved!';
+                    setTimeout(() => { if (btn) btn.textContent = oldText; }, 1600);
+                }
+            }
+
+            async function saveSettings() {
+                const address = collectAddressObject();
+                const shipping_address = formatAddressString(address);
+
+                if (window.location.protocol !== 'file:') {
+                    try {
+                        const res = await fetch('/api/settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ address, shipping_address })
                         });
                         const data = await res.json();
                         if (data.user) {
@@ -2466,7 +3220,8 @@
                         console.error('Failed saving settings:', e);
                     }
                 } else {
-                    currentUser.nickname = nickname;
+                    currentUser.address = address;
+                    currentUser.shipping_address = shipping_address;
                     updateUserUI(currentUser);
                 }
                 closeSettingsModal();
@@ -2489,7 +3244,7 @@
             }
 
             async function disconnectHackatime() {
-                if (!confirm('Are you sure you want to disconnect Hackatime?')) return;
+                if (!await showConfirm('Are you sure you want to disconnect Hackatime?', { okText: 'Disconnect', cancelText: 'Cancel' })) return;
                 try {
                     const res = await fetch('/api/hackatime/disconnect', { method: 'POST' });
                     const data = await res.json();
@@ -2541,7 +3296,7 @@
                                 </td>
                                 <td>${p.email || '—'}</td>
                                 <td><span class="role-badge ${(p.role || 'maker').toLowerCase()}">${p.role || 'Maker'}</span></td>
-                                <td style="font-weight: 700;">🐾 ${p.pawprints ?? 0}</td>
+                                <td style="font-weight: 700;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${p.pawprints ?? 0}</td>
                                 <td>${(p.hackatime_hours || 0).toFixed(1)}h</td>
                                 <td style="text-transform: capitalize;">${p.verification_status || 'Verified'}</td>
                             </tr>
@@ -2558,7 +3313,7 @@
                             </td>
                             <td>orpheus@hackclub.com</td>
                             <td><span class="role-badge admin">Admin</span></td>
-                            <td style="font-weight: 700;">🐾 12</td>
+                            <td style="font-weight: 700;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 12</td>
                             <td>3.5h</td>
                             <td>Eligible</td>
                         </tr>
@@ -2569,7 +3324,7 @@
                             </td>
                             <td>maker@hackclub.com</td>
                             <td><span class="role-badge maker">Maker</span></td>
-                            <td style="font-weight: 700;">🐾 0</td>
+                            <td style="font-weight: 700;"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> 0</td>
                             <td>0.5h</td>
                             <td>Verified</td>
                         </tr>
@@ -2649,7 +3404,7 @@
                     const needed = Math.max(0, item.price - userPaws);
                     const canAfford = needed === 0;
                     const btnClass = canAfford ? 'available' : 'insufficient';
-                    const btnText = canAfford ? `Buy (🐾 ${item.price})` : `You need 🐾 ${needed} more`;
+                    const btnText = canAfford ? `Buy (<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${item.price})` : `You need <img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${needed} more`;
 
                     return `
                         <div class="shop-card" onclick="openShopDetailModal('${item.id}')">
@@ -2660,7 +3415,7 @@
                             <div class="shop-card-body">
                                 <div>
                                     <h3 class="shop-card-title">${item.name}</h3>
-                                    <div class="shop-card-cost">🐾 ${item.price} paws (~${item.hours} hrs)</div>
+                                    <div class="shop-card-cost"><img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${item.price} paws (~${item.hours} hrs)</div>
                                 </div>
                                 <button type="button" class="shop-card-btn ${btnClass}">
                                     ${btnText}
@@ -2680,7 +3435,7 @@
                 document.getElementById('shopModalImg').src = item.image;
                 document.getElementById('shopModalTitle').textContent = item.name;
                 document.getElementById('shopModalDesc').textContent = item.desc;
-                document.getElementById('shopModalPrice').textContent = `🐾 ${item.price} paws (~${item.hours} hours)`;
+                document.getElementById('shopModalPrice').innerHTML = `<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${item.price} paws (~${item.hours} hours)`;
                 document.getElementById('shopModalQty').textContent = '1';
 
                 const variantSelect = document.getElementById('shopModalVariant');
@@ -2696,12 +3451,12 @@
                 }
 
                 updateModalOrderBtn();
-                document.getElementById('shopDetailModal').classList.add('open');
+                document.getElementById('shopDetailModal').classList.add('open', 'active');
             }
 
             function closeShopDetailModal(e) {
                 if (!e || e.target.id === 'shopDetailModal' || e.target.classList.contains('modal-close-btn')) {
-                    document.getElementById('shopDetailModal').classList.remove('open');
+                    document.getElementById('shopDetailModal').classList.remove('open', 'active');
                 }
             }
 
@@ -2725,11 +3480,11 @@
                 if (needed > 0) {
                     btn.className = 'shop-order-btn-large disabled';
                     btn.disabled = true;
-                    btn.textContent = `You need 🐾 ${needed} more`;
+                    btn.innerHTML = `You need <img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${needed} more`;
                 } else {
                     btn.className = 'shop-order-btn-large active';
                     btn.disabled = false;
-                    btn.innerHTML = `Place Order (🐾 ${totalCost}) &rarr;`;
+                    btn.innerHTML = `Place Order (<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${totalCost}) &rarr;`;
                 }
             }
 
@@ -2765,14 +3520,14 @@
                         });
                         const data = await res.json();
                         if (!res.ok) {
-                            alert(data.error === 'insufficient_paws' ? `You need 🐾 ${data.needed} more paws for this order!` : 'Order failed: ' + (data.error || 'Server error'));
+                            alert(data.error === 'insufficient_paws' ? `You need ${data.needed} more paws for this order!` : 'Order failed: ' + (data.error || 'Server error'));
                             updateModalOrderBtn();
                             return;
                         }
                         if (data.user) {
                             updateUserUI(data.user);
                         }
-                        alert(`🎉 Order placed successfully! Our fulfilment team has received your order for ${activeModalItem.name}.`);
+                        alert(`Order placed successfully! Our fulfilment team has received your order for ${activeModalItem.name}.`);
                         closeShopDetailModal();
                         renderShop();
                     } catch (e) {
@@ -2782,13 +3537,14 @@
                 } else {
                     currentUser.pawprints = Math.max(0, (currentUser.pawprints || 0) - (activeModalItem.price * qty));
                     updateUserUI(currentUser);
-                    alert(`🎉 Order placed in demo mode!`);
+                    alert('Order placed in demo mode!');
                     closeShopDetailModal();
                     renderShop();
                 }
             }
 
             async function devGrantPaws() {
+                if (currentUser && currentUser.role !== 'Admin') return;
                 if (window.location.protocol !== 'file:') {
                     try {
                         const res = await fetch('/api/dev/grant-paws', { method: 'POST' });
@@ -2823,7 +3579,7 @@
                         document.getElementById('fulfilStatPending').textContent = orders.filter(o => o.status === 'pending').length;
                         document.getElementById('fulfilStatShipped').textContent = orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length;
                         const totalSpent = orders.reduce((sum, o) => sum + (o.total_paws || 0), 0);
-                        document.getElementById('fulfilStatPaws').textContent = `🐾 ${totalSpent}`;
+                        document.getElementById('fulfilStatPaws').innerHTML = `<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${totalSpent}`;
 
                         if (orders.length === 0) {
                             tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No prize orders submitted yet.</td></tr>`;
@@ -2852,22 +3608,33 @@
                                             <img src="${ord.item_image || 'images/catears.jpg'}" style="width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #211d1b; object-fit: contain; background: #fff;" alt="">
                                             <div>
                                                 <div style="font-weight: 700; text-transform: capitalize;">${ord.item_name}</div>
-                                                <div style="font-size: 11.5px; color: #666;">${ord.variant} (${ord.quantity}x) &bull; 🐾 ${ord.total_paws}</div>
+                                                <div style="font-size: 11.5px; color: #666;">${ord.variant} (${ord.quantity}x) &bull; <img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${ord.total_paws} paws</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td style="max-width: 240px;">
-                                        <div style="font-size: 12px; line-height: 1.3; color: #211d1b;">📍 ${ord.address}</div>
-                                        ${ord.notes ? `<div style="font-size: 11px; color: #6b5a4e; margin-top: 3px; font-style: italic;">📝 "${ord.notes}"</div>` : ''}
-                                        ${ord.tracking_number ? `<div style="font-size: 11px; color: #1e7e34; margin-top: 2px;">Tracking: <strong>${ord.tracking_number}</strong></div>` : ''}
+                                        <div style="font-size: 12px; line-height: 1.3; color: #211d1b; display: flex; align-items: flex-start; gap: 4px;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                            <span>${escapeHtml(ord.address)}</span>
+                                        </div>
+                                        ${ord.notes ? `<div style="font-size: 11px; color: #6b5a4e; margin-top: 3px; font-style: italic; display: flex; align-items: flex-start; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>"${escapeHtml(ord.notes)}"</span></div>` : ''}
+                                        ${ord.tracking_number ? `<div style="font-size: 11px; color: #1e7e34; margin-top: 2px;">Tracking: <strong>${escapeHtml(ord.tracking_number)}</strong></div>` : ''}
                                     </td>
                                     <td>
                                         <span class="fulfil-status-badge ${ord.status}">${ord.status}</span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="toggleOrderStatus('${ord.id}', '${ord.status === 'pending' ? 'shipped' : 'pending'}')">
-                                            ${ord.status === 'pending' ? 'Mark Shipped' : 'Mark Pending'}
-                                        </button>
+                                        <div class="fulfil-dropdown" style="position: relative; display: inline-block;">
+                                            <button class="btn btn-secondary fulfil-dropdown-toggle" style="font-size: 11.5px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;" onclick="toggleFulfilDropdown(event, '${ord.id}')">
+                                                <span>${ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}</span>
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                                            </button>
+                                            <div class="fulfil-dropdown-menu" id="fulfilDropdown_${ord.id}" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: #fff8f0; border: 2px solid #211d1b; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 110px; overflow: hidden;">
+                                                <button class="fulfil-dropdown-item" style="display: block; width: 100%; padding: 7px 12px; text-align: left; font-size: 11.5px; font-family: 'Fredoka', sans-serif; font-weight: 600; border: none; background: transparent; cursor: pointer; color: #856404;" onclick="setOrderStatus('${ord.id}', 'pending')">Pending</button>
+                                                <button class="fulfil-dropdown-item" style="display: block; width: 100%; padding: 7px 12px; text-align: left; font-size: 11.5px; font-family: 'Fredoka', sans-serif; font-weight: 600; border: none; background: transparent; cursor: pointer; color: #1e7e34;" onclick="setOrderStatus('${ord.id}', 'shipped')">Shipped</button>
+                                                <button class="fulfil-dropdown-item" style="display: block; width: 100%; padding: 7px 12px; text-align: left; font-size: 11.5px; font-family: 'Fredoka', sans-serif; font-weight: 600; border: none; background: transparent; cursor: pointer; color: #a33;" onclick="setOrderStatus('${ord.id}', 'cancelled')">Cancelled</button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             `;
@@ -2878,10 +3645,27 @@
                 }
             }
 
-            async function toggleOrderStatus(orderId, newStatus) {
+            function toggleFulfilDropdown(event, id) {
+                event.stopPropagation();
+                const menu = document.getElementById(`fulfilDropdown_${id}`);
+                const isOpen = menu && menu.style.display === 'block';
+                document.querySelectorAll('.fulfil-dropdown-menu').forEach(m => m.style.display = 'none');
+                if (menu && !isOpen) {
+                    menu.style.display = 'block';
+                }
+            }
+
+            async function setOrderStatus(orderId, newStatus) {
+                document.querySelectorAll('.fulfil-dropdown-menu').forEach(m => m.style.display = 'none');
                 let tracking = '';
                 if (newStatus === 'shipped') {
-                    tracking = prompt('Enter postal tracking number (or leave blank):') || '';
+                    const val = await showConfirm('Enter postal tracking number (or leave blank):', { isPrompt: true, okText: 'Save', cancelText: 'Cancel' });
+                    if (val === null) return;
+                    tracking = val;
+                } else if (newStatus === 'cancelled') {
+                    if (!await showConfirm("Are you sure you want to cancel this order? This will refund the maker's paws and notify them.", { okText: 'Cancel Order', cancelText: 'Keep Order' })) {
+                        return;
+                    }
                 }
                 try {
                     const res = await fetch(`/api/admin/orders/${orderId}/status`, {
@@ -2889,13 +3673,22 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status: newStatus, tracking_number: tracking })
                     });
-                    if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok) {
                         loadFulfilmentTab();
+                    } else {
+                        alert(data.error || 'Failed to update order status');
                     }
                 } catch (e) {
-                    alert('Failed updating status');
+                    alert('Network error while updating status');
                 }
             }
+
+            window.addEventListener('click', (e) => {
+                if (!e.target.closest('.fulfil-dropdown')) {
+                    document.querySelectorAll('.fulfil-dropdown-menu').forEach(m => m.style.display = 'none');
+                }
+            });
 
             function escapeHtml(str) {
                 if (!str) return '';
@@ -2915,40 +3708,18 @@
 
                 if (window.location.protocol !== 'file:') {
                     try {
-                        const [projRes, confRes] = await Promise.all([
-                            fetch('/api/my/projects'),
-                            fetch('/api/event/config')
-                        ]);
-                        const projData = await projRes.json();
-                        const confData = await confRes.json();
-
-                        const banner = document.getElementById('eventAnnouncementBanner');
-                        if (banner && confData.config && confData.config.announcement_banner && confData.config.announcement_banner.trim()) {
-                            banner.textContent = `📢 ${confData.config.announcement_banner}`;
-                            banner.style.display = 'block';
-                        } else if (banner) {
-                            banner.style.display = 'none';
-                        }
-
+                        const res = await fetch('/api/projects');
+                        const projData = await res.json();
                         myProjectsList = projData.projects || [];
                         renderProjectsGrid(myProjectsList);
+                        if (typeof renderStepper === 'function' && currentUser) {
+                            renderStepper(currentUser);
+                        }
                     } catch (e) {
                         grid.innerHTML = '<div style="text-align: center; color: #a33; padding: 24px; grid-column: 1 / -1;">Failed to load your projects.</div>';
                     }
                 } else {
-                    renderProjectsGrid([
-                        {
-                            id: 'demo-1',
-                            title: 'LED Matrix Protogen Visor',
-                            description: 'Custom MAX7219 firmware with animated furry emotes and Hackatime tracking.',
-                            repo_url: 'https://github.com/hackclub/pawgrammed',
-                            demo_url: 'https://pawgrammed.hackclub.com',
-                            hackatime_project_name: 'fursuit-visor',
-                            hours_logged: 3.5,
-                            awarded_paws: 4,
-                            status: 'approved'
-                        }
-                    ]);
+                    renderProjectsGrid([]);
                 }
             }
 
@@ -2970,19 +3741,22 @@
                     const statusMap = {
                         draft: { label: 'Draft', class: 'draft' },
                         submitted: { label: 'Pending Review', class: 'submitted' },
-                        approved: { label: `Approved (🐾 ${p.awarded_paws || Math.round(p.hours_logged || 0)})`, class: 'approved' },
+                        approved: { label: `Approved (${p.paws_awarded ?? p.awarded_paws ?? Math.round(p.hours_logged || 0)} paws)`, class: 'approved' },
                         changes_requested: { label: 'Changes Requested', class: 'changes_requested' },
                         rejected: { label: 'Rejected', class: 'rejected' }
                     };
                     const st = statusMap[p.status] || { label: p.status, class: 'draft' };
                     const hours = (p.hours_logged || 0).toFixed(1);
+                    const htTags = Array.isArray(p.hackatime_projects) && p.hackatime_projects.length > 0
+                        ? p.hackatime_projects
+                        : (p.hackatime_project ? p.hackatime_project.split(',').map(s => s.trim()).filter(Boolean) : []);
+                    const reviewNote = p.note_to_maker || p.feedback || '';
 
                     let actionBtns = '';
                     if (p.status === 'draft' || p.status === 'changes_requested') {
                         actionBtns = `
                             <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px;" onclick="openProjectModal('${p.id}')">Edit</button>
-                            <button class="btn btn-primary" style="font-size: 11.5px; padding: 4px 10px;" onclick="submitProject('${p.id}')">Submit &rarr;</button>
-                            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px; color: #a33;" onclick="deleteProject('${p.id}')">✕</button>
+                            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 4px 8px; color: #a33; display: inline-flex; align-items: center; justify-content: center;" onclick="deleteProject('${p.id}')" title="Delete project"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                         `;
                     } else {
                         actionBtns = `
@@ -2990,21 +3764,26 @@
                         `;
                     }
 
+                    const screenshotHtml = p.screenshot_url
+                        ? `<div style="width: 100%; height: 130px; border-radius: 10px; overflow: hidden; border: 1.5px solid #211d1b; background: #fff8f0; margin-bottom: 4px; display: flex; align-items: center; justify-content: center;"><img src="${escapeHtml(p.screenshot_url)}" style="width: 100%; height: 100%; object-fit: cover;" alt="Project screenshot" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'color: #7a6e66; font-size: 12px; font-weight: 600;\'>Project screenshot</span>';"></div>`
+                        : `<div style="width: 100%; height: 130px; border-radius: 10px; overflow: hidden; border: 1.5px solid #211d1b; background: #fff8f0; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; color: #7a6e66; font-size: 12px; font-weight: 600; cursor: pointer;" onclick="openProjectModal('${p.id}')" title="Click to upload screenshot">Project screenshot</div>`;
+
                     return `
                         <div class="project-card">
+                            ${screenshotHtml}
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-                                <div style="font-family: 'PawFont', cursive; font-size: 19px; color: #211d1b; line-height: 1.2;">${escapeHtml(p.title || 'Untitled')}</div>
+                                <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: #211d1b; line-height: 1.25;">${escapeHtml(p.title || 'Untitled')}</div>
                                 <span class="status-pill ${st.class}">${st.label}</span>
                             </div>
                             <p style="font-size: 12.5px; color: #6a5e56; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                                 ${escapeHtml(p.description || 'No description provided yet.')}
                             </p>
                             <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11.5px; color: #7a6e66;">
-                                <span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">⏱ ${hours}h logged</span>
-                                ${p.hackatime_project_name ? `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">🏷 ${escapeHtml(p.hackatime_project_name)}</span>` : ''}
-                                ${p.language ? `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px;">💻 ${escapeHtml(p.language)}</span>` : ''}
+                                <span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${hours}h logged</span>
+                                ${htTags.map(t => `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>${escapeHtml(t)}</span>`).join('')}
+                                ${p.language ? `<span style="background: #f0e6dc; padding: 2px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>${escapeHtml(p.language)}</span>` : ''}
                             </div>
-                            ${p.feedback ? `<div style="font-size: 11.5px; background: #fff5e6; border-left: 3px solid #ff8c37; padding: 6px 8px; border-radius: 4px; color: #8c4500;"><strong>Review feedback:</strong> ${escapeHtml(p.feedback)}</div>` : ''}
+                            ${reviewNote ? `<div style="font-size: 11.5px; background: #fff5e6; border-left: 3px solid #ff8c37; padding: 6px 8px; border-radius: 4px; color: #8c4500;"><strong>Review feedback:</strong> ${escapeHtml(reviewNote)}</div>` : ''}
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2d2c3;">
                                 <div style="display: flex; gap: 8px;">
                                     ${p.repo_url ? `<a href="${escapeHtml(p.repo_url)}" target="_blank" rel="noopener" style="font-size: 12px; color: #211d1b; text-decoration: underline;">Repo</a>` : ''}
@@ -3019,17 +3798,237 @@
                 }).join('');
             }
 
+            let projectScreenshotData = '';
+
+            function toggleProjectUpdateDesc(checked) {
+                const group = document.getElementById('projectModalUpdateDescGroup');
+                const textarea = document.getElementById('projectModalUpdateDesc');
+                if (group) group.style.display = checked ? 'flex' : 'none';
+                if (textarea) textarea.required = Boolean(checked);
+            }
+
+            function setProjectScreenshot(dataUrl) {
+                projectScreenshotData = dataUrl || '';
+                const promptEl = document.getElementById('projectModalDropzonePrompt');
+                const wrapEl = document.getElementById('projectModalPreviewWrap');
+                const previewEl = document.getElementById('projectModalScreenshotPreview');
+                if (projectScreenshotData) {
+                    if (previewEl) previewEl.src = projectScreenshotData;
+                    if (wrapEl) wrapEl.style.display = 'block';
+                    if (promptEl) promptEl.style.display = 'none';
+                } else {
+                    if (previewEl) previewEl.src = '';
+                    if (wrapEl) wrapEl.style.display = 'none';
+                    if (promptEl) promptEl.style.display = 'flex';
+                }
+            }
+
+            function clearProjectScreenshot() {
+                setProjectScreenshot('');
+                const input = document.getElementById('projectModalScreenshotInput');
+                if (input) input.value = '';
+            }
+
+            function readScreenshotFile(file) {
+                if (!file || !file.type.startsWith('image/')) {
+                    alert('Please select an image file (PNG, JPG, WebP, etc.)');
+                    return;
+                }
+                if (file.size > 8 * 1024 * 1024) {
+                    alert('Image file is too large! Please choose an image smaller than 8MB.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = async e => {
+                    const dataUrl = e.target.result;
+                    setProjectScreenshot(dataUrl);
+                    try {
+                        const res = await fetch('/api/upload', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: dataUrl })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.url) {
+                                projectScreenshotData = data.url;
+                            }
+                        }
+                    } catch {}
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function handleScreenshotFileSelect(input) {
+                if (input && input.files && input.files[0]) {
+                    readScreenshotFile(input.files[0]);
+                }
+            }
+
+            function initDropzoneEvents() {
+                const dropzone = document.getElementById('projectModalDropzone');
+                if (!dropzone || dropzone._bound) return;
+                dropzone._bound = true;
+                ['dragenter', 'dragover'].forEach(name => {
+                    dropzone.addEventListener(name, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropzone.classList.add('dragover');
+                    });
+                });
+                ['dragleave', 'drop'].forEach(name => {
+                    dropzone.addEventListener(name, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropzone.classList.remove('dragover');
+                    });
+                });
+                dropzone.addEventListener('drop', e => {
+                    const files = e.dataTransfer?.files;
+                    if (files && files.length > 0) {
+                        readScreenshotFile(files[0]);
+                    }
+                });
+            }
+
+            window.addEventListener('paste', e => {
+                const modal = document.getElementById('projectModal');
+                if (!modal || (!modal.classList.contains('active') && !modal.classList.contains('open'))) return;
+                const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+                if (!items) return;
+                for (const item of items) {
+                    if (item.type && item.type.startsWith('image/')) {
+                        const blob = item.getAsFile();
+                        if (blob) {
+                            e.preventDefault();
+                            readScreenshotFile(blob);
+                            break;
+                        }
+                    }
+                }
+            });
+
+            let modalAvailableHtProjects = [];
+            let modalSelectedHtProjects = new Set();
+
+            async function loadModalHackatimeProjects() {
+                const loadingEl = document.getElementById('projectModalHtLoading');
+                const notConnEl = document.getElementById('projectModalHtNotConnected');
+                if (loadingEl) loadingEl.style.display = 'block';
+
+                try {
+                    const res = await fetch('/api/hackatime/projects');
+                    const data = await res.json();
+                    if (!data.connected) {
+                        if (notConnEl) notConnEl.style.display = 'block';
+                        modalAvailableHtProjects = [];
+                    } else {
+                        if (notConnEl) notConnEl.style.display = 'none';
+                        const raw = Array.isArray(data.projects) ? data.projects : [];
+                        modalAvailableHtProjects = raw.filter(p => p && p.name && (p.total_seconds > 0 || p.hours > 0));
+                    }
+                } catch {
+                    if (notConnEl) notConnEl.style.display = 'block';
+                    modalAvailableHtProjects = [];
+                } finally {
+                    if (loadingEl) loadingEl.style.display = 'none';
+                }
+
+                renderModalHackatimeList();
+            }
+
+            function refreshModalHackatimeProjects() {
+                loadModalHackatimeProjects();
+            }
+
+            function renderModalHackatimeList() {
+                const listEl = document.getElementById('projectModalHtList');
+                if (!listEl) return;
+
+                const allItems = [...modalAvailableHtProjects];
+                const existingNames = new Set(allItems.map(p => p.name.toLowerCase()));
+                for (const sel of modalSelectedHtProjects) {
+                    if (!existingNames.has(sel.toLowerCase())) {
+                        allItems.unshift({
+                            name: sel,
+                            hours: 0.0,
+                            total_seconds: 0,
+                            languages: []
+                        });
+                    }
+                }
+
+                if (allItems.length === 0) {
+                    listEl.innerHTML = '<div style="font-size: 12px; color: #7a6e66; padding: 6px; text-align: center;">No Hackatime projects detected on your account.</div>';
+                    updateModalHoursDisplay();
+                    return;
+                }
+
+                listEl.innerHTML = allItems.map(p => {
+                    const checked = Array.from(modalSelectedHtProjects).some(s => s.toLowerCase() === p.name.toLowerCase());
+                    const langBadge = p.languages && p.languages.length ? `<span style="font-size: 10.5px; color: #887a70; background: #eee5dc; padding: 1px 6px; border-radius: 6px;">${escapeHtml(p.languages.slice(0, 2).join(', '))}</span>` : '';
+                    return `
+                        <label style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #fff8f0; border: 1.5px solid #d9c7b8; border-radius: 8px; cursor: pointer; user-select: none;">
+                            <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                                <input type="checkbox" value="${escapeHtml(p.name)}" ${checked ? 'checked' : ''} onchange="toggleModalHtProject('${escapeHtml(p.name)}', this.checked)" style="accent-color: #ff8c37; width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-weight: 600; font-size: 13px; color: #211d1b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(p.name)}</span>
+                                ${langBadge}
+                            </div>
+                            <span style="font-weight: 700; font-size: 12.5px; color: #3c824c; white-space: nowrap;">${(p.hours || 0).toFixed(1)}h</span>
+                        </label>
+                    `;
+                }).join('');
+
+                updateModalHoursDisplay();
+            }
+
+            function toggleModalHtProject(name, isChecked) {
+                const targetLower = name.toLowerCase();
+                for (const item of Array.from(modalSelectedHtProjects)) {
+                    if (item.toLowerCase() === targetLower) {
+                        modalSelectedHtProjects.delete(item);
+                    }
+                }
+                if (isChecked) {
+                    modalSelectedHtProjects.add(name);
+                }
+                updateModalHoursDisplay();
+            }
+
+            function updateModalHoursDisplay() {
+                let totalHours = 0;
+                const lowerMap = new Map();
+                for (const p of modalAvailableHtProjects) {
+                    lowerMap.set(p.name.toLowerCase(), p.hours || 0);
+                }
+
+                for (const sel of modalSelectedHtProjects) {
+                    if (lowerMap.has(sel.toLowerCase())) {
+                        totalHours += lowerMap.get(sel.toLowerCase());
+                    }
+                }
+
+                const badgeEl = document.getElementById('projectModalHoursBadge');
+                if (badgeEl) {
+                    badgeEl.textContent = `${totalHours.toFixed(1)}h`;
+                }
+            }
+
             function openProjectModal(id = null) {
                 const modal = document.getElementById('projectModal');
                 if (!modal) return;
+                initDropzoneEvents();
                 const titleEl = document.getElementById('projectModalTitle');
                 const idInput = document.getElementById('projectModalId');
                 const nameInput = document.getElementById('projectModalName');
                 const descInput = document.getElementById('projectModalDesc');
                 const repoInput = document.getElementById('projectModalRepo');
                 const demoInput = document.getElementById('projectModalDemo');
-                const htInput = document.getElementById('projectModalHtName');
-                const hoursInput = document.getElementById('projectModalHours');
+                const aiEl = document.getElementById('projectModalAiDeclaration');
+                const priorEl = document.getElementById('projectModalPriorProject');
+                const updateDescEl = document.getElementById('projectModalUpdateDesc');
+
+                modalSelectedHtProjects.clear();
 
                 if (id) {
                     const p = myProjectsList.find(x => x.id === id);
@@ -3040,8 +4039,23 @@
                     if (descInput) descInput.value = p.description || '';
                     if (repoInput) repoInput.value = p.repo_url || '';
                     if (demoInput) demoInput.value = p.demo_url || '';
-                    if (htInput) htInput.value = p.hackatime_project_name || '';
-                    if (hoursInput) hoursInput.value = p.hours_logged ?? 0;
+                    setProjectScreenshot(p.screenshot_url || '');
+                    if (aiEl) aiEl.value = p.ai_declaration || '';
+                    if (priorEl) {
+                        priorEl.checked = Boolean(p.is_prior_project);
+                        toggleProjectUpdateDesc(priorEl.checked);
+                    }
+                    if (updateDescEl) updateDescEl.value = p.update_description || '';
+
+                    const tags = Array.isArray(p.hackatime_projects) && p.hackatime_projects.length > 0
+                        ? p.hackatime_projects
+                        : (p.hackatime_project ? p.hackatime_project.split(',').map(s => s.trim()).filter(Boolean) : []);
+                    tags.forEach(t => modalSelectedHtProjects.add(t));
+
+                    const btnSubmit = document.getElementById('btnSubmitProjectModal');
+                    if (btnSubmit) {
+                        btnSubmit.style.display = (p.status === 'submitted' || p.status === 'approved') ? 'none' : 'inline-flex';
+                    }
                 } else {
                     if (titleEl) titleEl.textContent = 'Create New Project';
                     if (idInput) idInput.value = '';
@@ -3049,16 +4063,33 @@
                     if (descInput) descInput.value = '';
                     if (repoInput) repoInput.value = '';
                     if (demoInput) demoInput.value = '';
-                    if (htInput) htInput.value = '';
-                    if (hoursInput) hoursInput.value = '0.0';
+                    setProjectScreenshot('');
+                    if (aiEl) aiEl.value = '';
+                    if (priorEl) {
+                        priorEl.checked = false;
+                        toggleProjectUpdateDesc(false);
+                    }
+                    if (updateDescEl) updateDescEl.value = '';
+
+                    const btnSubmit = document.getElementById('btnSubmitProjectModal');
+                    if (btnSubmit) {
+                        btnSubmit.style.display = 'inline-flex';
+                    }
                 }
-                modal.classList.add('active');
+
+                modal.classList.add('active', 'open');
+                const sb = document.getElementById('projectModalScrollBody');
+                if (sb) {
+                    sb.scrollTop = 0;
+                    setTimeout(() => updateModalScrollMask(sb), 20);
+                }
+                loadModalHackatimeProjects();
             }
 
             function closeProjectModal(e) {
-                if (e && e.target !== e.currentTarget) return;
+                if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
                 const modal = document.getElementById('projectModal');
-                if (modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active', 'open');
             }
 
             async function saveProject() {
@@ -3067,15 +4098,39 @@
                 const description = document.getElementById('projectModalDesc').value.trim();
                 const repo_url = document.getElementById('projectModalRepo').value.trim();
                 const demo_url = document.getElementById('projectModalDemo').value.trim();
-                const hackatime_project_name = document.getElementById('projectModalHtName').value.trim();
-                const hours_logged = parseFloat(document.getElementById('projectModalHours').value) || 0;
+                const screenshot_url = projectScreenshotData || '';
+                const ai_declaration = document.getElementById('projectModalAiDeclaration') ? document.getElementById('projectModalAiDeclaration').value.trim() : '';
+                const is_prior_project = document.getElementById('projectModalPriorProject') ? document.getElementById('projectModalPriorProject').checked : false;
+                const update_description = document.getElementById('projectModalUpdateDesc') ? document.getElementById('projectModalUpdateDesc').value.trim() : '';
+                const hackatime_projects = Array.from(modalSelectedHtProjects);
 
                 if (!title) {
                     alert('Please give your project a title!');
                     return;
                 }
 
-                const payload = { title, description, repo_url, demo_url, hackatime_project_name, hours_logged };
+                if (is_prior_project && !update_description) {
+                    alert('Please enter an Update Description for your prior project.');
+                    const ud = document.getElementById('projectModalUpdateDesc');
+                    if (ud) {
+                        ud.focus();
+                        ud.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                const payload = {
+                    title,
+                    description,
+                    repo_url,
+                    demo_url,
+                    screenshot_url,
+                    ai_declaration,
+                    is_prior_project,
+                    update_description,
+                    hackatime_projects,
+                    hackatime_project: hackatime_projects.join(', ')
+                };
 
                 if (window.location.protocol !== 'file:') {
                     try {
@@ -3102,31 +4157,138 @@
                 }
             }
 
-            async function submitProject(id) {
-                if (!confirm('Ready to submit this project for review? Once submitted, our team will verify your hours and award your paws!')) return;
+            async function submitCurrentProjectFromModal() {
+                const idInput = document.getElementById('projectModalId');
+                const title = document.getElementById('projectModalName').value.trim();
+                const description = document.getElementById('projectModalDesc').value.trim();
+                const repo_url = document.getElementById('projectModalRepo').value.trim();
+                const demo_url = document.getElementById('projectModalDemo').value.trim();
+                const screenshot_url = projectScreenshotData || '';
+                const ai_declaration = document.getElementById('projectModalAiDeclaration') ? document.getElementById('projectModalAiDeclaration').value.trim() : '';
+                const is_prior_project = document.getElementById('projectModalPriorProject') ? document.getElementById('projectModalPriorProject').checked : false;
+                const update_description = document.getElementById('projectModalUpdateDesc') ? document.getElementById('projectModalUpdateDesc').value.trim() : '';
+                const hackatime_projects = Array.from(modalSelectedHtProjects);
+
+                if (!title) {
+                    alert('Please enter a project title before shipping.');
+                    document.getElementById('projectModalName').focus();
+                    return;
+                }
+                if (!description) {
+                    alert('Please enter a project description explaining what your project does.');
+                    document.getElementById('projectModalDesc').focus();
+                    return;
+                }
+                if (!screenshot_url) {
+                    alert('Please upload a project screenshot before shipping.');
+                    const dz = document.getElementById('projectModalScreenshotDropzone');
+                    if (dz) dz.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                if (!repo_url) {
+                    alert('Please provide your GitHub repository URL before shipping.');
+                    document.getElementById('projectModalRepo').focus();
+                    return;
+                }
+                if (!demo_url) {
+                    alert('Please provide your live demo or video URL before shipping.');
+                    document.getElementById('projectModalDemo').focus();
+                    return;
+                }
+                if (is_prior_project && !update_description) {
+                    alert('Please describe what new updates were made to this prior project.');
+                    const ud = document.getElementById('projectModalUpdateDesc');
+                    if (ud) {
+                        ud.focus();
+                        ud.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                let totalHours = 0;
+                const lowerMap = new Map();
+                for (const p of modalAvailableHtProjects) {
+                    lowerMap.set(p.name.toLowerCase(), p.hours || 0);
+                }
+                for (const sel of modalSelectedHtProjects) {
+                    if (lowerMap.has(sel.toLowerCase())) {
+                        totalHours += lowerMap.get(sel.toLowerCase());
+                    }
+                }
+
+                if (modalSelectedHtProjects.size === 0 || totalHours < 0.5) {
+                    alert(`Shipping requires at least 30 minutes (0.5h) of tracked Hackatime time attached to this project.\n\nCurrently attached: ${totalHours.toFixed(1)}h. Please select your Hackatime project(s) or track more time before shipping!`);
+                    const htBox = document.getElementById('projectModalHtProjectsWrap');
+                    if (htBox) htBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                const confirmed = await showConfirm('Ready to ship this project for review? Once submitted, our team will verify your hours and award your paws!', {
+                    okText: 'Ship Project',
+                    cancelText: 'Keep Editing'
+                });
+                if (!confirmed) return;
+
+                const payload = {
+                    title,
+                    description,
+                    repo_url,
+                    demo_url,
+                    screenshot_url,
+                    ai_declaration,
+                    is_prior_project,
+                    update_description,
+                    hackatime_projects,
+                    hackatime_project: hackatime_projects.join(', ')
+                };
+
+                let projectId = idInput.value;
                 if (window.location.protocol !== 'file:') {
                     try {
-                        const res = await fetch(`/api/projects/${id}/submit`, { method: 'POST' });
-                        const data = await res.json();
-                        if (!res.ok) {
-                            alert(data.error || 'Failed to submit project');
+                        const saveUrl = projectId ? `/api/projects/${projectId}` : '/api/projects';
+                        const saveMethod = projectId ? 'PUT' : 'POST';
+                        const saveRes = await fetch(saveUrl, {
+                            method: saveMethod,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const saveData = await saveRes.json();
+                        if (!saveRes.ok) {
+                            alert(saveData.error || saveData.message || 'Failed saving project before submit.');
                             return;
                         }
-                        alert('🎉 Project submitted successfully! Keep an eye on your notifications.');
+                        if (saveData.project && saveData.project.id) {
+                            projectId = saveData.project.id;
+                        }
+
+                        const submitRes = await fetch(`/api/projects/${projectId}/submit`, { method: 'POST' });
+                        const submitData = await submitRes.json();
+                        if (!submitRes.ok) {
+                            alert(submitData.message || submitData.error || 'Failed to submit project.');
+                            return;
+                        }
+                        closeProjectModal();
                         loadProjectsTab();
+                        alert('Project submitted successfully! Keep an eye on your notifications.');
                     } catch (e) {
-                        alert('Failed to submit project.');
+                        alert('Failed submitting project. Check your connection.');
                     }
+                } else {
+                    closeProjectModal();
+                    alert('Project submitted in demo mode!');
                 }
             }
 
             async function deleteProject(id) {
-                if (!confirm('Are you sure you want to delete this draft?')) return;
+                if (!await showConfirm('Are you sure you want to delete this draft?', { okText: 'Delete', cancelText: 'Cancel' })) return;
                 if (window.location.protocol !== 'file:') {
                     try {
                         const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
                         if (res.ok) loadProjectsTab();
                     } catch (e) {}
+                } else {
+                    myProjectsList = myProjectsList.filter(x => x.id !== id);
+                    renderProjectsGrid(myProjectsList);
                 }
             }
 
@@ -3143,30 +4305,18 @@
                         allExploreProjects = data.projects || [];
 
                         const totalHours = allExploreProjects.reduce((sum, p) => sum + (p.hours_logged || 0), 0);
-                        const totalPaws = allExploreProjects.reduce((sum, p) => sum + (p.awarded_paws || 0), 0);
+                        const totalPaws = allExploreProjects.reduce((sum, p) => sum + (p.paws_awarded ?? p.awarded_paws ?? 0), 0);
 
                         document.getElementById('exploreStatTotal').textContent = allExploreProjects.length;
                         document.getElementById('exploreStatHours').textContent = `${totalHours.toFixed(1)}h`;
-                        document.getElementById('exploreStatPaws').textContent = `🐾 ${totalPaws}`;
+                        document.getElementById('exploreStatPaws').innerHTML = `<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${totalPaws}`;
 
                         renderExploreGrid(allExploreProjects);
                     } catch (e) {
                         grid.innerHTML = '<div style="text-align: center; color: #a33; padding: 24px; grid-column: 1 / -1;">Failed to load explore showcase.</div>';
                     }
                 } else {
-                    renderExploreGrid([
-                        {
-                            id: 'exp-1',
-                            title: 'Protogen Visor Simulator',
-                            description: 'An interactive three.js simulator showing visor expressions and matrix patterns.',
-                            user_name: 'HackClubber',
-                            user_avatar: 'images/rex_main_front.png',
-                            hours_logged: 5.2,
-                            awarded_paws: 6,
-                            repo_url: 'https://github.com/hackclub/pawgrammed',
-                            demo_url: 'https://pawgrammed.hackclub.com'
-                        }
-                    ]);
+                    renderExploreGrid([]);
                 }
             }
 
@@ -3179,6 +4329,7 @@
                 const filtered = allExploreProjects.filter(p =>
                     (p.title && p.title.toLowerCase().includes(q)) ||
                     (p.description && p.description.toLowerCase().includes(q)) ||
+                    (p.maker_name && p.maker_name.toLowerCase().includes(q)) ||
                     (p.user_name && p.user_name.toLowerCase().includes(q))
                 );
                 renderExploreGrid(filtered);
@@ -3193,21 +4344,25 @@
                 }
 
                 grid.innerHTML = projects.map(p => {
+                    const screenshotHtml = p.screenshot_url
+                        ? `<div style="width: 100%; height: 130px; border-radius: 10px; overflow: hidden; border: 1.5px solid #211d1b; background: #fff8f0; margin-bottom: 4px; display: flex; align-items: center; justify-content: center;"><img src="${escapeHtml(p.screenshot_url)}" style="width: 100%; height: 100%; object-fit: cover;" alt="Project screenshot" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'color: #7a6e66; font-size: 12px; font-weight: 600;\'>Project screenshot</span>';"></div>`
+                        : `<div style="width: 100%; height: 130px; border-radius: 10px; overflow: hidden; border: 1.5px solid #211d1b; background: #fff8f0; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; color: #7a6e66; font-size: 12px; font-weight: 600;">Project screenshot</div>`;
+
                     return `
                         <div class="project-card">
+                            ${screenshotHtml}
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
                                 <img src="${p.maker_avatar || p.user_avatar || 'images/rex_main_front.png'}" style="width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #211d1b; object-fit: contain; background: #fff8f0;" alt="">
                                 <span style="font-size: 12px; font-weight: 700; color: #211d1b;">${escapeHtml(p.maker_name || p.user_name || 'Maker')}</span>
-                                <span class="status-pill approved" style="margin-left: auto;">🐾 ${p.paws_awarded ?? p.awarded_paws ?? Math.round(p.hours_logged || 0)}</span>
                             </div>
-                            <div style="font-family: 'PawFont', cursive; font-size: 19px; color: #211d1b; line-height: 1.2;">
+                            <div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: #211d1b; line-height: 1.25;">
                                 ${escapeHtml(p.title || 'Untitled')}
                             </div>
                             <p style="font-size: 12.5px; color: #6a5e56; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                                 ${escapeHtml(p.description || 'Community creation.')}
                             </p>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; border-top: 1px dashed #e2d2c3;">
-                                <span style="font-size: 11.5px; color: #7a6e66;">⏱ ${(p.hours_logged || 0).toFixed(1)}h logged</span>
+                                <span style="font-size: 11.5px; color: #7a6e66; display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${(p.hours_logged || 0).toFixed(1)}h logged</span>
                                 <div style="display: flex; gap: 8px;">
                                     ${p.repo_url ? `<a href="${escapeHtml(p.repo_url)}" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">Repo</a>` : ''}
                                     ${p.demo_url ? `<a href="${escapeHtml(p.demo_url)}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">Demo &rarr;</a>` : ''}
@@ -3270,8 +4425,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-weight: 700; font-size: 12.5px;">⏱ ${(s.hours_logged || 0).toFixed(1)}h</div>
-                                        ${s.hackatime_project || s.hackatime_project_name ? `<div style="font-size: 10.5px; color: #7a6e66;">🏷 ${escapeHtml(s.hackatime_project || s.hackatime_project_name)}</div>` : ''}
+                                        <div style="font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${(s.hours_logged || 0).toFixed(1)}h</div>
+                                        ${s.hackatime_project || s.hackatime_project_name ? `<div style="font-size: 10.5px; color: #7a6e66; display: flex; align-items: center; gap: 3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg><span>${escapeHtml(s.hackatime_project || s.hackatime_project_name)}</span></div>` : ''}
                                     </td>
                                     <td>
                                         <span class="status-pill ${statusMap[s.status] || 'draft'}">${s.status}</span>
@@ -3301,12 +4456,22 @@
                 document.getElementById('reviewProjectId').value = s.id;
                 const summaryEl = document.getElementById('reviewProjectSummary');
                 if (summaryEl) {
+                    const tags = Array.isArray(s.hackatime_projects) && s.hackatime_projects.length > 0
+                        ? s.hackatime_projects.join(', ')
+                        : (s.hackatime_project || s.hackatime_project_name || 'None');
                     summaryEl.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span style="font-family: 'PawFont', cursive; font-size: 18px; font-weight: 700;">${escapeHtml(s.title)}</span>
+                            <span style="font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 700;">${escapeHtml(s.title)}</span>
                             <span style="font-size: 12px; color: #7a6e66;">Maker: <strong>${escapeHtml(s.maker_name || s.user_name || 'Maker')}</strong> (${escapeHtml(s.maker_email || s.user_email || '')})</span>
                         </div>
+                        ${s.screenshot_url ? `<div style="margin: 8px 0;"><img src="${escapeHtml(s.screenshot_url)}" style="max-height: 200px; width: 100%; object-fit: contain; border-radius: 8px; border: 1.5px solid #211d1b; background: #fff8f0;" alt="Project Screenshot"></div>` : ''}
                         <p style="font-size: 12px; color: #5a4e46; margin: 4px 0 6px;">${escapeHtml(s.description || 'No description.')}</p>
+                        ${s.ai_declaration ? `<div style="font-size: 11.5px; background: #f0f4ff; border-left: 3px solid #4a6fa5; padding: 6px 8px; border-radius: 4px; color: #1e3a8a; margin-bottom: 6px;"><strong>AI Declaration:</strong> ${escapeHtml(s.ai_declaration)}</div>` : ''}
+                        ${s.is_prior_project ? `<div style="font-size: 11.5px; background: #fff5e6; border-left: 3px solid #d97706; padding: 6px 8px; border-radius: 4px; color: #92400e; margin-bottom: 6px;"><strong>Prior Project:</strong> ${escapeHtml(s.update_description || 'Started before 17 October 2026 or previously shipped.')}</div>` : ''}
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; margin-bottom: 4px; color: #5a4e46;">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><strong>${(s.hours_logged || 0).toFixed(1)}h</strong> logged</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg><strong>${escapeHtml(tags)}</strong></span>
+                        </div>
                         <div style="display: flex; gap: 12px; font-size: 12px;">
                             ${s.repo_url ? `<a href="${escapeHtml(s.repo_url)}" target="_blank" rel="noopener" style="color: #211d1b; text-decoration: underline;">GitHub Repository &rarr;</a>` : ''}
                             ${s.demo_url ? `<a href="${escapeHtml(s.demo_url)}" target="_blank" rel="noopener" style="color: #211d1b; text-decoration: underline;">Live Demo / Video &rarr;</a>` : ''}
@@ -3319,20 +4484,25 @@
                 document.getElementById('reviewNoteToMaker').value = s.note_to_maker || s.feedback || '';
 
                 updateReviewPawsCalculation();
-                document.getElementById('submissionReviewModal').classList.add('active');
+                document.getElementById('submissionReviewModal').classList.add('active', 'open');
+                const sb = document.getElementById('submissionReviewScrollBody');
+                if (sb) {
+                    sb.scrollTop = 0;
+                    setTimeout(() => updateModalScrollMask(sb), 20);
+                }
             }
 
             function closeReviewModal(e) {
-                if (e && e.target !== e.currentTarget) return;
+                if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
                 const modal = document.getElementById('submissionReviewModal');
-                if (modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active', 'open');
             }
 
             function updateReviewPawsCalculation() {
                 const hours = parseFloat(document.getElementById('reviewApprovedHours').value) || 0;
                 const paws = Math.round(hours * eventMultiplier);
                 const pawsEl = document.getElementById('reviewCalculatedPaws');
-                if (pawsEl) pawsEl.textContent = `🐾 ${paws} paws`;
+                if (pawsEl) pawsEl.innerHTML = `<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${paws} paws`;
             }
 
             async function submitProjectReview(decision) {
@@ -3422,7 +4592,7 @@
                         return;
                     }
                     eventMultiplier = multiplier;
-                    alert('✓ Event controls updated successfully!');
+                    alert('Event controls updated successfully!');
                 } catch (e) {
                     alert('Failed saving event controls.');
                 }
@@ -3443,10 +4613,10 @@
                     const data = await res.json();
                     unifiedOutboxRecords = data.outbox || data.records || [];
 
-                    const isConfigured = Boolean(data.has_secret || data.bridge_configured);
+                    const isConfigured = Boolean(data.airtable_configured);
                     const statusEl = document.getElementById('unifiedBridgeStatus');
                     if (statusEl) {
-                        statusEl.textContent = isConfigured ? 'Active (Live)' : 'Mock (Dry-Run)';
+                        statusEl.textContent = isConfigured ? 'Airtable (Connected)' : 'Mock (Dry-Run)';
                         statusEl.style.color = isConfigured ? '#1e7e34' : '#b06200';
                     }
 
@@ -3455,7 +4625,7 @@
                     document.getElementById('unifiedStatErrors').textContent = data.stats?.error ?? 0;
 
                     if (unifiedOutboxRecords.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No projects ready for Unified Bridge sync yet. Approved projects appear here automatically.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No approved projects in outbox yet. Approved projects appear here and sync to Airtable automatically.</td></tr>';
                         return;
                     }
 
@@ -3487,7 +4657,7 @@
                         `;
                     }).join('');
                 } catch (e) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed loading unified bridge status.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed loading outbox status.</td></tr>';
                 }
             }
 
@@ -3496,13 +4666,13 @@
                 if (!rec) return;
                 const pre = document.getElementById('unifiedPayloadPre');
                 if (pre) pre.textContent = JSON.stringify(rec.payload || rec, null, 2);
-                document.getElementById('unifiedPayloadModal').classList.add('active');
+                document.getElementById('unifiedPayloadModal').classList.add('active', 'open');
             }
 
             function closeUnifiedPayloadModal(e) {
-                if (e && e.target !== e.currentTarget) return;
+                if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
                 const modal = document.getElementById('unifiedPayloadModal');
-                if (modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active', 'open');
             }
 
             async function pushUnified(id) {
@@ -3515,16 +4685,16 @@
                     }
                     loadUnifiedTab();
                 } catch (e) {
-                    alert('Failed pushing record to Unified Bridge.');
+                    alert('Failed pushing record to Airtable.');
                 }
             }
 
             async function pushAllUnified() {
-                if (!confirm('Push all queued approved projects to Unified Submissions?')) return;
+                if (!await showConfirm('Push all queued approved projects to Airtable?', { okText: 'Push All', cancelText: 'Cancel' })) return;
                 try {
                     const res = await fetch('/api/admin/unified/push-all', { method: 'POST' });
                     const data = await res.json();
-                    alert(`Unified sync complete: ${data.success_count || 0} succeeded, ${data.error_count || 0} errors.`);
+                    alert(`Airtable sync complete: ${data.success_count || 0} succeeded, ${data.error_count || 0} errors.`);
                     loadUnifiedTab();
                 } catch (e) {
                     alert('Failed pushing all records.');
@@ -3560,7 +4730,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="font-weight: 700; color: #ff8c37;">🐾 ${item.price} paws</td>
+                                <td style="font-weight: 700; color: #ff8c37;"><img src="images/paw-print-icon.png" class="paw-icon" alt="" style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 2px;"> ${item.price} paws</td>
                                 <td>${item.hours}h</td>
                                 <td style="font-size: 12px; color: #666; max-width: 180px;">${Array.isArray(item.variants) ? item.variants.join(', ') : 'Default'}</td>
                                 <td>
@@ -3569,7 +4739,7 @@
                                 <td>
                                     <div style="display: flex; gap: 6px;">
                                         <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="openShopItemModal('${item.id}')">Edit</button>
-                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px; color: #a33;" onclick="deleteShopItem('${item.id}')">✕</button>
+                                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px; color: #a33;" onclick="deleteShopItem('${item.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                                     </div>
                                 </td>
                             </tr>
@@ -3616,13 +4786,18 @@
                     if (descInput) descInput.value = '';
                     if (stockInput) stockInput.checked = true;
                 }
-                modal.classList.add('active');
+                modal.classList.add('active', 'open');
+                const sb = document.getElementById('shopItemModalScrollBody');
+                if (sb) {
+                    sb.scrollTop = 0;
+                    setTimeout(() => updateModalScrollMask(sb), 20);
+                }
             }
 
             function closeShopItemModal(e) {
-                if (e && e.target !== e.currentTarget) return;
+                if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
                 const modal = document.getElementById('shopItemModal');
-                if (modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active', 'open');
             }
 
             async function saveShopItem() {
@@ -3665,7 +4840,7 @@
             }
 
             async function deleteShopItem(id) {
-                if (!confirm('Are you sure you want to remove this reward from the catalog?')) return;
+                if (!await showConfirm('Are you sure you want to remove this reward from the catalog?', { okText: 'Remove', cancelText: 'Cancel' })) return;
                 try {
                     const res = await fetch(`/api/admin/shop/items/${id}`, { method: 'DELETE' });
                     if (res.ok) {
@@ -3692,7 +4867,7 @@
                     const spent = Math.abs(entries.filter(e => e.delta < 0).reduce((sum, e) => sum + e.delta, 0));
                     const net = granted - spent;
 
-                    document.getElementById('ledgerStatCirculating').textContent = `🐾 ${net}`;
+                    document.getElementById('ledgerStatCirculating').innerHTML = `<img src="images/paw-print-icon.png" class="paw-icon" alt=""> ${net}`;
                     document.getElementById('ledgerStatGranted').textContent = `+${granted}`;
                     document.getElementById('ledgerStatSpent').textContent = `-${spent}`;
                     document.getElementById('ledgerStatTx').textContent = entries.length;
@@ -3721,13 +4896,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-pill ${deltaClass}" style="font-size: 12px; font-weight: 700;">🐾 ${sign}${tx.delta}</span>
+                                    <span class="status-pill ${deltaClass}" style="font-size: 12px; font-weight: 700;"><img src="images/paw-print-icon.png" class="paw-icon" alt="" style="width: 12px; height: 12px; vertical-align: -1px; margin-right: 2px;"> ${sign}${tx.delta}</span>
                                 </td>
                                 <td style="font-size: 12px; text-transform: capitalize; font-weight: 600;">
                                     ${escapeHtml(tx.reason || tx.type || 'Adjustment')}
                                 </td>
                                 <td style="font-size: 11.5px; color: #6a5e56;">
-                                    ${escapeHtml(tx.notes || tx.order_id || tx.project_title || '—')}
+                                    ${escapeHtml(tx.note || tx.notes || tx.order_id || tx.project_title || '—')}
                                 </td>
                             </tr>
                         `;
@@ -3748,7 +4923,7 @@
                         const res = await fetch('/api/admin/people');
                         const data = await res.json();
                         const people = data.people || [];
-                        select.innerHTML = people.map(p => `<option value="${p.id}">${escapeHtml(p.name || 'Maker')} (${escapeHtml(p.email || 'no email')}) - 🐾 ${p.pawprints ?? 0}</option>`).join('');
+                        select.innerHTML = people.map(p => `<option value="${p.id}">${escapeHtml(p.name || 'Maker')} (${escapeHtml(p.email || 'no email')}) - ${p.pawprints ?? 0} paws</option>`).join('');
                     } catch (e) {
                         select.innerHTML = '<option value="">Failed loading users</option>';
                     }
@@ -3756,13 +4931,18 @@
 
                 document.getElementById('pawsAdjustAmount').value = '5';
                 document.getElementById('pawsAdjustNote').value = '';
-                modal.classList.add('active');
+                modal.classList.add('active', 'open');
+                const sb = document.getElementById('pawsAdjustModalScrollBody');
+                if (sb) {
+                    sb.scrollTop = 0;
+                    setTimeout(() => updateModalScrollMask(sb), 20);
+                }
             }
 
             function closePawsAdjustModal(e) {
-                if (e && e.target !== e.currentTarget) return;
+                if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
                 const modal = document.getElementById('pawsAdjustModal');
-                if (modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active', 'open');
             }
 
             async function submitPawsAdjustment() {
@@ -3805,7 +4985,7 @@
                     if (currentUser && currentUser.id === user_id && data.user) {
                         updateUserUI(data.user);
                     }
-                    alert('✓ Paws balance adjusted successfully.');
+                    alert('Paws balance adjusted successfully.');
                 } catch (e) {
                     alert('Failed adjusting paws.');
                 }
@@ -3826,6 +5006,8 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
+            initModalScrollMasks();
+
             if (window.location.protocol !== 'file:') {
                 fetch('/api/me')
                     .then(res => {
@@ -3834,9 +5016,12 @@
                     })
                     .then(data => {
                         updateUserUI(data.user || {});
+                        loadProjectsTab();
                         const hashTab = (window.location.hash || '').replace('#', '');
                         if (hashTab && document.getElementById(`pane-${hashTab}`)) {
                             switchTab(hashTab);
+                        } else if (hashTab === 'settings') {
+                            openSettingsModal();
                         }
                     })
                     .catch(() => {
@@ -3847,6 +5032,8 @@
                 const hashTab = (window.location.hash || '').replace('#', '');
                 if (hashTab && document.getElementById(`pane-${hashTab}`)) {
                     switchTab(hashTab);
+                } else if (hashTab === 'settings') {
+                    openSettingsModal();
                 }
             }
         </script>

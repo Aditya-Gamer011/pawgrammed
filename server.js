@@ -6,6 +6,7 @@ import fs from 'node:fs/promises';
 import 'dotenv/config';
 
 const app = express();
+app.set('trust proxy', 1);
 const port = process.env.PORT || 3000;
 const DATA_DIR = path.resolve('data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
@@ -16,9 +17,10 @@ const EVENT_CONFIG_FILE = path.join(DATA_DIR, 'event_config.json');
 const LEDGER_FILE = path.join(DATA_DIR, 'paws_ledger.json');
 const SHOP_ITEMS_FILE = path.join(DATA_DIR, 'shop_items.json');
 const UNIFIED_OUTBOX_FILE = path.join(DATA_DIR, 'unified_outbox.json');
+const UPLOADS_DIR = path.resolve('uploads', 'screenshots');
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json({ limit: '20mb' }));
 app.use(cookieParser());
 
 const DEFAULT_SHOP_ITEMS = [
@@ -76,51 +78,8 @@ const DEFAULT_EVENT_CONFIG = {
     end_date: '2026-05-30',
     multiplier: 1.0,
     max_paws_cap: 25,
-    announcement: '🐾 Welcome to Pawgrammed! Build and ship furry-themed projects, track Hackatime hours, and claim custom gear!'
+    announcement: ''
 };
-
-const SEED_EXPLORE_PROJECTS = [
-    {
-        id: 'proj_sample_01',
-        user_id: 'seed_rex',
-        maker_name: 'Rex The Protogen',
-        maker_email: 'rex@hackclub.com',
-        maker_avatar: 'images/rex_main_front.png',
-        title: 'Protogen Visor Matrix Firmware',
-        description: 'ESP32 firmware driving 128x64 WS2812 LED matrices with reactive eye emotes and Bluetooth remote control.',
-        repo_url: 'https://github.com/hackclub/fursuit-visor',
-        demo_url: 'https://github.com/hackclub/fursuit-visor',
-        hackatime_project: 'fursuit-visor',
-        hours_logged: 6.5,
-        hours_approved: 6.5,
-        paws_awarded: 7,
-        status: 'approved',
-        note_to_maker: 'Amazing hardware project! Love the emotion cycling.',
-        created_at: '2026-03-10T12:00:00.000Z',
-        submitted_at: '2026-03-12T15:30:00.000Z',
-        decided_at: '2026-03-13T09:15:00.000Z'
-    },
-    {
-        id: 'proj_sample_02',
-        user_id: 'seed_floof',
-        maker_name: 'Floof Coder',
-        maker_email: 'floof@hackclub.com',
-        maker_avatar: 'images/rex_main_front.png',
-        title: 'PawScript Language',
-        description: 'A toy programming language written in Rust where keywords are replaced with animal sounds (bark, meow, awoo).',
-        repo_url: 'https://github.com/hackclub/pawscript',
-        demo_url: 'https://github.com/hackclub/pawscript',
-        hackatime_project: 'pawscript-compiler',
-        hours_logged: 4.0,
-        hours_approved: 4.0,
-        paws_awarded: 4,
-        status: 'approved',
-        note_to_maker: 'The compiler error messages are adorable and hilarious.',
-        created_at: '2026-03-14T10:00:00.000Z',
-        submitted_at: '2026-03-16T18:00:00.000Z',
-        decided_at: '2026-03-17T11:20:00.000Z'
-    }
-];
 
 async function ensureDataFiles() {
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -142,7 +101,7 @@ async function ensureDataFiles() {
     try {
         await fs.access(PROJECTS_FILE);
     } catch {
-        await fs.writeFile(PROJECTS_FILE, JSON.stringify(SEED_EXPLORE_PROJECTS, null, 2), 'utf-8');
+        await fs.writeFile(PROJECTS_FILE, JSON.stringify([], null, 2), 'utf-8');
     }
     try {
         await fs.access(EVENT_CONFIG_FILE);
@@ -164,6 +123,7 @@ async function ensureDataFiles() {
     } catch {
         await fs.writeFile(UNIFIED_OUTBOX_FILE, JSON.stringify([], null, 2), 'utf-8');
     }
+    await fs.mkdir(UPLOADS_DIR, { recursive: true });
 }
 
 async function loadOrders() {
@@ -271,6 +231,7 @@ async function recordLedger(userId, delta, reason, note = '', meta = {}) {
         project_id: meta.projectId || null,
         order_id: meta.orderId || null,
         note: note || '',
+        notes: note || '',
         created_at: new Date().toISOString()
     };
     ledger.unshift(entry);
@@ -309,8 +270,7 @@ async function saveUnifiedOutbox(outbox) {
 }
 
 function getAdminEmails() {
-    const list = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
-    return list;
+    return (process.env.ADMIN_EMAILS || process.env.ORGANIZER_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 }
 
 function isAdminEmail(email) {
@@ -319,15 +279,167 @@ function isAdminEmail(email) {
     return adminEmails.includes(email.toLowerCase());
 }
 
-async function getSessionUser(req) {
-    const token = req.cookies.paw_session;
-    if (!token) return null;
-    const sessions = await loadSessions();
-    const session = sessions[token];
-    if (!session || !session.userId) return null;
+function isAdminUser(user) {
+    if (!user) return false;
+    if (isAdminEmail(user.email)) return true;
+    const adminSlackIds = (process.env.ADMIN_SLACK_IDS || process.env.ORGANIZER_SLACK_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (user.slack_id && adminSlackIds.includes(user.slack_id)) return true;
+    return false;
+}
 
-    const users = await loadUsers();
-    return users.find(u => u.id === session.userId) || null;
+function getHcaRedirectUri(req) {
+    const host = req.get('host') || 'localhost:3000';
+    if (host.includes('pawgrammed.hackclub.com')) {
+        return 'https://pawgrammed.hackclub.com/auth/callback';
+    }
+    return process.env.HCA_REDIRECT_URI || `${req.protocol}://${host}/auth/callback`;
+}
+
+function getHackatimeRedirectUri(req) {
+    const host = req.get('host') || 'localhost:3000';
+    if (host.includes('pawgrammed.hackclub.com')) {
+        return 'https://pawgrammed.hackclub.com/auth/callback';
+    }
+    return process.env.HACKATIME_REDIRECT_URI || `${req.protocol}://${host}/auth/callback`;
+}
+
+async function fetchSlackProfile(slackId) {
+    if (!slackId || !process.env.SLACK_BOT_TOKEN) return null;
+    try {
+        const res = await fetch(`https://slack.com/api/users.info?user=${encodeURIComponent(slackId)}`, {
+            headers: { Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.ok || !data.user) return null;
+        return {
+            name: data.user.real_name || data.user.name,
+            handle: data.user.profile?.display_name || data.user.name || '',
+            avatar: data.user.profile?.image_192 || data.user.profile?.image_512 || data.user.profile?.image_72 || data.user.profile?.image_48 || null
+        };
+    } catch {
+        return null;
+    }
+}
+
+async function checkHcaVerification(identifier) {
+    try {
+        const params = new URLSearchParams();
+        if (identifier.idv_id) params.set('idv_id', identifier.idv_id);
+        else if (identifier.email) params.set('email', identifier.email);
+        else if (identifier.slack_id) params.set('slack_id', identifier.slack_id);
+        else return null;
+
+        const res = await fetch(`https://auth.hackclub.com/api/external/check?${params.toString()}`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.result || null;
+    } catch {
+        return null;
+    }
+}
+
+async function refreshHcaAccessToken(user) {
+    if (!user || !user.hca_refresh_token) return null;
+    try {
+        const res = await fetch('https://auth.hackclub.com/oauth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: user.hca_refresh_token,
+                client_id: process.env.HCA_CLIENT_ID,
+                client_secret: process.env.HCA_CLIENT_SECRET
+            })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.access_token) {
+            user.hca_access_token = data.access_token;
+            if (data.refresh_token) user.hca_refresh_token = data.refresh_token;
+            const users = await loadUsers();
+            const idx = users.findIndex(u => u.id === user.id);
+            if (idx !== -1) {
+                users[idx].hca_access_token = data.access_token;
+                if (data.refresh_token) users[idx].hca_refresh_token = data.refresh_token;
+                await saveUsers(users);
+            }
+            return data.access_token;
+        }
+    } catch {
+        return null;
+    }
+    return null;
+}
+
+async function sendSlackDm(slackId, message) {
+    if (!slackId || !process.env.SLACK_BOT_TOKEN) return false;
+    try {
+        const openRes = await fetch('https://slack.com/api/conversations.open', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+                'Content-Type': 'application/json; charset=utf-8'
+            },
+            body: JSON.stringify({ users: slackId }),
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!openRes.ok) return false;
+        const openData = await openRes.json();
+        const channel = openData.channel?.id;
+        if (!channel) return false;
+
+        const postRes = await fetch('https://slack.com/api/chat.postMessage', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+                'Content-Type': 'application/json; charset=utf-8'
+            },
+            body: JSON.stringify({
+                channel: channel,
+                text: message,
+                mrkdwn: true,
+                unfurl_links: false
+            }),
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!postRes.ok) return false;
+        const postData = await postRes.json();
+        return Boolean(postData.ok);
+    } catch {
+        return false;
+    }
+}
+
+async function notifyProjectDecision(project, makerUser, decision, approvedHours, awardedPaws, note) {
+    if (!makerUser?.slack_id) return;
+    const name = makerUser.first_name || makerUser.name || 'there';
+    const title = project.title || 'Untitled';
+    let message = '';
+    if (decision === 'approved') {
+        message = `🌟 *Your Pawgrammed project was approved!*\nHey ${name} — *${title}* has been approved for *${approvedHours}h* and awarded *${awardedPaws} paws*! 🐾\n\nKeep shipping!`;
+    } else if (decision === 'changes_requested') {
+        message = `🛠️ *Changes requested on your Pawgrammed project*\nHey ${name} — the organizers reviewed *${title}* and requested a few changes:\n\n>${note || 'Please check the dashboard for details.'}\n\nYou've got this!`;
+    } else if (decision === 'rejected') {
+        message = `📋 *Update on your Pawgrammed project*\nHey ${name} — *${title}* wasn't approved this time.\n\nFeedback:\n>${note || 'Please check the dashboard for details.'}`;
+    }
+    if (message) {
+        await sendSlackDm(makerUser.slack_id, message);
+    }
+}
+
+async function getSessionUser(req) {
+    const token = req.cookies?.paw_session;
+    if (token) {
+        const sessions = await loadSessions();
+        const session = sessions[token];
+        if (session && session.userId) {
+            const users = await loadUsers();
+            const u = users.find(x => x.id === session.userId);
+            if (u) return u;
+        }
+    }
+    return null;
 }
 
 app.get('/login', (req, res) => {
@@ -339,11 +451,22 @@ app.get('/login', (req, res) => {
         maxAge: 30 * 60 * 1000
     });
 
+    if (req.query.return_to) {
+        res.cookie('hca_return_to', String(req.query.return_to), {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax',
+            maxAge: 30 * 60 * 1000
+        });
+    }
+
+    const redirectUri = getHcaRedirectUri(req);
+    const scope = process.env.HCA_SCOPE || 'openid profile email slack_id verification_status';
     const params = new URLSearchParams({
         client_id: process.env.HCA_CLIENT_ID,
-        redirect_uri: process.env.HCA_REDIRECT_URI,
+        redirect_uri: redirectUri,
         response_type: 'code',
-        scope: process.env.HCA_SCOPE || 'openid profile email slack_id verification_status',
+        scope: scope,
         state: state
     });
 
@@ -357,24 +480,9 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/auth/hackatime', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) {
-            user = users[0];
-            const sessionToken = crypto.randomUUID();
-            const sessions = await loadSessions();
-            sessions[sessionToken] = { userId: user.id, createdAt: Date.now() };
-            await saveSessions(sessions);
-            res.cookie('paw_session', sessionToken, {
-                path: '/',
-                httpOnly: true,
-                sameSite: 'lax',
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
-        } else {
-            return res.redirect('/login');
-        }
+        return res.redirect('/login');
     }
 
     const state = `hackatime_${user.id}_${crypto.randomUUID()}`;
@@ -385,7 +493,14 @@ app.get('/auth/hackatime', async (req, res) => {
         maxAge: 15 * 60 * 1000
     });
 
-    const redirectUri = process.env.HACKATIME_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/callback`;
+    const redirectUri = getHackatimeRedirectUri(req);
+    res.cookie('hackatime_redirect_uri', redirectUri, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000
+    });
+
     const params = new URLSearchParams({
         client_id: process.env.HACKATIME_CLIENT_ID,
         redirect_uri: redirectUri,
@@ -396,6 +511,63 @@ app.get('/auth/hackatime', async (req, res) => {
 
     res.redirect(`https://hackatime.hackclub.com/oauth/authorize?${params.toString()}`);
 });
+
+async function fetchUserHackatimeProjects(accessToken) {
+    if (!accessToken) return [];
+    try {
+        const res = await fetch('https://hackatime.hackclub.com/api/v1/authenticated/projects', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!res.ok) {
+            console.error('Failed fetching Hackatime projects:', res.status);
+            return [];
+        }
+        const data = await res.json();
+        const rawList = Array.isArray(data) ? data : (Array.isArray(data.projects) ? data.projects : (data.data || []));
+
+        return rawList
+            .map(p => {
+                const latestHeartbeat = p.most_recent_heartbeat || p.most_recent_heartbeat_at || p.last_heartbeat_at || p.lastSeen || null;
+                const totalSeconds = Number(p.total_seconds ?? p.totalSeconds ?? 0);
+                const hbTime = latestHeartbeat ? new Date(latestHeartbeat).getTime() : null;
+                return {
+                    name: String(p.name || ''),
+                    total_seconds: totalSeconds,
+                    hours: Number((totalSeconds / 3600).toFixed(1)),
+                    languages: Array.isArray(p.languages) ? p.languages : [],
+                    most_recent_heartbeat: latestHeartbeat,
+                    created_at: p.created_at || null,
+                    timestamp: hbTime || (p.created_at ? new Date(p.created_at).getTime() : null)
+                };
+            })
+            .filter(p => p.name && p.total_seconds > 0)
+            .sort((a, b) => b.total_seconds - a.total_seconds);
+    } catch (err) {
+        console.error('Error fetching Hackatime projects:', err);
+        return [];
+    }
+}
+
+function calculateProjectHackatimeStats(project, hackatimeList) {
+    const pTags = Array.isArray(project.hackatime_projects) && project.hackatime_projects.length > 0
+        ? project.hackatime_projects
+        : (project.hackatime_project ? project.hackatime_project.split(',').map(s => s.trim()).filter(Boolean) : []);
+    if (!pTags.length || !hackatimeList || !hackatimeList.length) {
+        const secs = project.seconds_logged !== undefined ? project.seconds_logged : Math.round((project.hours_logged || 0) * 3600);
+        return {
+            seconds: secs,
+            hours: Number((secs / 3600).toFixed(1))
+        };
+    }
+    const lowerTags = new Set(pTags.map(t => t.toLowerCase()));
+    const totalSecs = hackatimeList
+        .filter(p => p && p.name && lowerTags.has(p.name.toLowerCase()))
+        .reduce((sum, p) => sum + (p.total_seconds || 0), 0);
+    return {
+        seconds: totalSecs,
+        hours: Number((totalSecs / 3600).toFixed(1))
+    };
+}
 
 async function handleHackatimeCallback(req, res) {
     const { code, state, error: authError } = req.query;
@@ -436,7 +608,8 @@ async function handleHackatimeCallback(req, res) {
         return res.redirect('/login?error=must_login_first');
     }
 
-    const redirectUri = process.env.HACKATIME_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/callback`;
+    const redirectUri = req.cookies.hackatime_redirect_uri || getHackatimeRedirectUri(req);
+    res.clearCookie('hackatime_redirect_uri', { path: '/' });
 
     try {
         const tokenRes = await fetch('https://hackatime.hackclub.com/oauth/token', {
@@ -497,6 +670,7 @@ async function handleHackatimeCallback(req, res) {
             }
         } catch (e) {}
 
+        const projectsList = await fetchUserHackatimeProjects(accessToken);
         const users = await loadUsers();
         const u = users.find(x => x.id === sessionUser.id);
         if (u) {
@@ -507,8 +681,23 @@ async function handleHackatimeCallback(req, res) {
             u.hackatime_slack_id = htUser.slack_id || u.hackatime_slack_id || '';
             u.hackatime_github = htUser.github_username || u.hackatime_github || '';
             u.hackatime_hours = Math.max(u.hackatime_hours || 0, totalHours);
+            u.hackatime_projects_cache = projectsList;
             if (apiKey) u.hackatime_key = apiKey;
             await saveUsers(users);
+
+            const allProjects = await loadProjects();
+            let changedProjects = false;
+            for (const proj of allProjects) {
+                if (proj.user_id === u.id) {
+                    const stats = calculateProjectHackatimeStats(proj, projectsList);
+                    proj.hours_logged = stats.hours;
+                    proj.seconds_logged = stats.seconds;
+                    changedProjects = true;
+                }
+            }
+            if (changedProjects) {
+                await saveProjects(allProjects);
+            }
         }
 
         res.redirect('/dashboard?hackatime=connected');
@@ -519,6 +708,416 @@ async function handleHackatimeCallback(req, res) {
 }
 
 app.get('/auth/hackatime/callback', handleHackatimeCallback);
+
+function parseHcaAddress(identity, userinfo, firstName, lastName, fullName) {
+    let rawAddr = null;
+    const addresses = identity?.addresses || userinfo?.addresses;
+    if (Array.isArray(addresses) && addresses.length > 0) {
+        rawAddr = addresses.find(a => a.primary) || addresses[0];
+    } else if (identity?.primary_address && typeof identity.primary_address === 'object') {
+        rawAddr = identity.primary_address;
+    } else if (identity?.address && typeof identity.address === 'object') {
+        rawAddr = identity.address;
+    } else if (userinfo?.primary_address && typeof userinfo.primary_address === 'object') {
+        rawAddr = userinfo.primary_address;
+    }
+
+    if (rawAddr) {
+        const pName = [rawAddr.first_name || firstName, rawAddr.last_name || lastName].filter(Boolean).join(' ') || fullName || '';
+        const addressObj = {
+            name: pName,
+            line1: rawAddr.line_1 || rawAddr.line1 || rawAddr.street_address || '',
+            line2: rawAddr.line_2 || rawAddr.line2 || '',
+            city: rawAddr.city || rawAddr.locality || '',
+            state: rawAddr.state || rawAddr.region || '',
+            postal_code: rawAddr.postal_code || rawAddr.postcode || rawAddr.zip || '',
+            country: rawAddr.country || '',
+            first_name: rawAddr.first_name || firstName || '',
+            last_name: rawAddr.last_name || lastName || ''
+        };
+        const shippingAddress = [
+            addressObj.name,
+            addressObj.line1,
+            addressObj.line2,
+            addressObj.city,
+            addressObj.state,
+            addressObj.postal_code,
+            addressObj.country
+        ].filter(Boolean).join(', ');
+        return { addressObj, shippingAddress };
+    }
+
+    if (userinfo?.address) {
+        const uAddr = userinfo.address;
+        const [line1, ...rest] = (uAddr.street_address || uAddr.formatted || '').split(/\r?\n/);
+        const pName = fullName || [firstName, lastName].filter(Boolean).join(' ') || '';
+        const addressObj = {
+            name: pName,
+            line1: line1?.trim() || '',
+            line2: rest.join(' ').trim() || '',
+            city: uAddr.locality || uAddr.city || '',
+            state: uAddr.region || uAddr.state || '',
+            postal_code: uAddr.postal_code || uAddr.postcode || '',
+            country: uAddr.country || '',
+            first_name: firstName || '',
+            last_name: lastName || ''
+        };
+        const shippingAddress = [
+            addressObj.name,
+            addressObj.line1,
+            addressObj.line2,
+            addressObj.city,
+            addressObj.state,
+            addressObj.postal_code,
+            addressObj.country
+        ].filter(Boolean).join(', ');
+        return { addressObj, shippingAddress };
+    }
+
+    return { addressObj: null, shippingAddress: '' };
+}
+
+async function saveBase64Image(dataUri, prefix = 'screenshot') {
+    if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:image/')) {
+        return dataUri;
+    }
+    try {
+        const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+        if (!matches) return dataUri;
+        const rawExt = matches[1].toLowerCase();
+        const ext = rawExt === 'jpeg' ? 'jpg' : rawExt.replace('+xml', '');
+        const buffer = Buffer.from(matches[2], 'base64');
+
+        if (process.env.CDN_TOKEN && process.env.CDN_TOKEN.trim()) {
+            try {
+                const formData = new FormData();
+                const blob = new Blob([buffer], { type: `image/${rawExt}` });
+                formData.append('file', blob, `${prefix}_${Date.now()}.${ext}`);
+                const cdnRes = await fetch('https://cdn.hackclub.com/api/v4/upload', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${process.env.CDN_TOKEN.trim()}` },
+                    body: formData,
+                    signal: AbortSignal.timeout(15000)
+                });
+                if (cdnRes.ok) {
+                    const cdnData = await cdnRes.json().catch(() => null);
+                    if (cdnData && cdnData.url) return cdnData.url;
+                }
+            } catch (cdnErr) {
+                console.error('CDN upload error:', cdnErr.message);
+            }
+        }
+
+        await fs.mkdir(UPLOADS_DIR, { recursive: true });
+        const filename = `${prefix}_${Date.now()}_${crypto.randomUUID().slice(0, 8)}.${ext}`;
+        const filePath = path.join(UPLOADS_DIR, filename);
+        await fs.writeFile(filePath, buffer);
+
+        const baseUrl = (process.env.PUBLIC_URL || process.env.BASE_URL || '').replace(/\/+$/, '');
+        return `${baseUrl}/uploads/screenshots/${filename}`;
+    } catch (e) {
+        console.error('Error saving image:', e.message);
+        return dataUri;
+    }
+}
+
+function resolveUserAddress(makerUser) {
+    const addr = makerUser?.address || {};
+    let line1 = addr.line1 || null;
+    let line2 = addr.line2 || null;
+    let city = addr.city || null;
+    let state = addr.state || null;
+    let postalCode = addr.postal_code || addr.postcode || null;
+    let country = addr.country || null;
+
+    if ((!line1 || !city || !country) && makerUser?.shipping_address) {
+        const parts = makerUser.shipping_address.split(',').map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 3) {
+            let p = [...parts];
+            if (p[0] === (makerUser.name || makerUser.nickname)) {
+                p.shift();
+            }
+            if (!line1 && p.length > 0) line1 = p[0];
+            if (!country && p.length > 1) country = p[p.length - 1];
+            if (!postalCode && p.length > 2 && /^[0-9A-Z\s-]{3,10}$/i.test(p[p.length - 2])) {
+                postalCode = p[p.length - 2];
+            }
+            if (!state && p.length > 3) state = p[p.length - 3];
+            if (!city && p.length > 2) city = p[1];
+        } else if (!line1) {
+            line1 = makerUser.shipping_address;
+        }
+    }
+
+    return { line1, line2, city, state, postalCode, country };
+}
+
+function buildUnifiedPayload(project, makerUser, approvedHours) {
+    const hours = Number(approvedHours || project.hours_approved || project.hours_logged || 1);
+    const firstName = makerUser?.first_name || (project.maker_name ? project.maker_name.split(' ')[0] : 'Maker');
+    const lastName = makerUser?.last_name || (project.maker_name ? project.maker_name.split(' ').slice(1).join(' ') : '');
+    const addr = resolveUserAddress(makerUser);
+
+    let ghUsername = null;
+    if (project.repo_url) {
+        try {
+            const parsed = new URL(project.repo_url);
+            const segs = parsed.pathname.split('/').filter(Boolean);
+            if (segs.length > 0) ghUsername = segs[0];
+        } catch {}
+    }
+    if (!ghUsername && makerUser?.hackatime_github) {
+        ghUsername = makerUser.hackatime_github;
+    }
+
+    const htNames = Array.isArray(project.hackatime_projects) && project.hackatime_projects.length > 0
+        ? project.hackatime_projects.join(', ')
+        : (project.hackatime_project || 'None');
+
+    const justification = [
+        `[HACKATIME]\nProjects: ${htNames}\nLogged: ${project.hours_logged || hours}h`,
+        `[PROJECT]\n${project.description || 'Pawgrammed project'}`,
+        `[REVIEW]\nApproved in Pawgrammed for ${hours}h.`
+    ].join('\n\n');
+
+    let screenshotVal = null;
+    if (project.screenshot_url) {
+        let scUrl = project.screenshot_url;
+        if (scUrl.startsWith('/')) {
+            const base = (process.env.PUBLIC_URL || process.env.BASE_URL || 'https://pawgrammed.hackclub.com').replace(/\/+$/, '');
+            scUrl = `${base}${scUrl}`;
+        }
+        if (scUrl.startsWith('http://') || scUrl.startsWith('https://')) {
+            let filename = 'screenshot.png';
+            try {
+                const last = new URL(scUrl).pathname.split('/').filter(Boolean).pop();
+                if (last) filename = decodeURIComponent(last);
+            } catch {}
+            screenshotVal = [{ url: scUrl, filename: filename }];
+        }
+    }
+
+    const fields = {};
+    function setIf(key, val) {
+        if (val !== null && val !== undefined && val !== '') {
+            fields[key] = val;
+        }
+    }
+
+    setIf('First Name', firstName);
+    setIf('Last Name', lastName);
+    setIf('Email', makerUser?.email || project.maker_email || '');
+    if (makerUser?.birthday) {
+        setIf('Birthday', String(makerUser.birthday).split('T')[0]);
+    }
+    setIf('Address (Line 1)', addr.line1);
+    setIf('Address (Line 2)', addr.line2);
+    setIf('City', addr.city);
+    setIf('State / Province', addr.state);
+    setIf('ZIP / Postal Code', addr.postalCode);
+    setIf('Country', addr.country);
+    setIf('Code URL', project.repo_url || '');
+    setIf('Playable URL', project.demo_url || '');
+    if (screenshotVal && Array.isArray(screenshotVal) && screenshotVal.length > 0) {
+        const publicAtts = screenshotVal.filter(a => !a.url.includes('localhost') && !a.url.includes('127.0.0.1'));
+        if (publicAtts.length > 0) {
+            fields['Screenshot'] = publicAtts;
+        }
+    }
+    setIf('Description', project.description || '');
+    setIf('GitHub Username', ghUsername);
+    setIf('Optional - Override Hours Spent', hours);
+    setIf('Optional - Override Hours Spent Justification', justification);
+    setIf('Justification - Hackatime Project Name(s) + Date Range(s)', htNames);
+    if (makerUser?.hackatime_id) {
+        setIf('Justification - Submitter Hackatime ID', String(makerUser.hackatime_id));
+    }
+    setIf('Justification - Specific Technical Features', project.description || '');
+    setIf('Justification - Additional Justification', `Approved in Pawgrammed for ${hours}h.`);
+
+    return {
+        source: 'pawgrammed',
+        project_title: project.title,
+        fields: fields
+    };
+}
+
+const AIRTABLE_FIELD_MAP = {
+    'First Name': 'First Name',
+    'Last Name': 'Last Name',
+    'Email': 'Email',
+    'Birthday': 'Birthday',
+    'Address (Line 1)': 'Address (Line 1)',
+    'Address (Line 2)': 'Address (Line 2)',
+    'City': 'City',
+    'State / Province': 'State / Province',
+    'ZIP / Postal Code': 'ZIP / Postal Code',
+    'Country': 'Country',
+    'Code URL': 'Code URL',
+    'Playable URL': 'Playable URL',
+    'Screenshot': 'Screenshot',
+    'Description': 'Description',
+    'GitHub Username': 'GitHub Username',
+    'Optional - Override Hours Spent': 'Optional - Override Hours Spent',
+    'Override Hours Spent': 'Optional - Override Hours Spent',
+    'Optional - Override Hours Spent Justification': 'Optional - Override Hours Spent Justification',
+    'Override Hours Spent Justification': 'Optional - Override Hours Spent Justification',
+    'Justification - Hackatime Project Name(s) + Date Range(s)': 'Justification - Hackatime Project Name(s) + Date Range(s)',
+    'Justification - Submitter Hackatime ID': 'Justification - Submitter Hackatime ID',
+    'Justification - Specific Technical Features': 'Justification - Specific Technical Features',
+    'Justification - Additional Justification': 'Justification - Additional Justification'
+};
+
+async function pushToAirtableDirect(item, airtableToken, airtableBaseId, airtableTableIdOrName) {
+    let tableId = airtableTableIdOrName || process.env.AIRTABLE_TABLE_ID || process.env.AIRTABLE_TABLE_NAME || 'tblCzg8gTBTwLdb8g';
+    if (tableId.includes('tblEsiA0P8o5PKIru')) {
+        tableId = 'tblCzg8gTBTwLdb8g';
+    }
+    const url = `https://api.airtable.com/v0/${airtableBaseId}/${encodeURIComponent(tableId)}`;
+
+    const rawFields = item.payload?.fields || {};
+    const fields = {};
+    for (const [k, v] of Object.entries(rawFields)) {
+        if (v === null || v === undefined || v === '') continue;
+        const targetField = AIRTABLE_FIELD_MAP[k];
+        if (!targetField) continue;
+        if (targetField === 'Screenshot') {
+            if (Array.isArray(v) && v.length > 0) {
+                const validAttachments = v.filter(a => a && typeof a.url === 'string' && a.url.startsWith('http') && !a.url.includes('localhost') && !a.url.includes('127.0.0.1'));
+                if (validAttachments.length > 0) {
+                    fields[targetField] = validAttachments;
+                }
+            }
+        } else {
+            fields[targetField] = v;
+        }
+    }
+
+    let resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${airtableToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fields }),
+        signal: AbortSignal.timeout(15000)
+    });
+
+    if (!resp.ok) {
+        const errText = await resp.text().catch(() => '');
+        if (tableId !== 'tblCzg8gTBTwLdb8g' && errText.includes('UNKNOWN_FIELD_NAME')) {
+            const fallbackUrl = `https://api.airtable.com/v0/${airtableBaseId}/tblCzg8gTBTwLdb8g`;
+            const retryResp = await fetch(fallbackUrl, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${airtableToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields }),
+                signal: AbortSignal.timeout(15000)
+            });
+            if (retryResp.ok) {
+                const data = await retryResp.json().catch(() => ({}));
+                return { ok: true, id: data.id };
+            }
+        }
+        return { ok: false, error: `Airtable HTTP ${resp.status}: ${errText}` };
+    }
+
+    const data = await resp.json().catch(() => ({}));
+    return { ok: true, id: data.id };
+}
+
+async function pushUnifiedRecord(item) {
+    item.attempts = (item.attempts || 0) + 1;
+    item.last_attempt_at = new Date().toISOString();
+
+    if (item.project_id) {
+        try {
+            const projects = await loadProjects();
+            const proj = projects.find(p => p.id === item.project_id);
+            if (proj) {
+                const users = await loadUsers();
+                const maker = users.find(u => u.id === proj.user_id);
+                item.payload = buildUnifiedPayload(proj, maker, item.hours || proj.hours_approved);
+                item.project_title = proj.title;
+                item.maker_name = proj.maker_name;
+                item.maker_email = proj.maker_email;
+            }
+        } catch {}
+    }
+
+    const airtableToken = (process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_API_KEY || '').trim();
+    const airtableBaseId = (process.env.AIRTABLE_BASE_ID || '').trim();
+    const airtableTable = (process.env.AIRTABLE_TABLE_ID || process.env.AIRTABLE_TABLE_NAME || 'tblCzg8gTBTwLdb8g').trim();
+
+    if (airtableToken && airtableBaseId) {
+        const result = await pushToAirtableDirect(item, airtableToken, airtableBaseId, airtableTable);
+        if (result.ok) {
+            item.state = 'sent';
+            item.error = null;
+            item.record_id = result.id || item.record_id;
+            item.sent_at = new Date().toISOString();
+            item.target = 'airtable';
+            return { ok: true, target: 'airtable', id: item.record_id };
+        } else {
+            item.state = 'error';
+            item.error = result.error;
+            item.target = 'airtable';
+            return { ok: false, target: 'airtable', error: result.error };
+        }
+    } else {
+        item.state = 'sent';
+        item.error = null;
+        item.record_id = item.record_id || `rec_paw_${Date.now().toString(36)}`;
+        item.sent_at = new Date().toISOString();
+        item.target = 'dryrun';
+        return { ok: true, target: 'dryrun', id: item.record_id };
+    }
+}
+
+async function reconcileProjectPaws(project, decision, approvedHours, awardedPaws, adminNote) {
+    const users = await loadUsers();
+    const makerIdx = users.findIndex(u => u.id === project.user_id);
+    const eventConfig = await loadEventConfig();
+    const previousPaws = project.paws_awarded || 0;
+
+    let targetPaws = 0;
+    if (decision === 'approved') {
+        const hours = Math.max(0.5, parseFloat(approvedHours) || project.hours_logged || 1);
+        const multiplier = Math.max(0.1, eventConfig.multiplier || 1.0);
+        let paws = parseInt(awardedPaws, 10) || Math.round(hours * multiplier);
+        if (eventConfig.max_paws_cap && paws > eventConfig.max_paws_cap) {
+            paws = eventConfig.max_paws_cap;
+        }
+        targetPaws = paws;
+        project.hours_approved = hours;
+        project.approved_hours = hours;
+    } else {
+        project.hours_approved = 0;
+        project.approved_hours = 0;
+    }
+
+    const delta = targetPaws - previousPaws;
+    project.paws_awarded = targetPaws;
+    project.awarded_paws = targetPaws;
+    project.status = decision;
+    project.note_to_maker = (adminNote || '').trim();
+    project.feedback = (adminNote || '').trim();
+    project.decided_at = new Date().toISOString();
+
+    if (makerIdx !== -1 && delta !== 0) {
+        users[makerIdx].pawprints = Math.max(0, (users[makerIdx].pawprints || 0) + delta);
+        await saveUsers(users);
+        const reason = delta > 0 ? (previousPaws === 0 ? 'project_approval' : 'project_adjustment') : 'project_revoked';
+        const note = delta > 0
+            ? `Approved project "${project.title}" (${project.hours_approved}h) +${delta} paws`
+            : `Adjusted project "${project.title}" ${delta} paws`;
+        await recordLedger(users[makerIdx].id, delta, reason, note, { projectId: project.id });
+    }
+
+    return { delta, project, makerUser: makerIdx !== -1 ? users[makerIdx] : null };
+}
 
 app.get('/auth/callback', async (req, res) => {
     const { code, state, error: authError } = req.query;
@@ -544,6 +1143,7 @@ app.get('/auth/callback', async (req, res) => {
     res.clearCookie('hca_state', { path: '/' });
 
     try {
+        const redirectUri = getHcaRedirectUri(req);
         const tokenRes = await fetch('https://auth.hackclub.com/oauth/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -551,7 +1151,7 @@ app.get('/auth/callback', async (req, res) => {
                 grant_type: 'authorization_code',
                 client_id: process.env.HCA_CLIENT_ID,
                 client_secret: process.env.HCA_CLIENT_SECRET,
-                redirect_uri: process.env.HCA_REDIRECT_URI,
+                redirect_uri: redirectUri,
                 code: code
             })
         });
@@ -568,60 +1168,128 @@ app.get('/auth/callback', async (req, res) => {
             return res.redirect('/?error=no_access_token');
         }
 
-        let hcaUser = null;
-        const apiMeRes = await fetch('https://auth.hackclub.com/api/v1/me', {
-            headers: { Authorization: `Bearer ${access_token}` }
-        });
+        let apiMeData = null;
+        try {
+            const apiMeRes = await fetch('https://auth.hackclub.com/api/v1/me', {
+                headers: { Authorization: `Bearer ${access_token}` }
+            });
+            if (apiMeRes.ok) apiMeData = await apiMeRes.json();
+        } catch (e) {
+            console.error('Failed fetching /api/v1/me:', e);
+        }
 
-        if (apiMeRes.ok) {
-            hcaUser = await apiMeRes.json();
-        } else {
+        let userinfoData = null;
+        try {
             const userinfoRes = await fetch('https://auth.hackclub.com/oauth/userinfo', {
                 headers: { Authorization: `Bearer ${access_token}` }
             });
-            if (userinfoRes.ok) {
-                hcaUser = await userinfoRes.json();
-            } else {
-                return res.redirect('/?error=failed_fetching_user');
+            if (userinfoRes.ok) userinfoData = await userinfoRes.json();
+        } catch (e) {
+            console.error('Failed fetching /oauth/userinfo:', e);
+        }
+
+        const identity = apiMeData?.identity || {};
+        const userinfo = userinfoData || {};
+
+        const hcaId = String(identity.id || userinfo.sub || apiMeData?.id || '');
+        const email = (identity.primary_email || identity.email || userinfo.email || '').toLowerCase().trim();
+        const firstName = (identity.first_name || userinfo.given_name || '').trim();
+        const lastName = (identity.last_name || userinfo.family_name || '').trim();
+        const fullName = userinfo.name || identity.name || [firstName, lastName].filter(Boolean).join(' ') || identity.nickname || userinfo.nickname || 'Maker';
+        const slackId = (identity.slack_id || userinfo.slack_id || '').trim();
+        let verificationStatus = identity.verification_status || userinfo.verification_status || (userinfo.email_verified ? 'verified' : 'unverified');
+        let yswsEligible = Boolean(identity.ysws_eligible || userinfo.ysws_eligible || verificationStatus === 'verified_eligible');
+        const birthday = identity.birthday || userinfo.birthdate || null;
+        const phoneNumber = identity.phone_number || '';
+
+        if (!yswsEligible && (email || slackId || hcaId)) {
+            const extCheck = await checkHcaVerification({ idv_id: hcaId, email, slack_id: slackId });
+            if (extCheck) {
+                verificationStatus = extCheck;
+                if (extCheck === 'verified_eligible') yswsEligible = true;
             }
         }
 
-        const hcaId = String(hcaUser.id || hcaUser.sub || '');
-        const email = (hcaUser.email || hcaUser.primary_email || '').toLowerCase();
-        const name = hcaUser.name || [hcaUser.first_name, hcaUser.last_name].filter(Boolean).join(' ') || hcaUser.nickname || 'Maker';
-        const nickname = hcaUser.nickname || hcaUser.slack_display_name || '';
-        const avatar = hcaUser.profile_picture || hcaUser.avatar_url || hcaUser.slack_avatar_url || 'images/rex_main_front.png';
-        const rawStatus = (hcaUser.verification_status || (hcaUser.email_verified ? 'verified' : 'unverified')).toString();
+        const { addressObj, shippingAddress } = parseHcaAddress(identity, userinfo, firstName, lastName, fullName);
+
+        let slackHandle = '';
+        let slackAvatar = '';
+        if (slackId) {
+            const slackProfile = await fetchSlackProfile(slackId);
+            if (slackProfile) {
+                slackHandle = slackProfile.handle || '';
+                slackAvatar = slackProfile.avatar || '';
+            }
+        }
+        if (!slackHandle) {
+            slackHandle = identity.nickname || userinfo.nickname || (slackId ? `@${slackId}` : '');
+        }
+
+        const avatar = slackAvatar || userinfo.picture || userinfo.avatar_url || 'images/rex_main_front.png';
 
         const users = await loadUsers();
-        let user = users.find(u => (hcaId && u.hca_id === hcaId) || (email && u.email.toLowerCase() === email));
-
+        let user = users.find(u => (hcaId && u.hca_id === hcaId) || (email && u.email.toLowerCase() === email) || (slackId && u.slack_id === slackId));
         const now = new Date().toISOString();
+
         if (user) {
-            user.name = name || user.name;
+            user.hca_id = hcaId || user.hca_id;
+            user.name = fullName || user.name;
+            user.first_name = firstName || user.first_name || '';
+            user.last_name = lastName || user.last_name || '';
             user.email = email || user.email;
-            user.nickname = nickname || user.nickname;
-            user.avatar_url = avatar || user.avatar_url;
-            user.verification_status = rawStatus;
+            user.slack_id = slackId || user.slack_id || '';
+            user.slack_handle = slackHandle || user.slack_handle || '';
+            if (!user.nickname || user.nickname === 'Maker') {
+                user.nickname = slackHandle || user.nickname || '';
+            }
+            if (slackAvatar) {
+                user.slack_avatar_url = slackAvatar;
+                user.avatar_url = slackAvatar;
+            } else if (avatar && avatar !== 'images/rex_main_front.png' && (!user.avatar_url || user.avatar_url === 'images/rex_main_front.png')) {
+                user.avatar_url = avatar;
+            }
+            user.verification_status = verificationStatus || user.verification_status;
+            user.ysws_eligible = yswsEligible;
+            user.birthday = birthday || user.birthday;
+            user.phone_number = phoneNumber || user.phone_number;
+            if (shippingAddress) {
+                user.shipping_address = shippingAddress;
+                user.address = addressObj;
+            }
+            user.hca_access_token = access_token;
+            if (tokenData.refresh_token) {
+                user.hca_refresh_token = tokenData.refresh_token;
+            }
             user.last_login_at = now;
-            if (isAdminEmail(email) && user.role !== 'Admin') {
+            if (isAdminUser(user) && user.role !== 'Admin') {
                 user.role = 'Admin';
             }
         } else {
-            const isFirstUser = users.length === 0;
-            const role = isAdminEmail(email) || isFirstUser ? 'Admin' : 'Maker';
+            const role = isAdminUser({ email, slack_id: slackId }) ? 'Admin' : 'Maker';
             user = {
                 id: crypto.randomUUID(),
                 hca_id: hcaId,
-                name: name,
-                nickname: nickname,
+                name: fullName,
+                first_name: firstName,
+                last_name: lastName,
+                nickname: slackHandle || '',
                 email: email,
+                slack_id: slackId,
+                slack_handle: slackHandle,
                 avatar_url: avatar,
+                slack_avatar_url: slackAvatar || '',
                 role: role,
                 pawprints: 0,
                 hackatime_key: '',
                 hackatime_hours: 0,
-                verification_status: rawStatus,
+                verification_status: verificationStatus,
+                ysws_eligible: yswsEligible,
+                birthday: birthday,
+                phone_number: phoneNumber,
+                shipping_address: shippingAddress,
+                address: addressObj,
+                hca_access_token: access_token,
+                hca_refresh_token: tokenData.refresh_token || '',
                 created_at: now,
                 last_login_at: now
             };
@@ -644,7 +1312,9 @@ app.get('/auth/callback', async (req, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
-        res.redirect('/dashboard');
+        const returnTo = req.cookies.hca_return_to || '/dashboard';
+        res.clearCookie('hca_return_to', { path: '/' });
+        res.redirect(returnTo);
     } catch (err) {
         console.error('Auth callback error:', err);
         res.redirect('/?error=server_error');
@@ -654,19 +1324,23 @@ app.get('/auth/callback', async (req, res) => {
 app.get('/dashboard', async (req, res) => {
     let user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) {
-            user = users[0];
-            const sessionToken = crypto.randomUUID();
-            const sessions = await loadSessions();
-            sessions[sessionToken] = { userId: user.id, createdAt: Date.now() };
-            await saveSessions(sessions);
-            res.cookie('paw_session', sessionToken, {
-                path: '/',
-                httpOnly: true,
-                sameSite: 'lax',
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
+        if (process.env.NODE_ENV !== 'production' && req.query.dev === '1') {
+            const users = await loadUsers();
+            if (users.length > 0) {
+                user = users[0];
+                const sessionToken = crypto.randomUUID();
+                const sessions = await loadSessions();
+                sessions[sessionToken] = { userId: user.id, createdAt: Date.now() };
+                await saveSessions(sessions);
+                res.cookie('paw_session', sessionToken, {
+                    path: '/',
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    maxAge: 30 * 24 * 60 * 60 * 1000
+                });
+            } else {
+                return res.redirect('/login');
+            }
         } else {
             return res.redirect('/login');
         }
@@ -675,16 +1349,98 @@ app.get('/dashboard', async (req, res) => {
 });
 
 app.get('/api/me', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) {
-            user = users[0];
-        } else {
-            return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    const projects = await loadProjects();
+    const userProjects = projects.filter(p => p.user_id === user.id);
+
+    let maxProjectSeconds = 0;
+    const htList = user.hackatime_projects_cache || [];
+    for (const proj of userProjects) {
+        const stats = calculateProjectHackatimeStats(proj, htList);
+        if (stats.seconds > maxProjectSeconds) {
+            maxProjectSeconds = stats.seconds;
         }
     }
-    res.json({ user });
+
+    const userWithStats = {
+        ...user,
+        project_count: userProjects.length,
+        shipped: userProjects.filter(p => p.status === 'submitted' || p.status === 'approved').length,
+        max_project_seconds: maxProjectSeconds,
+        has_min_tracked_time: maxProjectSeconds >= 300
+    };
+    res.json({ user: userWithStats });
+});
+
+app.post('/api/user/sync-hca-address', async (req, res) => {
+    let user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+
+    if (!user.hca_access_token && user.hca_refresh_token) {
+        await refreshHcaAccessToken(user);
+    }
+
+    if (user.hca_access_token) {
+        try {
+            let apiMeRes = await fetch('https://auth.hackclub.com/api/v1/me', {
+                headers: { Authorization: `Bearer ${user.hca_access_token}` }
+            });
+
+            if (apiMeRes.status === 401 && user.hca_refresh_token) {
+                const newToken = await refreshHcaAccessToken(user);
+                if (newToken) {
+                    apiMeRes = await fetch('https://auth.hackclub.com/api/v1/me', {
+                        headers: { Authorization: `Bearer ${newToken}` }
+                    });
+                }
+            }
+
+            let apiMeData = null;
+            if (apiMeRes.ok) apiMeData = await apiMeRes.json();
+
+            let userinfoData = null;
+            try {
+                const uRes = await fetch('https://auth.hackclub.com/oauth/userinfo', {
+                    headers: { Authorization: `Bearer ${user.hca_access_token}` }
+                });
+                if (uRes.ok) userinfoData = await uRes.json();
+            } catch {}
+
+            const identity = apiMeData?.identity || {};
+            const userinfo = userinfoData || {};
+            const { addressObj, shippingAddress } = parseHcaAddress(
+                identity,
+                userinfo,
+                user.first_name || '',
+                user.last_name || '',
+                user.name || ''
+            );
+
+            if (addressObj && (addressObj.line1 || addressObj.city || addressObj.country)) {
+                const users = await loadUsers();
+                const idx = users.findIndex(u => u.id === user.id);
+                if (idx !== -1) {
+                    users[idx].address = addressObj;
+                    users[idx].shipping_address = shippingAddress;
+                    await saveUsers(users);
+                    return res.json({ ok: true, address: addressObj, shipping_address: shippingAddress, user: users[idx] });
+                }
+            }
+        } catch (e) {
+            console.error('Failed refreshing HCA address:', e);
+        }
+    }
+
+    return res.json({
+        ok: false,
+        needs_reauth: true,
+        auth_url: '/login?return_to=' + encodeURIComponent('/dashboard.html#settings')
+    });
 });
 
 app.post('/api/settings', async (req, res) => {
@@ -693,7 +1449,7 @@ app.post('/api/settings', async (req, res) => {
         return res.status(401).json({ error: 'unauthorized' });
     }
 
-    const { nickname, hackatime_key } = req.body;
+    const { nickname, hackatime_key, shipping_address } = req.body;
     const users = await loadUsers();
     const idx = users.findIndex(u => u.id === user.id);
     if (idx === -1) {
@@ -702,6 +1458,31 @@ app.post('/api/settings', async (req, res) => {
 
     if (typeof nickname === 'string') {
         users[idx].nickname = nickname.trim().slice(0, 40);
+    }
+    if (req.body.address && typeof req.body.address === 'object') {
+        const a = req.body.address;
+        const addressObj = {
+            name: typeof a.name === 'string' ? a.name.trim().slice(0, 80) : '',
+            line1: typeof a.line1 === 'string' ? a.line1.trim().slice(0, 120) : '',
+            line2: typeof a.line2 === 'string' ? a.line2.trim().slice(0, 120) : '',
+            city: typeof a.city === 'string' ? a.city.trim().slice(0, 80) : '',
+            state: typeof a.state === 'string' ? a.state.trim().slice(0, 80) : '',
+            postal_code: typeof a.postal_code === 'string' ? a.postal_code.trim().slice(0, 30) : (typeof a.postcode === 'string' ? a.postcode.trim().slice(0, 30) : ''),
+            country: typeof a.country === 'string' ? a.country.trim().slice(0, 80) : ''
+        };
+        users[idx].address = addressObj;
+        const formatted = [
+            addressObj.name,
+            addressObj.line1,
+            addressObj.line2,
+            addressObj.city,
+            addressObj.state,
+            addressObj.postal_code,
+            addressObj.country
+        ].filter(Boolean).join(', ');
+        users[idx].shipping_address = formatted;
+    } else if (typeof shipping_address === 'string') {
+        users[idx].shipping_address = shipping_address.trim().slice(0, 300);
     }
     if (typeof hackatime_key === 'string') {
         users[idx].hackatime_key = hackatime_key.trim().slice(0, 100);
@@ -712,6 +1493,37 @@ app.post('/api/settings', async (req, res) => {
 
     await saveUsers(users);
     res.json({ ok: true, user: users[idx] });
+});
+
+app.get('/api/hackatime/projects', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+
+    if (!user.hackatime_access_token) {
+        return res.json({ connected: false, projects: [] });
+    }
+
+    try {
+        const projects = await fetchUserHackatimeProjects(user.hackatime_access_token);
+        const users = await loadUsers();
+        const idx = users.findIndex(u => u.id === user.id);
+        if (idx !== -1) {
+            users[idx].hackatime_projects_cache = projects;
+            const totalSecs = projects.reduce((sum, p) => sum + (p.total_seconds || 0), 0);
+            const totalH = Number((totalSecs / 3600).toFixed(1));
+            if (totalH > (users[idx].hackatime_hours || 0)) {
+                users[idx].hackatime_hours = totalH;
+            }
+            await saveUsers(users);
+        }
+
+        res.json({ connected: true, projects });
+    } catch (err) {
+        console.error('Error fetching Hackatime projects:', err);
+        res.json({ connected: true, projects: user.hackatime_projects_cache || [] });
+    }
 });
 
 app.post('/api/hackatime/sync', async (req, res) => {
@@ -725,23 +1537,45 @@ app.post('/api/hackatime/sync', async (req, res) => {
     }
 
     try {
-        const hoursRes = await fetch('https://hackatime.hackclub.com/api/v1/authenticated/hours', {
-            headers: { Authorization: `Bearer ${user.hackatime_access_token}` }
-        });
-        if (!hoursRes.ok) {
-            return res.status(502).json({ error: 'failed_fetching_hours' });
+        let totalHours = user.hackatime_hours || 0;
+        try {
+            const hoursRes = await fetch('https://hackatime.hackclub.com/api/v1/authenticated/hours', {
+                headers: { Authorization: `Bearer ${user.hackatime_access_token}` }
+            });
+            if (hoursRes.ok) {
+                const hoursData = await hoursRes.json();
+                totalHours = Number(((hoursData.total_seconds || 0) / 3600).toFixed(2));
+            }
+        } catch (e) {
+            console.error('Failed fetching Hackatime hours in sync:', e);
         }
-        const hoursData = await hoursRes.json();
-        const totalHours = Number(((hoursData.total_seconds || 0) / 3600).toFixed(2));
+
+        const projectsList = await fetchUserHackatimeProjects(user.hackatime_access_token);
 
         const users = await loadUsers();
         const idx = users.findIndex(u => u.id === user.id);
         if (idx !== -1) {
             users[idx].hackatime_hours = Math.max(users[idx].hackatime_hours || 0, totalHours);
+            users[idx].hackatime_projects_cache = projectsList;
             await saveUsers(users);
-            return res.json({ ok: true, user: users[idx] });
+
+            const allProjects = await loadProjects();
+            let changedProjects = false;
+            for (const proj of allProjects) {
+                if (proj.user_id === user.id) {
+                    const stats = calculateProjectHackatimeStats(proj, projectsList);
+                    proj.hours_logged = stats.hours;
+                    proj.seconds_logged = stats.seconds;
+                    changedProjects = true;
+                }
+            }
+            if (changedProjects) {
+                await saveProjects(allProjects);
+            }
+
+            return res.json({ ok: true, user: users[idx], projects: projectsList });
         }
-        res.json({ ok: true, user });
+        res.json({ ok: true, user, projects: projectsList });
     } catch (err) {
         console.error('Hackatime sync error:', err);
         res.status(500).json({ error: 'server_error' });
@@ -760,6 +1594,7 @@ app.post('/api/hackatime/disconnect', async (req, res) => {
         users[idx].hackatime_access_token = null;
         users[idx].hackatime_connected = false;
         users[idx].hackatime_key = '';
+        users[idx].hackatime_projects_cache = [];
         await saveUsers(users);
         return res.json({ ok: true, user: users[idx] });
     }
@@ -767,11 +1602,9 @@ app.post('/api/hackatime/disconnect', async (req, res) => {
 });
 
 app.get('/api/admin/people', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0 && users[0].role === 'Admin') user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -795,29 +1628,111 @@ app.get('/api/admin/people', async (req, res) => {
     res.json({ people });
 });
 
-app.get('/api/projects', async (req, res) => {
-    let user = await getSessionUser(req);
+async function handleGetUserProjects(req, res) {
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     const projects = await loadProjects();
     const userProjects = projects.filter(p => p.user_id === user.id);
+    const htList = user.hackatime_projects_cache || [];
+    for (const proj of userProjects) {
+        if (proj.seconds_logged === undefined) {
+            const pTags = Array.isArray(proj.hackatime_projects) && proj.hackatime_projects.length > 0
+                ? proj.hackatime_projects
+                : (proj.hackatime_project ? proj.hackatime_project.split(',').map(s => s.trim()).filter(Boolean) : []);
+            if (pTags.length > 0 && htList.length > 0) {
+                const lowerTags = new Set(pTags.map(t => t.toLowerCase()));
+                proj.seconds_logged = htList.filter(p => p && p.name && lowerTags.has(p.name.toLowerCase()))
+                                           .reduce((sum, p) => sum + (p.total_seconds || 0), 0);
+            } else {
+                proj.seconds_logged = Math.round((proj.hours_logged || 0) * 3600);
+            }
+        }
+    }
     res.json({ projects: userProjects });
+}
+
+app.get('/api/projects', handleGetUserProjects);
+app.get('/api/my/projects', handleGetUserProjects);
+
+app.post('/api/upload', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    const { image } = req.body;
+    if (!image || typeof image !== 'string') {
+        return res.status(400).json({ error: 'missing_image' });
+    }
+    const url = await saveBase64Image(image, 'screenshot');
+    res.json({ ok: true, url });
 });
 
 app.post('/api/projects', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
 
-    const { title, description, repo_url, demo_url, hackatime_project, hours_logged } = req.body;
+    const {
+        title,
+        description,
+        repo_url,
+        demo_url,
+        screenshot_url,
+        ai_declaration,
+        is_prior_project,
+        update_description
+    } = req.body;
+
     if (!title || !title.trim()) {
         return res.status(400).json({ error: 'title_required' });
+    }
+
+    if (Boolean(is_prior_project) && (!update_description || !update_description.trim())) {
+        return res.status(400).json({ error: 'update_description_required', message: 'Update description is required for prior projects.' });
+    }
+
+    let htProjects = [];
+    if (Array.isArray(req.body.hackatime_projects)) {
+        htProjects = req.body.hackatime_projects.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof req.body.hackatime_project === 'string' && req.body.hackatime_project.trim()) {
+        htProjects = req.body.hackatime_project.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (typeof req.body.hackatime_project_name === 'string' && req.body.hackatime_project_name.trim()) {
+        htProjects = req.body.hackatime_project_name.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    htProjects = Array.from(new Set(htProjects));
+
+    let calculatedHours = 0;
+    let totalSecs = 0;
+    if (user.hackatime_access_token) {
+        let htList = user.hackatime_projects_cache || [];
+        try {
+            const freshList = await fetchUserHackatimeProjects(user.hackatime_access_token);
+            if (freshList && freshList.length > 0) {
+                htList = freshList;
+                const users = await loadUsers();
+                const uIdx = users.findIndex(u => u.id === user.id);
+                if (uIdx !== -1) {
+                    users[uIdx].hackatime_projects_cache = freshList;
+                    await saveUsers(users);
+                }
+            }
+        } catch {}
+
+        const lowerSet = new Set(htProjects.map(p => p.toLowerCase()));
+        for (const p of htList) {
+            if (p && p.name && lowerSet.has(p.name.toLowerCase())) {
+                totalSecs += (p.total_seconds || 0);
+            }
+        }
+        calculatedHours = Number((totalSecs / 3600).toFixed(1));
+    }
+
+    let finalScreenshot = typeof screenshot_url === 'string' ? screenshot_url.trim() : '';
+    if (finalScreenshot.startsWith('data:image/')) {
+        finalScreenshot = await saveBase64Image(finalScreenshot, 'screenshot');
     }
 
     const projects = await loadProjects();
@@ -831,12 +1746,21 @@ app.post('/api/projects', async (req, res) => {
         description: (description || '').trim(),
         repo_url: (repo_url || '').trim(),
         demo_url: (demo_url || '').trim(),
-        hackatime_project: (hackatime_project || '').trim(),
-        hours_logged: Math.max(0, parseFloat(hours_logged) || 0),
+        screenshot_url: finalScreenshot,
+        ai_declaration: typeof ai_declaration === 'string' ? ai_declaration.trim() : '',
+        is_prior_project: Boolean(is_prior_project),
+        update_description: typeof update_description === 'string' ? update_description.trim() : '',
+        hackatime_projects: htProjects,
+        hackatime_project: htProjects.join(', '),
+        hackatime_project_name: htProjects.join(', '),
+        seconds_logged: totalSecs,
+        hours_logged: calculatedHours,
         hours_approved: 0,
         paws_awarded: 0,
+        awarded_paws: 0,
         status: 'draft',
         note_to_maker: '',
+        feedback: '',
         created_at: new Date().toISOString(),
         submitted_at: null,
         decided_at: null
@@ -848,11 +1772,9 @@ app.post('/api/projects', async (req, res) => {
 });
 
 app.put('/api/projects/:id', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
 
     const projects = await loadProjects();
@@ -861,24 +1783,89 @@ app.put('/api/projects/:id', async (req, res) => {
         return res.status(404).json({ error: 'project_not_found' });
     }
 
-    const { title, description, repo_url, demo_url, hackatime_project, hours_logged } = req.body;
+    const {
+        title,
+        description,
+        repo_url,
+        demo_url,
+        screenshot_url,
+        ai_declaration,
+        is_prior_project,
+        update_description
+    } = req.body;
+
     if (title !== undefined) projects[idx].title = title.trim();
     if (description !== undefined) projects[idx].description = description.trim();
     if (repo_url !== undefined) projects[idx].repo_url = repo_url.trim();
     if (demo_url !== undefined) projects[idx].demo_url = demo_url.trim();
-    if (hackatime_project !== undefined) projects[idx].hackatime_project = hackatime_project.trim();
-    if (hours_logged !== undefined) projects[idx].hours_logged = Math.max(0, parseFloat(hours_logged) || 0);
+    if (screenshot_url !== undefined) {
+        let sc = String(screenshot_url).trim();
+        if (sc.startsWith('data:image/')) {
+            sc = await saveBase64Image(sc, 'screenshot');
+        }
+        projects[idx].screenshot_url = sc;
+    }
+    if (ai_declaration !== undefined) projects[idx].ai_declaration = String(ai_declaration).trim();
+    if (is_prior_project !== undefined) projects[idx].is_prior_project = Boolean(is_prior_project);
+    if (update_description !== undefined) projects[idx].update_description = String(update_description).trim();
+
+    if (projects[idx].is_prior_project && (!projects[idx].update_description || !projects[idx].update_description.trim())) {
+        return res.status(400).json({ error: 'update_description_required', message: 'Update description is required for prior projects.' });
+    }
+
+    let htProjects = null;
+    if (Array.isArray(req.body.hackatime_projects)) {
+        htProjects = req.body.hackatime_projects.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof req.body.hackatime_project === 'string') {
+        htProjects = req.body.hackatime_project.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (typeof req.body.hackatime_project_name === 'string') {
+        htProjects = req.body.hackatime_project_name.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    if (htProjects !== null) {
+        htProjects = Array.from(new Set(htProjects));
+        projects[idx].hackatime_projects = htProjects;
+        projects[idx].hackatime_project = htProjects.join(', ');
+        projects[idx].hackatime_project_name = htProjects.join(', ');
+
+        let calculatedHours = 0;
+        let totalSecs = 0;
+        const projectOwnerId = projects[idx].user_id;
+        const users = await loadUsers();
+        const owner = users.find(u => u.id === projectOwnerId) || user;
+
+        if (owner && owner.hackatime_access_token) {
+            let htList = owner.hackatime_projects_cache || [];
+            try {
+                const freshList = await fetchUserHackatimeProjects(owner.hackatime_access_token);
+                if (freshList && freshList.length > 0) {
+                    htList = freshList;
+                }
+            } catch {}
+
+            const lowerSet = new Set(htProjects.map(p => p.toLowerCase()));
+            for (const p of htList) {
+                if (p && p.name && lowerSet.has(p.name.toLowerCase())) {
+                    totalSecs += (p.total_seconds || 0);
+                }
+            }
+            calculatedHours = Number((totalSecs / 3600).toFixed(1));
+        }
+        projects[idx].seconds_logged = totalSecs;
+        projects[idx].hours_logged = calculatedHours;
+    } else if (req.body.hours_logged !== undefined && user.role === 'Admin') {
+        projects[idx].hours_logged = Math.max(0, parseFloat(req.body.hours_logged) || 0);
+        projects[idx].seconds_logged = Math.round(projects[idx].hours_logged * 3600);
+    }
 
     await saveProjects(projects);
     res.json({ ok: true, project: projects[idx] });
 });
 
 app.delete('/api/projects/:id', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
 
     const projects = await loadProjects();
@@ -893,11 +1880,9 @@ app.delete('/api/projects/:id', async (req, res) => {
 });
 
 app.post('/api/projects/:id/submit', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
 
     const config = await loadEventConfig();
@@ -911,28 +1896,93 @@ app.post('/api/projects/:id/submit', async (req, res) => {
         return res.status(404).json({ error: 'project_not_found' });
     }
 
-    if (!projects[idx].repo_url || !projects[idx].demo_url) {
-        return res.status(400).json({ error: 'missing_urls', message: 'Please provide both a code repository and live demo URL before submitting.' });
+    const p = projects[idx];
+    if (p.status === 'approved') {
+        return res.status(400).json({ error: 'already_approved', message: 'This project has already been approved.' });
+    }
+    if (p.status === 'submitted') {
+        return res.status(400).json({ error: 'already_submitted', message: 'This project is already under review.' });
+    }
+    if (p.status === 'changes_requested' && config.resubmissions_open === false) {
+        return res.status(400).json({ error: 'resubmissions_closed', message: 'Resubmissions are currently closed.' });
     }
 
-    projects[idx].status = 'submitted';
-    projects[idx].submitted_at = new Date().toISOString();
+    if (!p.title || !p.title.trim()) {
+        return res.status(400).json({ error: 'missing_title', message: 'Project title is required before shipping.' });
+    }
+    if (!p.description || !p.description.trim()) {
+        return res.status(400).json({ error: 'missing_description', message: 'Project description is required before shipping.' });
+    }
+    if (!p.screenshot_url || !p.screenshot_url.trim()) {
+        return res.status(400).json({ error: 'missing_screenshot', message: 'Project screenshot is required before shipping.' });
+    }
+    if (!p.repo_url || !p.repo_url.trim()) {
+        return res.status(400).json({ error: 'missing_repo', message: 'GitHub repository URL is required before shipping.' });
+    }
+    if (!p.demo_url || !p.demo_url.trim()) {
+        return res.status(400).json({ error: 'missing_demo', message: 'Live demo / video URL is required before shipping.' });
+    }
+    if (p.is_prior_project && (!p.update_description || !p.update_description.trim())) {
+        return res.status(400).json({ error: 'missing_update_desc', message: 'Update description is required for prior projects.' });
+    }
+
+    if (user.hackatime_access_token) {
+        try {
+            const freshList = await fetchUserHackatimeProjects(user.hackatime_access_token);
+            if (freshList && freshList.length > 0) {
+                const users = await loadUsers();
+                const uIdx = users.findIndex(u => u.id === user.id);
+                if (uIdx !== -1) {
+                    users[uIdx].hackatime_projects_cache = freshList;
+                    await saveUsers(users);
+                }
+                const stats = calculateProjectHackatimeStats(p, freshList);
+                p.seconds_logged = stats.seconds;
+                p.hours_logged = stats.hours;
+            }
+        } catch {}
+    }
+
+    const totalSeconds = p.seconds_logged !== undefined ? p.seconds_logged : Math.round((p.hours_logged || 0) * 3600);
+    if (totalSeconds < 1800) {
+        return res.status(400).json({
+            error: 'insufficient_hackatime',
+            message: 'You must attach at least 30 minutes (0.5h) of tracked Hackatime time to ship this project.'
+        });
+    }
+
+    p.status = 'submitted';
+    p.submitted_at = new Date().toISOString();
     await saveProjects(projects);
-    res.json({ ok: true, project: projects[idx] });
+    res.json({ ok: true, project: p });
 });
 
 app.get('/api/explore/projects', async (req, res) => {
     const projects = await loadProjects();
-    const approved = projects.filter(p => p.status === 'approved');
+    const approved = projects
+        .filter(p => p.status === 'approved')
+        .map(p => ({
+            id: p.id,
+            title: p.title,
+            description: p.description,
+            repo_url: p.repo_url,
+            demo_url: p.demo_url,
+            screenshot_url: p.screenshot_url,
+            maker_name: p.maker_name,
+            maker_avatar: p.maker_avatar,
+            hours_approved: p.hours_approved || p.hours_logged || 0,
+            paws_awarded: p.paws_awarded || 0,
+            hackatime_projects: p.hackatime_projects || [],
+            created_at: p.created_at,
+            decided_at: p.decided_at
+        }));
     res.json({ projects: approved });
 });
 
 app.get('/api/admin/submissions', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -948,11 +1998,9 @@ app.get('/api/admin/submissions', async (req, res) => {
 });
 
 app.post('/api/admin/submissions/:id/review', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -963,95 +2011,82 @@ app.post('/api/admin/submissions/:id/review', async (req, res) => {
         return res.status(400).json({ error: 'invalid_decision' });
     }
 
+    const note = (noteToMaker || req.body.feedback || '').trim();
+    if (decision !== 'approved' && !note) {
+        return res.status(400).json({ error: 'note_required', message: 'Please provide feedback for the maker explaining what is needed or why it was not approved.' });
+    }
+
     const projects = await loadProjects();
     const idx = projects.findIndex(p => p.id === req.params.id);
     if (idx === -1) {
         return res.status(404).json({ error: 'project_not_found' });
     }
 
-    const project = projects[idx];
-    const eventConfig = await loadEventConfig();
-    const users = await loadUsers();
-    const makerIdx = users.findIndex(u => u.id === project.user_id);
-
-    project.status = decision;
-    project.note_to_maker = (noteToMaker || '').trim();
-    project.decided_at = new Date().toISOString();
+    const { project, makerUser } = await reconcileProjectPaws(
+        projects[idx],
+        decision,
+        approvedHours || req.body.approved_hours,
+        req.body.awarded_paws,
+        note
+    );
 
     if (decision === 'approved') {
-        const hours = Math.max(0.5, parseFloat(approvedHours) || project.hours_logged || 1);
-        const multiplier = Math.max(0.1, eventConfig.multiplier || 1.0);
-        let paws = Math.round(hours * multiplier);
-        if (eventConfig.max_paws_cap && paws > eventConfig.max_paws_cap) {
-            paws = eventConfig.max_paws_cap;
-        }
-
-        project.hours_approved = hours;
-        project.paws_awarded = paws;
-
-        if (makerIdx !== -1) {
-            users[makerIdx].pawprints = (users[makerIdx].pawprints || 0) + paws;
-            await saveUsers(users);
-            await recordLedger(users[makerIdx].id, paws, 'project_approval', `Approved project "${project.title}" (${hours}h @ ${multiplier}x)`, { projectId: project.id });
-        }
-
         const outbox = await loadUnifiedOutbox();
-        const existingOutbox = outbox.find(o => o.project_id === project.id);
-        const unifiedPayload = {
-            source: 'pawgrammed',
-            yswsProgramId: process.env.YSWS_PROGRAM_ID || 'pawgrammed',
-            fields: {
-                'First Name': project.maker_name ? project.maker_name.split(' ')[0] : 'Maker',
-                'Last Name': project.maker_name ? project.maker_name.split(' ').slice(1).join(' ') || '' : '',
-                'Email': project.maker_email || '',
-                'Project Title': project.title,
-                'Code URL': project.repo_url || '',
-                'Live URL': project.demo_url || '',
-                'Playable URL': project.demo_url || '',
-                'Hours': Number(hours),
-                'Approved': true
-            }
-        };
+        let targetOutbox = outbox.find(o => o.project_id === project.id);
+        const unifiedPayload = buildUnifiedPayload(project, makerUser, project.hours_approved);
 
-        if (existingOutbox) {
-            existingOutbox.state = 'queued';
-            existingOutbox.hours = hours;
-            existingOutbox.payload = unifiedPayload;
-            existingOutbox.last_attempt_at = new Date().toISOString();
+        if (targetOutbox) {
+            targetOutbox.state = 'queued';
+            targetOutbox.hours = project.hours_approved;
+            targetOutbox.payload = unifiedPayload;
+            targetOutbox.last_attempt_at = new Date().toISOString();
         } else {
-            outbox.unshift({
+            targetOutbox = {
                 id: `uni_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`,
                 project_id: project.id,
                 project_title: project.title,
                 maker_name: project.maker_name,
                 maker_email: project.maker_email,
-                hours: hours,
+                hours: project.hours_approved,
                 state: 'queued',
                 record_id: `rec_paw_${project.id.slice(-6)}`,
                 error: null,
                 attempts: 0,
                 last_attempt_at: null,
                 payload: unifiedPayload
-            });
+            };
+            outbox.unshift(targetOutbox);
         }
         await saveUnifiedOutbox(outbox);
+
+        pushUnifiedRecord(targetOutbox).then(() => {
+            saveUnifiedOutbox(outbox).catch(() => {});
+        }).catch(() => {});
     }
 
     await saveProjects(projects);
+
+    if (makerUser?.slack_id) {
+        notifyProjectDecision(project, makerUser, decision, project.hours_approved, project.paws_awarded, note).catch(() => {});
+    }
+
     res.json({ ok: true, project });
 });
 
 app.get('/api/event/config', async (req, res) => {
     const config = await loadEventConfig();
-    res.json({ config });
+    res.json({
+        config: {
+            ...config,
+            announcement_banner: config.announcement || config.announcement_banner || ''
+        }
+    });
 });
 
 app.post('/api/admin/event/config', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1068,6 +2103,7 @@ app.post('/api/admin/event/config', async (req, res) => {
         multiplier: parseFloat(req.body.multiplier) || current.multiplier,
         max_paws_cap: parseInt(req.body.max_paws_cap, 10) || current.max_paws_cap,
         announcement: req.body.announcement !== undefined ? req.body.announcement.trim() : current.announcement,
+        announcement_banner: req.body.announcement !== undefined ? req.body.announcement.trim() : current.announcement,
         updated_at: new Date().toISOString()
     };
 
@@ -1076,11 +2112,9 @@ app.post('/api/admin/event/config', async (req, res) => {
 });
 
 app.get('/api/admin/unified/status', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1088,16 +2122,46 @@ app.get('/api/admin/unified/status', async (req, res) => {
 
     const projects = await loadProjects();
     const outbox = await loadUnifiedOutbox();
+    const users = await loadUsers();
     const approvedProjects = projects.filter(p => p.status === 'approved');
 
-    const bridgeUrl = process.env.YSWS_BRIDGE_URL || 'https://bridge.hackclub.com/v1/unified-submissions/upsert';
-    const programId = process.env.YSWS_PROGRAM_ID || 'pawgrammed';
-    const hasSecret = Boolean(process.env.YSWS_BRIDGE_SECRET && process.env.YSWS_BRIDGE_SECRET.trim());
+    let outboxUpdated = false;
+    for (const proj of approvedProjects) {
+        if (!outbox.find(o => o.project_id === proj.id)) {
+            const hours = Number(proj.hours_approved || proj.hours_logged || 1);
+            const maker = users.find(u => u.id === proj.user_id);
+            const payload = buildUnifiedPayload(proj, maker, hours);
+            outbox.unshift({
+                id: `uni_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`,
+                project_id: proj.id,
+                project_title: proj.title,
+                maker_name: proj.maker_name || 'Maker',
+                maker_email: proj.maker_email || '',
+                hours: hours,
+                state: 'queued',
+                record_id: `rec_paw_${proj.id.slice(-6)}`,
+                error: null,
+                attempts: 0,
+                last_attempt_at: null,
+                payload: payload
+            });
+            outboxUpdated = true;
+        }
+    }
+    if (outboxUpdated) {
+        await saveUnifiedOutbox(outbox);
+    }
+
+    const airtableToken = (process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_API_KEY || '').trim();
+    const airtableBaseId = (process.env.AIRTABLE_BASE_ID || '').trim();
+    const isConfigured = Boolean(airtableToken && airtableBaseId);
+    const tableId = process.env.AIRTABLE_TABLE_ID || process.env.AIRTABLE_TABLE_NAME || 'tblCzg8gTBTwLdb8g';
 
     res.json({
-        bridge_url: bridgeUrl,
-        program_id: programId,
-        has_secret: hasSecret,
+        airtable_configured: isConfigured,
+        base_id: airtableBaseId,
+        table_id: tableId,
+        table_name: process.env.AIRTABLE_TABLE_NAME || 'YSWS Project Submission',
         stats: {
             approved_total: approvedProjects.length,
             sent: outbox.filter(o => o.state === 'sent').length,
@@ -1109,11 +2173,9 @@ app.get('/api/admin/unified/status', async (req, res) => {
 });
 
 app.post('/api/admin/unified/push/:id', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1125,50 +2187,15 @@ app.post('/api/admin/unified/push/:id', async (req, res) => {
         return res.status(404).json({ error: 'record_not_found' });
     }
 
-    item.attempts = (item.attempts || 0) + 1;
-    item.last_attempt_at = new Date().toISOString();
-
-    const bridgeUrl = process.env.YSWS_BRIDGE_URL || 'https://bridge.hackclub.com/v1/unified-submissions/upsert';
-    const secret = process.env.YSWS_BRIDGE_SECRET;
-
-    if (secret && secret.trim()) {
-        try {
-            const resp = await fetch(bridgeUrl, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${secret.trim()}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(item.payload || {}),
-                signal: AbortSignal.timeout(15000)
-            });
-            if (resp.ok) {
-                item.state = 'sent';
-                item.error = null;
-            } else {
-                item.state = 'error';
-                item.error = `HTTP ${resp.status}: ${await resp.text().catch(() => '')}`;
-            }
-        } catch (e) {
-            item.state = 'error';
-            item.error = e.message;
-        }
-    } else {
-        item.state = 'sent';
-        item.error = null;
-        item.record_id = item.record_id || `rec_paw_${Date.now()}`;
-    }
-
+    const result = await pushUnifiedRecord(item);
     await saveUnifiedOutbox(outbox);
-    res.json({ ok: true, item });
+    res.json({ ok: result.ok, item, result });
 });
 
 app.post('/api/admin/unified/push-all', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1177,15 +2204,17 @@ app.post('/api/admin/unified/push-all', async (req, res) => {
     const outbox = await loadUnifiedOutbox();
     const pending = outbox.filter(o => o.state === 'queued' || o.state === 'error');
 
+    let successCount = 0;
+    let errorCount = 0;
+
     for (const item of pending) {
-        item.attempts = (item.attempts || 0) + 1;
-        item.last_attempt_at = new Date().toISOString();
-        item.state = 'sent';
-        item.error = null;
+        const result = await pushUnifiedRecord(item);
+        if (result.ok) successCount++;
+        else errorCount++;
     }
 
     await saveUnifiedOutbox(outbox);
-    res.json({ ok: true, pushed_count: pending.length });
+    res.json({ ok: true, pushed_count: pending.length, success_count: successCount, error_count: errorCount });
 });
 
 app.get('/api/shop/items', async (req, res) => {
@@ -1194,11 +2223,9 @@ app.get('/api/shop/items', async (req, res) => {
 });
 
 app.post('/api/admin/shop/items', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1228,11 +2255,9 @@ app.post('/api/admin/shop/items', async (req, res) => {
 });
 
 app.put('/api/admin/shop/items/:id', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1258,11 +2283,9 @@ app.put('/api/admin/shop/items/:id', async (req, res) => {
 });
 
 app.delete('/api/admin/shop/items/:id', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1282,9 +2305,7 @@ app.delete('/api/admin/shop/items/:id', async (req, res) => {
 app.post('/api/shop/order', async (req, res) => {
     let user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
 
     const { itemId, variant, quantity, address, notes } = req.body;
@@ -1294,30 +2315,38 @@ app.post('/api/shop/order', async (req, res) => {
         return res.status(404).json({ error: 'item_not_found' });
     }
 
+    if (item.in_stock === false) {
+        return res.status(400).json({ error: 'item_out_of_stock', message: 'This reward is currently out of stock.' });
+    }
+
+    const shippingAddress = (address || user.shipping_address || '').trim();
+    if (!shippingAddress) {
+        return res.status(400).json({ error: 'address_required', message: 'A shipping address is required to place an order.' });
+    }
+
     const qty = Math.max(1, parseInt(quantity, 10) || 1);
     const totalCost = item.price * qty;
 
-    if ((user.pawprints || 0) < totalCost) {
+    const users = await loadUsers();
+    const userIndex = users.findIndex(u => u.id === user.id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'user_not_found' });
+    }
+
+    const currentBalance = users[userIndex].pawprints || 0;
+    if (currentBalance < totalCost) {
         return res.status(400).json({
             error: 'insufficient_paws',
             required: totalCost,
-            current: user.pawprints || 0,
-            needed: totalCost - (user.pawprints || 0)
+            current: currentBalance,
+            needed: totalCost - currentBalance
         });
     }
 
-    if (!address || !address.trim()) {
-        return res.status(400).json({ error: 'address_required' });
-    }
-
-    const users = await loadUsers();
-    const userIndex = users.findIndex(u => u.id === user.id);
-    if (userIndex !== -1) {
-        users[userIndex].pawprints = (users[userIndex].pawprints || 0) - totalCost;
-        users[userIndex].shipping_address = address.trim();
-        await saveUsers(users);
-        user = users[userIndex];
-    }
+    users[userIndex].pawprints = currentBalance - totalCost;
+    users[userIndex].shipping_address = shippingAddress;
+    await saveUsers(users);
+    user = users[userIndex];
 
     const orders = await loadOrders();
     const newOrder = {
@@ -1333,7 +2362,7 @@ app.post('/api/shop/order', async (req, res) => {
         quantity: qty,
         unit_price: item.price,
         total_paws: totalCost,
-        address: address.trim(),
+        address: shippingAddress,
         notes: (notes || '').trim(),
         status: 'pending',
         tracking_number: '',
@@ -1346,12 +2375,53 @@ app.post('/api/shop/order', async (req, res) => {
     res.json({ ok: true, order: newOrder, newBalance: user.pawprints, user });
 });
 
-app.get('/api/admin/orders', async (req, res) => {
-    let user = await getSessionUser(req);
+app.get('/api/orders', async (req, res) => {
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+
+    const orders = await loadOrders();
+    const myOrders = orders.filter(o => o.user_id === user.id);
+    res.json({ orders: myOrders });
+});
+
+app.post('/api/orders/:id/cancel', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+
+    const orders = await loadOrders();
+    const order = orders.find(o => o.id === req.params.id && o.user_id === user.id);
+    if (!order) {
+        return res.status(404).json({ error: 'order_not_found' });
+    }
+
+    if (order.status !== 'pending') {
+        return res.status(400).json({ error: 'cannot_cancel', message: 'Only pending orders can be cancelled.' });
+    }
+
+    order.status = 'cancelled';
+    order.cancelled_at = new Date().toISOString();
+    order.cancelled_by = 'maker';
+
+    const users = await loadUsers();
+    const uIdx = users.findIndex(u => u.id === user.id);
+    if (uIdx !== -1) {
+        users[uIdx].pawprints = (users[uIdx].pawprints || 0) + (order.total_paws || 0);
+        await saveUsers(users);
+        await recordLedger(users[uIdx].id, order.total_paws, 'order_cancelled_maker', `Cancelled order #${order.id.slice(-8)} for ${order.quantity}x ${order.item_name} (refunded)`, { orderId: order.id });
+    }
+
+    await saveOrders(orders);
+    res.json({ ok: true, order, newBalance: uIdx !== -1 ? users[uIdx].pawprints : user.pawprints });
+});
+
+app.get('/api/admin/orders', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1362,11 +2432,9 @@ app.get('/api/admin/orders', async (req, res) => {
 });
 
 app.post('/api/admin/orders/:id/status', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1379,20 +2447,47 @@ app.post('/api/admin/orders/:id/status', async (req, res) => {
         return res.status(404).json({ error: 'order_not_found' });
     }
 
+    const oldStatus = order.status;
     if (status) order.status = status;
     if (tracking_number !== undefined) order.tracking_number = tracking_number;
     order.updated_at = new Date().toISOString();
+
+    if (status === 'cancelled' && oldStatus !== 'cancelled') {
+        order.cancelled_at = new Date().toISOString();
+        order.cancelled_by = 'admin';
+
+        const users = await loadUsers();
+        const uIdx = users.findIndex(u => u.id === order.user_id);
+        if (uIdx !== -1) {
+            users[uIdx].pawprints = (users[uIdx].pawprints || 0) + (order.total_paws || 0);
+            users[uIdx].notifications = users[uIdx].notifications || [];
+            users[uIdx].notifications.unshift({
+                id: `notif_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`,
+                type: 'order_cancelled',
+                title: 'Order Cancelled',
+                message: `Your order #${order.id.slice(-8)} for ${order.quantity}x ${order.item_name} was cancelled by an admin. ${order.total_paws} paws have been refunded to your balance.`,
+                created_at: new Date().toISOString()
+            });
+            await saveUsers(users);
+            await recordLedger(users[uIdx].id, order.total_paws, 'order_cancelled_admin', `Admin cancelled order #${order.id.slice(-8)} for ${order.quantity}x ${order.item_name} (refunded)`, { orderId: order.id });
+        }
+    } else if (status === 'shipped' && oldStatus !== 'shipped') {
+        const users = await loadUsers();
+        const maker = users.find(u => u.id === order.user_id);
+        if (maker?.slack_id) {
+            const trackText = order.tracking_number ? `\nTracking number: \`${order.tracking_number}\`` : '';
+            sendSlackDm(maker.slack_id, `📦 *Your Pawgrammed order has shipped!*\nHey ${maker.name || 'there'} — your order for *${order.quantity}x ${order.item_name}* has been shipped!${trackText}`).catch(() => {});
+        }
+    }
 
     await saveOrders(orders);
     res.json({ ok: true, order });
 });
 
 app.get('/api/admin/orders/export', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1422,11 +2517,9 @@ app.get('/api/admin/orders/export', async (req, res) => {
 });
 
 app.get('/api/admin/paws/ledger', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
@@ -1450,18 +2543,17 @@ app.get('/api/admin/paws/ledger', async (req, res) => {
 });
 
 app.post('/api/admin/paws/adjust', async (req, res) => {
-    let user = await getSessionUser(req);
+    const user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
     }
     if (user.role !== 'Admin') {
         return res.status(403).json({ error: 'forbidden_admin_only' });
     }
 
-    const { userId, delta, note } = req.body;
-    const amount = parseInt(delta, 10);
+    const userId = req.body.userId || req.body.user_id;
+    const amount = parseInt(req.body.delta !== undefined ? req.body.delta : req.body.amount, 10);
+    const note = (req.body.note || req.body.reason || '').trim();
     if (!userId || isNaN(amount) || amount === 0) {
         return res.status(400).json({ error: 'invalid_adjustment' });
     }
@@ -1488,9 +2580,10 @@ app.post('/api/admin/paws/adjust', async (req, res) => {
 app.post('/api/dev/grant-paws', async (req, res) => {
     let user = await getSessionUser(req);
     if (!user) {
-        const users = await loadUsers();
-        if (users.length > 0) user = users[0];
-        else return res.status(401).json({ error: 'unauthorized' });
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    if (user.role !== 'Admin') {
+        return res.status(403).json({ error: 'forbidden_admin_only' });
     }
     const users = await loadUsers();
     const idx = users.findIndex(u => u.id === user.id);
@@ -1507,6 +2600,9 @@ app.post('/api/dev/toggle-role', async (req, res) => {
     const user = await getSessionUser(req);
     if (!user) {
         return res.status(401).json({ error: 'unauthorized' });
+    }
+    if (!isAdminUser(user) && user.role !== 'Admin') {
+        return res.status(403).json({ error: 'forbidden_admin_only' });
     }
 
     const users = await loadUsers();
@@ -1528,6 +2624,10 @@ app.get('/logout', async (req, res) => {
         res.clearCookie('paw_session', { path: '/' });
     }
     res.redirect('/');
+});
+
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.resolve('images', 'paw-prize.png'));
 });
 
 app.use(express.static(path.resolve('.')));

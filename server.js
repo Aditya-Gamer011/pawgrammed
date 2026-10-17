@@ -8,7 +8,8 @@ import 'dotenv/config';
 const app = express();
 app.set('trust proxy', 1);
 const port = process.env.PORT || 3000;
-const DATA_DIR = path.resolve('data');
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const DATA_DIR = IS_VERCEL ? path.join('/tmp', 'pawgrammed-data') : path.resolve('data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
@@ -17,7 +18,7 @@ const EVENT_CONFIG_FILE = path.join(DATA_DIR, 'event_config.json');
 const LEDGER_FILE = path.join(DATA_DIR, 'paws_ledger.json');
 const SHOP_ITEMS_FILE = path.join(DATA_DIR, 'shop_items.json');
 const UNIFIED_OUTBOX_FILE = path.join(DATA_DIR, 'unified_outbox.json');
-const UPLOADS_DIR = path.resolve('uploads', 'screenshots');
+const UPLOADS_DIR = IS_VERCEL ? path.join('/tmp', 'pawgrammed-uploads', 'screenshots') : path.resolve('uploads', 'screenshots');
 
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(express.json({ limit: '20mb' }));
@@ -83,6 +84,22 @@ const DEFAULT_EVENT_CONFIG = {
 
 async function ensureDataFiles() {
     await fs.mkdir(DATA_DIR, { recursive: true });
+    if (IS_VERCEL) {
+        const rootData = path.resolve('data');
+        const files = ['users.json', 'sessions.json', 'orders.json', 'projects.json', 'event_config.json', 'paws_ledger.json', 'shop_items.json', 'unified_outbox.json'];
+        for (const file of files) {
+            const target = path.join(DATA_DIR, file);
+            try {
+                await fs.access(target);
+            } catch {
+                try {
+                    const src = path.join(rootData, file);
+                    const content = await fs.readFile(src, 'utf-8');
+                    await fs.writeFile(target, content, 'utf-8');
+                } catch {}
+            }
+        }
+    }
     try {
         await fs.access(USERS_FILE);
     } catch {
@@ -2636,11 +2653,16 @@ app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.resolve('images', 'paw-prize.png'));
 });
 
+app.use('/uploads/screenshots', express.static(UPLOADS_DIR));
 app.use(express.static(path.resolve('.')));
 app.use((req, res) => {
     res.status(404).sendFile(path.resolve('404.html'));
 });
 
-app.listen(port, () => {
-    console.log(`Pawgrammed server running on http://localhost:${port}`);
-});
+if (!process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`Pawgrammed server running on http://localhost:${port}`);
+    });
+}
+
+export default app;

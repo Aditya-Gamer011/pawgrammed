@@ -276,7 +276,7 @@ function getAdminEmails() {
 function isAdminEmail(email) {
     if (!email) return false;
     const adminEmails = getAdminEmails();
-    return adminEmails.includes(email.toLowerCase());
+    return adminEmails.includes(email.trim().toLowerCase());
 }
 
 function isAdminUser(user) {
@@ -436,7 +436,13 @@ async function getSessionUser(req) {
         if (session && session.userId) {
             const users = await loadUsers();
             const u = users.find(x => x.id === session.userId);
-            if (u) return u;
+            if (u) {
+                if (isAdminUser(u) && u.role !== 'Admin') {
+                    u.role = 'Admin';
+                    await saveUsers(users);
+                }
+                return u;
+            }
         }
     }
     return null;

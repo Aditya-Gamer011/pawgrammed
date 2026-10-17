@@ -304,20 +304,34 @@ function isAdminUser(user) {
     return false;
 }
 
+function getEffectiveHostAndProto(req) {
+    const forwardedHost = req.get('x-forwarded-host');
+    const host = (forwardedHost || req.get('host') || '').trim();
+    const forwardedProto = req.get('x-forwarded-proto');
+    const proto = (forwardedProto || req.protocol || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')).split(',')[0].trim();
+    return { host: host || 'localhost:3000', proto };
+}
+
 function getHcaRedirectUri(req) {
-    const host = req.get('host') || 'localhost:3000';
-    if (host.includes('pawgrammed.hackclub.com')) {
-        return 'https://pawgrammed.hackclub.com/auth/callback';
+    const { host, proto } = getEffectiveHostAndProto(req);
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        return `${proto}://${host}/auth/callback`;
     }
-    return process.env.HCA_REDIRECT_URI || `${req.protocol}://${host}/auth/callback`;
+    if (process.env.HCA_REDIRECT_URI && !process.env.HCA_REDIRECT_URI.includes('localhost')) {
+        return process.env.HCA_REDIRECT_URI;
+    }
+    return `${proto}://${host}/auth/callback`;
 }
 
 function getHackatimeRedirectUri(req) {
-    const host = req.get('host') || 'localhost:3000';
-    if (host.includes('pawgrammed.hackclub.com')) {
-        return 'https://pawgrammed.hackclub.com/auth/callback';
+    const { host, proto } = getEffectiveHostAndProto(req);
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        return `${proto}://${host}/auth/callback`;
     }
-    return process.env.HACKATIME_REDIRECT_URI || `${req.protocol}://${host}/auth/callback`;
+    if (process.env.HACKATIME_REDIRECT_URI && !process.env.HACKATIME_REDIRECT_URI.includes('localhost')) {
+        return process.env.HACKATIME_REDIRECT_URI;
+    }
+    return `${proto}://${host}/auth/callback`;
 }
 
 async function fetchSlackProfile(slackId) {

@@ -9,6 +9,15 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script>
+            (function() {
+                try {
+                    if (localStorage.getItem('paw_user_logged_in') === 'true') {
+                        document.documentElement.classList.add('is-logged-in');
+                    }
+                } catch (e) {}
+            })();
+        </script>
     </head>
     <body class="intro-active">
         <div class="intro-overlay" id="introOverlay">
@@ -25,10 +34,13 @@
                     Ship furry related projects.<br>
                     Get furry related prizes.
                 </p>
-                <form class="hero-auth-form" action="/login" method="GET">
+                <form class="hero-auth-form" id="heroAuthForm" action="/login" method="GET">
                     <input type="email" name="email" class="hero-email-input" placeholder="you@example.com" autocomplete="email" required>
                     <button type="submit" class="hero-start-btn">Start &rarr;</button>
                 </form>
+                <div class="hero-dashboard-wrap" id="heroDashboardWrap">
+                    <a href="/dashboard" class="hero-start-btn hero-dashboard-btn">Dashboard &rarr;</a>
+                </div>
                 <p class="hero-credits">Made with <img src="images/black-heart-icon.png" alt="heart" class="heart-icon"> by <strong>agm</strong> and <strong>ilovepasta</strong> for <a href="https://hackclub.com" target="_blank" rel="noopener noreferrer">Hack Club</a></p>
             </div>
             <a href="/login" class="nav-login">
@@ -254,6 +266,24 @@
         <script src="intro.js"></script>
         <script src="tail.js"></script>
         <script src="pathway.js"></script>
-        <!-- trigger vercel deployment yay! -->
+        <script>
+            (function() {
+                fetch('/api/me')
+                    .then(function(res) {
+                        if (res.ok) {
+                            try { localStorage.setItem('paw_user_logged_in', 'true'); } catch (e) {}
+                            document.documentElement.classList.add('is-logged-in');
+                            document.body.classList.add('is-logged-in');
+                            var pathwayBtn = document.querySelector('.pathway-submit-btn');
+                            if (pathwayBtn) pathwayBtn.href = '/dashboard';
+                        } else {
+                            try { localStorage.removeItem('paw_user_logged_in'); } catch (e) {}
+                            document.documentElement.classList.remove('is-logged-in');
+                            document.body.classList.remove('is-logged-in');
+                        }
+                    })
+                    .catch(function() {});
+            })();
+        </script>
     </body>
 </html>

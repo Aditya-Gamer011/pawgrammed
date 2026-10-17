@@ -479,7 +479,12 @@ async function getSessionUser(req) {
     return null;
 }
 
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (user && !req.query.force) {
+        return res.redirect('/dashboard');
+    }
+
     const state = crypto.randomUUID();
     res.cookie('hca_state', state, {
         path: '/',

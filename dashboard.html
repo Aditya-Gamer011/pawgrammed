@@ -2437,7 +2437,7 @@
                     <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
                     <div style="display: flex; gap: 6px;">
                         <button class="btn btn-secondary" id="devToggleRoleBtn" style="display: none;" onclick="toggleRoleDev()" title="Switch between Maker and Admin mode">Toggle Role</button>
-                        <a href="/logout" class="btn btn-secondary">Log out</a>
+                        <a href="/logout" class="btn btn-secondary" onclick="try { localStorage.removeItem('paw_user_logged_in'); } catch (e) {}">Log out</a>
                     </div>
                 </div>
             </div>
@@ -5298,6 +5298,7 @@
                         return res.json();
                     })
                     .then(data => {
+                        try { localStorage.setItem('paw_user_logged_in', 'true'); } catch (e) {}
                         updateUserUI(data.user || {});
                         loadProjectsTab();
                         const hashTab = (window.location.hash || '').replace('#', '');
@@ -5308,6 +5309,7 @@
                         }
                     })
                     .catch(() => {
+                        try { localStorage.removeItem('paw_user_logged_in'); } catch (e) {}
                         window.location.href = '/login';
                     });
             } else {

@@ -239,6 +239,33 @@ button {
     transform: translateY(1px);
 }
 
+.hero-dashboard-wrap {
+    display: none;
+    width: 90%;
+    max-width: 340px;
+    margin-top: 26px;
+}
+
+.hero-dashboard-btn {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.is-logged-in .nav-login {
+    display: none !important;
+}
+
+.is-logged-in .hero-auth-form {
+    display: none !important;
+}
+
+.is-logged-in .hero-dashboard-wrap {
+    display: flex !important;
+}
+
 .hero-credits {
     margin: 18px 0 0;
     font-family: var(--font-body);
@@ -343,14 +370,16 @@ button {
         width: calc(100% - 16px);
     }
 
-    .hero-auth-form {
+    .hero-auth-form,
+    .hero-dashboard-wrap {
         max-width: 300px;
         margin-top: 20px;
         gap: 8px;
     }
 
     .hero-email-input,
-    .hero-start-btn {
+    .hero-start-btn,
+    .hero-dashboard-btn {
         font-size: 16px;
         padding: 9px 14px;
         border-radius: 12px;

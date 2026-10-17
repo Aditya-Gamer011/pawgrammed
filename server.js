@@ -889,7 +889,64 @@ function resolveUserAddress(makerUser) {
     return { line1, line2, city, state, postalCode, country };
 }
 
-function buildUnifiedPayload(project, makerUser, approvedHours) {
+function calculateAge(dob) {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    if (isNaN(birthDate.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+}
+
+function validateUnifiedProject(project, makerUser, approvedHours, allProjects = []) {
+    const errors = [];
+    const addr = resolveUserAddress(makerUser);
+    const email = makerUser?.email || project?.maker_email;
+    const firstName = makerUser?.first_name || (project?.maker_name ? project.maker_name.split(' ')[0] : '');
+    const lastName = makerUser?.last_name || (project?.maker_name ? project.maker_name.split(' ').slice(1).join(' ') : '');
+    const bday = makerUser?.birthday;
+
+    if (!email) errors.push('Missing email address');
+    if (!firstName || !lastName) errors.push('Missing maker first or last name');
+    if (!bday) errors.push('Missing maker birthday');
+    if (!addr.line1) errors.push('Missing street address');
+    if (!addr.city) errors.push('Missing address city');
+    if (!addr.state) errors.push('Missing address state / province');
+    if (!addr.postalCode) errors.push('Missing ZIP / postal code');
+    if (!addr.country) errors.push('Missing address country');
+
+    if (!project?.description) errors.push('Missing project description');
+    if (!project?.repo_url) errors.push('Missing Code URL');
+    if (!project?.demo_url) errors.push('Missing Playable URL');
+    if (!project?.screenshot_url) errors.push('Missing screenshot');
+
+    const age = calculateAge(bday);
+    if (age !== null && age < 13) {
+        errors.push(`Maker age (${age}) is below the minimum age floor of 13`);
+    }
+
+    const hours = Number(approvedHours || project?.hours_approved || project?.hours_logged || 0);
+    if (hours <= 0) {
+        errors.push('Approved hours must be greater than 0');
+    }
+
+    const isShared = Boolean(
+        project?.repo_url &&
+        Array.isArray(allProjects) &&
+        allProjects.some(p => p.id !== project.id && p.repo_url && p.repo_url.trim().toLowerCase() === project.repo_url.trim().toLowerCase())
+    );
+
+    return {
+        valid: errors.length === 0,
+        errors: errors,
+        age: age,
+        isShared: isShared
+    };
+}
+
+function buildUnifiedPayload(project, makerUser, approvedHours, allProjects = []) {
     const hours = Number(approvedHours || project.hours_approved || project.hours_logged || 1);
     const firstName = makerUser?.first_name || (project.maker_name ? project.maker_name.split(' ')[0] : 'Maker');
     const lastName = makerUser?.last_name || (project.maker_name ? project.maker_name.split(' ').slice(1).join(' ') : '');
@@ -934,6 +991,13 @@ function buildUnifiedPayload(project, makerUser, approvedHours) {
         }
     }
 
+    const age = calculateAge(makerUser?.birthday);
+    const isShared = Boolean(
+        project.repo_url &&
+        Array.isArray(allProjects) &&
+        allProjects.some(p => p.id !== project.id && p.repo_url && p.repo_url.trim().toLowerCase() === project.repo_url.trim().toLowerCase())
+    );
+
     const fields = {};
     function setIf(key, val) {
         if (val !== null && val !== undefined && val !== '') {
@@ -972,9 +1036,22 @@ function buildUnifiedPayload(project, makerUser, approvedHours) {
     setIf('Justification - Specific Technical Features', project.description || '');
     setIf('Justification - Additional Justification', `Approved in Pawgrammed for ${hours}h.`);
 
+    if (age !== null && age > 18) {
+        const ageJust = makerUser?.age_justification || project.age_justification || `Applicant is ${age} (19 or older); verified eligible student participating in Pawgrammed.`;
+        setIf('Optional - Override Age Justification', ageJust);
+    }
+
+    if (isShared || project.duplicate_justification) {
+        const dupJust = project.duplicate_justification || 'Maker continuing development of approved open-source repository for Pawgrammed.';
+        setIf('Optional - Override Duplicate Justification', dupJust);
+    }
+
+    const validation = validateUnifiedProject(project, makerUser, hours, allProjects);
+
     return {
         source: 'pawgrammed',
         project_title: project.title,
+        validation: validation,
         fields: fields
     };
 }
@@ -999,6 +1076,8 @@ const AIRTABLE_FIELD_MAP = {
     'Override Hours Spent': 'Optional - Override Hours Spent',
     'Optional - Override Hours Spent Justification': 'Optional - Override Hours Spent Justification',
     'Override Hours Spent Justification': 'Optional - Override Hours Spent Justification',
+    'Optional - Override Age Justification': 'Optional - Override Age Justification',
+    'Optional - Override Duplicate Justification': 'Optional - Override Duplicate Justification',
     'Justification - Hackatime Project Name(s) + Date Range(s)': 'Justification - Hackatime Project Name(s) + Date Range(s)',
     'Justification - Submitter Hackatime ID': 'Justification - Submitter Hackatime ID',
     'Justification - Specific Technical Features': 'Justification - Specific Technical Features',
@@ -1076,7 +1155,7 @@ async function pushUnifiedRecord(item) {
             if (proj) {
                 const users = await loadUsers();
                 const maker = users.find(u => u.id === proj.user_id);
-                item.payload = buildUnifiedPayload(proj, maker, item.hours || proj.hours_approved);
+                item.payload = buildUnifiedPayload(proj, maker, item.hours || proj.hours_approved, projects);
                 item.project_title = proj.title;
                 item.maker_name = proj.maker_name;
                 item.maker_email = proj.maker_email;
@@ -1111,6 +1190,52 @@ async function pushUnifiedRecord(item) {
         item.target = 'dryrun';
         return { ok: true, target: 'dryrun', id: item.record_id };
     }
+}
+
+async function syncOutboxWithAirtable(outbox) {
+    const airtableToken = (process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_API_KEY || '').trim();
+    const airtableBaseId = (process.env.AIRTABLE_BASE_ID || '').trim();
+    const tableId = process.env.AIRTABLE_TABLE_ID || process.env.AIRTABLE_TABLE_NAME || 'tblCzg8gTBTwLdb8g';
+    if (!airtableToken || !airtableBaseId) return false;
+
+    let modified = false;
+    for (const item of outbox) {
+        if (item.record_id && item.record_id.startsWith('rec') && !item.record_id.startsWith('rec_paw_')) {
+            try {
+                const url = `https://api.airtable.com/v0/${airtableBaseId}/${encodeURIComponent(tableId)}/${item.record_id}`;
+                const resp = await fetch(url, {
+                    headers: { Authorization: `Bearer ${airtableToken}` },
+                    signal: AbortSignal.timeout(6000)
+                });
+                if (resp.ok) {
+                    const rec = await resp.json();
+                    const f = rec.fields || {};
+                    if (f['Automation - YSWS Record ID']) {
+                        item.ysws_record_id = f['Automation - YSWS Record ID'];
+                        item.state = 'unified_synced';
+                        item.error = null;
+                        modified = true;
+                    }
+                    if (f['Automation - Error']) {
+                        item.error = f['Automation - Error'];
+                        item.state = 'error';
+                        modified = true;
+                    }
+                    if (f['Automation - First Submitted At']) {
+                        item.first_submitted_at = f['Automation - First Submitted At'];
+                        modified = true;
+                    }
+                    if (f['Automation - Submit to Unified YSWS'] !== undefined) {
+                        item.unified_submitting = Boolean(f['Automation - Submit to Unified YSWS']);
+                        modified = true;
+                    }
+                }
+            } catch (err) {
+                // Ignore transient network errors
+            }
+        }
+    }
+    return modified;
 }
 
 async function reconcileProjectPaws(project, decision, approvedHours, awardedPaws, adminNote) {
@@ -2070,7 +2195,7 @@ app.post('/api/admin/submissions/:id/review', async (req, res) => {
     if (decision === 'approved') {
         const outbox = await loadUnifiedOutbox();
         let targetOutbox = outbox.find(o => o.project_id === project.id);
-        const unifiedPayload = buildUnifiedPayload(project, makerUser, project.hours_approved);
+        const unifiedPayload = buildUnifiedPayload(project, makerUser, project.hours_approved, projects);
 
         if (targetOutbox) {
             targetOutbox.state = 'queued';
@@ -2164,10 +2289,12 @@ app.get('/api/admin/unified/status', async (req, res) => {
 
     let outboxUpdated = false;
     for (const proj of approvedProjects) {
-        if (!outbox.find(o => o.project_id === proj.id)) {
-            const hours = Number(proj.hours_approved || proj.hours_logged || 1);
-            const maker = users.find(u => u.id === proj.user_id);
-            const payload = buildUnifiedPayload(proj, maker, hours);
+        let existing = outbox.find(o => o.project_id === proj.id);
+        const hours = Number(proj.hours_approved || proj.hours_logged || 1);
+        const maker = users.find(u => u.id === proj.user_id);
+        const payload = buildUnifiedPayload(proj, maker, hours, projects);
+
+        if (!existing) {
             outbox.unshift({
                 id: `uni_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`,
                 project_id: proj.id,
@@ -2183,8 +2310,17 @@ app.get('/api/admin/unified/status', async (req, res) => {
                 payload: payload
             });
             outboxUpdated = true;
+        } else {
+            existing.payload = payload;
+            outboxUpdated = true;
         }
     }
+
+    if (req.query.sync === '1' || req.query.sync === 'true') {
+        const synced = await syncOutboxWithAirtable(outbox);
+        if (synced) outboxUpdated = true;
+    }
+
     if (outboxUpdated) {
         await saveUnifiedOutbox(outbox);
     }
@@ -2201,12 +2337,30 @@ app.get('/api/admin/unified/status', async (req, res) => {
         table_name: process.env.AIRTABLE_TABLE_NAME || 'YSWS Project Submission',
         stats: {
             approved_total: approvedProjects.length,
-            sent: outbox.filter(o => o.state === 'sent').length,
+            sent: outbox.filter(o => o.state === 'sent' || o.state === 'unified_synced').length,
+            unified_synced: outbox.filter(o => o.state === 'unified_synced' || Boolean(o.ysws_record_id)).length,
             queued: outbox.filter(o => o.state === 'queued').length,
             error: outbox.filter(o => o.state === 'error').length
         },
         outbox: outbox
     });
+});
+
+app.post('/api/admin/unified/sync', async (req, res) => {
+    const user = await getSessionUser(req);
+    if (!user) {
+        return res.status(401).json({ error: 'unauthorized' });
+    }
+    if (user.role !== 'Admin') {
+        return res.status(403).json({ error: 'forbidden_admin_only' });
+    }
+
+    const outbox = await loadUnifiedOutbox();
+    const synced = await syncOutboxWithAirtable(outbox);
+    if (synced) {
+        await saveUnifiedOutbox(outbox);
+    }
+    res.json({ ok: true, synced, outbox });
 });
 
 app.post('/api/admin/unified/push/:id', async (req, res) => {

@@ -1869,6 +1869,7 @@
                                     <p style="font-size: 13px; color: #6a5e56; margin: 2px 0 0;">Synchronize approved Pawgrammed projects with Hack Club's YSWS Unified Submissions Bridge.</p>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary" onclick="syncUnifiedFromAirtable()">Sync from Airtable</button>
                                     <button class="btn btn-secondary" onclick="loadUnifiedTab()">↻ Refresh</button>
                                     <button class="btn btn-primary" onclick="pushAllUnified()">Push All Pending &rarr;</button>
                                 </div>
@@ -1881,7 +1882,11 @@
                                 </div>
                                 <div class="fulfil-stat-card">
                                     <span class="fulfil-stat-num" id="unifiedStatSent" style="color: #1e7e34;">0</span>
-                                    <span class="fulfil-stat-label">Synced &amp; Sent</span>
+                                    <span class="fulfil-stat-label">Pushed to Airtable</span>
+                                </div>
+                                <div class="fulfil-stat-card">
+                                    <span class="fulfil-stat-num" id="unifiedStatUnifiedSynced" style="color: #2b6cb0;">0</span>
+                                    <span class="fulfil-stat-label">Unified Verified</span>
                                 </div>
                                 <div class="fulfil-stat-card">
                                     <span class="fulfil-stat-num" id="unifiedStatQueued" style="color: #b06200;">0</span>
@@ -1899,14 +1904,15 @@
                                         <tr>
                                             <th>Project &amp; Maker</th>
                                             <th>Hours</th>
+                                            <th>Gate Check</th>
                                             <th>State</th>
-                                            <th>Bridge ID</th>
+                                            <th>Airtable / YSWS ID</th>
                                             <th>Last Attempt</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="unifiedTableBody">
-                                        <tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">Loading unified bridge queue...</td></tr>
+                                        <tr><td colspan="7" style="text-align: center; color: #888; padding: 24px;">Loading unified bridge queue...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -4600,6 +4606,20 @@
 
             let unifiedOutboxRecords = [];
 
+            async function syncUnifiedFromAirtable() {
+                try {
+                    const res = await fetch('/api/admin/unified/sync', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.ok) {
+                        loadUnifiedTab();
+                    } else {
+                        alert('Sync error: ' + (data.error || 'Could not sync with Airtable'));
+                    }
+                } catch (e) {
+                    alert('Failed syncing with Airtable.');
+                }
+            }
+
             async function loadUnifiedTab() {
                 const tbody = document.getElementById('unifiedTableBody');
                 if (!tbody) return;
@@ -4607,7 +4627,7 @@
                 try {
                     const res = await fetch('/api/admin/unified/status');
                     if (!res.ok) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Admin access required.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #a33; padding: 24px;">Admin access required.</td></tr>';
                         return;
                     }
                     const data = await res.json();
@@ -4621,11 +4641,13 @@
                     }
 
                     document.getElementById('unifiedStatSent').textContent = data.stats?.sent ?? 0;
+                    const syncedEl = document.getElementById('unifiedStatUnifiedSynced');
+                    if (syncedEl) syncedEl.textContent = data.stats?.unified_synced ?? 0;
                     document.getElementById('unifiedStatQueued').textContent = data.stats?.queued ?? 0;
                     document.getElementById('unifiedStatErrors').textContent = data.stats?.error ?? 0;
 
                     if (unifiedOutboxRecords.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888; padding: 24px;">No approved projects in outbox yet. Approved projects appear here and sync to Airtable automatically.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #888; padding: 24px;">No approved projects in outbox yet. Approved projects appear here and sync to Airtable automatically.</td></tr>';
                         return;
                     }
 
@@ -4633,7 +4655,30 @@
                         const dateRaw = r.last_attempt_at || r.last_attempt;
                         const dateStr = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never';
                         const st = r.state || r.status || 'queued';
-                        const statusClass = st === 'sent' ? 'approved' : (st === 'error' ? 'rejected' : 'submitted');
+                        
+                        let stateBadge = `<span class="status-pill submitted">Queued</span>`;
+                        if (st === 'unified_synced' || r.ysws_record_id) {
+                            stateBadge = `<span class="status-pill approved" style="background: #e6f6ff; color: #0b69a3; border-color: #bee3f8;">Unified Synced</span>`;
+                        } else if (st === 'sent') {
+                            stateBadge = `<span class="status-pill approved">In Airtable</span>`;
+                        } else if (st === 'error') {
+                            stateBadge = `<span class="status-pill rejected" title="${escapeHtml(r.error || '')}">Error</span>`;
+                        }
+
+                        const validation = r.payload?.validation;
+                        let gateBadge = `<span class="status-pill approved" style="font-size: 11px;">✓ Ready</span>`;
+                        if (validation && !validation.valid) {
+                            const errTitle = (validation.errors || []).join('\n');
+                            gateBadge = `<span class="status-pill rejected" style="font-size: 11px; cursor: help;" title="${escapeHtml(errTitle)}">⚠ Incomplete</span>`;
+                        }
+
+                        let idDisplay = `<div style="font-family: monospace; font-size: 11px;">${escapeHtml(r.record_id || '—')}</div>`;
+                        if (r.ysws_record_id) {
+                            idDisplay += `<div style="font-family: monospace; font-size: 10px; color: #1e7e34; font-weight: 700;">YSWS: ${escapeHtml(r.ysws_record_id)}</div>`;
+                        }
+                        if (r.error) {
+                            idDisplay += `<div style="font-size: 10px; color: #c53030;" title="${escapeHtml(r.error)}">${escapeHtml(r.error.length > 28 ? r.error.slice(0, 28) + '...' : r.error)}</div>`;
+                        }
 
                         return `
                             <tr>
@@ -4642,10 +4687,9 @@
                                     <div style="font-size: 11px; color: #7a6e66;">${escapeHtml(r.maker_email || r.user_email || '—')}</div>
                                 </td>
                                 <td style="font-weight: 600;">${(r.hours || 0).toFixed(1)}h</td>
-                                <td>
-                                    <span class="status-pill ${statusClass}">${st}</span>
-                                </td>
-                                <td style="font-family: monospace; font-size: 11px;">${r.record_id || r.bridge_record_id || '—'}</td>
+                                <td>${gateBadge}</td>
+                                <td>${stateBadge}</td>
+                                <td>${idDisplay}</td>
                                 <td style="font-size: 11.5px; color: #666;">${dateStr}</td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
@@ -4657,7 +4701,7 @@
                         `;
                     }).join('');
                 } catch (e) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #a33; padding: 24px;">Failed loading outbox status.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #a33; padding: 24px;">Failed loading outbox status.</td></tr>';
                 }
             }
 
